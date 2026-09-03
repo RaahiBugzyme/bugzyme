@@ -28,7 +28,7 @@ app = FastAPI()
 
 
 
-# Home / Health Check
+# Home 
 
 @app.get("/")
 def home():
