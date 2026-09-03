@@ -20,9 +20,9 @@ SECRET_KEY = "bugzyme-secret-key"
 ALGORITHM = "HS256"
 
 
-# --------------------------------------------------
+
 # JWT TOKEN CREATION
-# --------------------------------------------------
+
 
 def create_access_token(data: dict):
     """
@@ -48,9 +48,9 @@ def create_access_token(data: dict):
     return token
 
 
-# --------------------------------------------------
+
 # PASSWORD HASHING
-# --------------------------------------------------
+
 
 # Configure bcrypt for securely hashing passwords.
 pwd_context = CryptContext(
@@ -81,9 +81,9 @@ def verify_password(plain_password: str, hashed_password: str):
     )
 
 
-# --------------------------------------------------
+
 # JWT AUTHENTICATION
-# --------------------------------------------------
+
 
 # Tells FastAPI that authentication uses a Bearer token.
 #
