@@ -7,9 +7,9 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 
-# -------------------------
+
 # User Table
-# -------------------------
+
 class User(Base):
     __tablename__ = "users"
 
@@ -22,18 +22,18 @@ class User(Base):
     password_hash = Column(String)
 
 
-# -------------------------
+
 # Conversation Table
-# -------------------------
+
 class Conversation(Base):
     __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True, index=True)
 
 
-# -------------------------
+
 # Conversation Participants Table
-# -------------------------
+
 class ConversationParticipant(Base):
     __tablename__ = "conversation_participants"
 
@@ -52,9 +52,9 @@ class ConversationParticipant(Base):
     )
 
 
-# -------------------------
+
 # Message Table
-# -------------------------
+
 class Message(Base):
     __tablename__ = "messages"
 
