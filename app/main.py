@@ -1,302 +1,233 @@
-from fastapi import FastAPI, Depends, HTTPException
+
+from datetime import datetime
+
+from fastapi import (
+    FastAPI,
+    Depends,
+    HTTPException,
+    WebSocket,
+    WebSocketException,
+    WebSocketDisconnect,
+    status
+)
+
+from fastapi.security import (
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm
+)
+from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session
+from pwdlib import PasswordHash
+from jose import jwt
+from sqlalchemy.orm import Session
+from .connection_manager import ConnectionManager
+from .database import engine, Base, get_db
+from . import models, schemas
+from datetime import datetime
 
-from app.schemas.message import MessageCreate
-from app.schemas.user import UserCreate, UserUpdate, UserLogin
-from app.schemas.conversation import ConversationCreate
-from app.database.database import get_db
-
-from app.database.models import (
-    User,
-    Conversation,
-    ConversationParticipant,
-    Message
-)
-
-from app.auth import (
-    hash_password,
-    verify_password,
-    create_access_token,
-    get_current_user
-)
-
-
-
-# Create FastAPI Application
 
 app = FastAPI()
+manager = ConnectionManager()
 
 
+# Security
+password_hash = PasswordHash.recommended()
 
-# Home 
+SECRET_KEY = "my-super-secret-key"
+ALGORITHM = "HS256"
 
-@app.get("/")
-def home():
-    # Simple endpoint to check whether the backend is running
-    return {"message": "Bugzyme Backend is Running"}
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
-# User APIs
 
-@app.post("/users")
-def create_user(
-    user: UserCreate,
+# Get current user from JWT
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
-    # Convert the plain-text password into a secure bcrypt hash
-    hashed_password = hash_password(user.password)
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
 
-    # Create a new User database object
-    new_user = User(
+        user_id = payload.get("sub")
+
+        if not user_id:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        user = db.query(models.User).filter(
+            models.User.id == int(user_id)
+        ).first()
+
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail="User not found"
+            )
+
+        return user
+
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+
+# Home
+@app.get("/")
+def home():
+    return {
+        "message": "Bugzyme Backend is running"
+    }
+
+
+# Register user
+@app.post("/register", response_model=schemas.UserResponse)
+def register_user(
+    user: schemas.UserCreate,
+    db: Session = Depends(get_db)
+):
+    hashed_password = password_hash.hash(user.password)
+
+    new_user = models.User(
         username=user.username,
-        password_hash=hashed_password
+        email=user.email,
+        hashed_password=hashed_password
     )
 
-    # Add the user to the database session
     db.add(new_user)
-
-    # Save the user permanently in the database
     db.commit()
-
-    # Refresh the object to get the generated user ID
     db.refresh(new_user)
 
     return new_user
 
 
-
-# Login / Authentication
-
-@app.post("/login")
-def login(
-    user_data: UserLogin,
+# Get all users
+@app.get("/users", response_model=list[schemas.UserResponse])
+def get_users(
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Find the user using the username provided during login
-    user = db.query(User).filter(
-        User.username == user_data.username
+    return db.query(models.User).all()
+
+
+# Login
+@app.post("/login")
+def login_user(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    existing_user = db.query(models.User).filter(
+        models.User.email == form_data.username
     ).first()
 
-    # If the username does not exist, reject the login
-    if user is None:
+    if not existing_user:
         raise HTTPException(
             status_code=401,
-            detail="Invalid username or password"
+            detail="Invalid email or password"
         )
 
-    # Compare the plain-text password with the bcrypt hash
-    # stored in the database
-    if not verify_password(
-        user_data.password,
-        user.password_hash
-    ):
-        # Reject the login if the password is incorrect
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid username or password"
-        )
-
-    # Create a JWT access token after successful authentication
-    #
-    # "sub" stores the user's ID.
-    # The token will later be used to identify the logged-in user.
-    access_token = create_access_token(
-        data={
-            "sub": str(user.id),
-            "username": user.username
-        }
+    password_is_correct = password_hash.verify(
+        form_data.password,
+        existing_user.hashed_password
     )
 
-    # Send the JWT token back to the client
+    if not password_is_correct:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
+
+    token_data = {
+        "sub": str(existing_user.id)
+    }
+
+    access_token = jwt.encode(
+        token_data,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
     return {
         "access_token": access_token,
         "token_type": "bearer"
     }
 
-
-
-# Get All Users
-
-@app.get("/users")
-def get_users(
+# Create chat
+@app.post("/chats")
+def create_chat(
+    chat: schemas.ChatCreate,
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Fetch all users from the database
-    users = db.query(User).all()
 
-    return users
+    # Prevent self chat
+    if current_user.id == chat.user2_id:
+        raise HTTPException(
+            status_code=400,
+            detail="You cannot chat with yourself"
+        )
 
-
-
-# Get User By ID
-
-@app.get("/users/{user_id}")
-def get_user(
-    user_id: int,
-    db: Session = Depends(get_db)
-):
-    # Find a user by their ID
-    user = db.query(User).filter(
-        User.id == user_id
+    # Validate target user
+    target_user = db.query(models.User).filter(
+        models.User.id == chat.user2_id
     ).first()
 
-    return user
-
-
-
-# Update User
-
-@app.put("/users/{user_id}")
-def update_user(
-    user_id: int,
-    user_data: UserUpdate,
-    db: Session = Depends(get_db)
-):
-    # Find the user that needs to be updated
-    user = db.query(User).filter(
-        User.id == user_id
-    ).first()
-
-    # Return an error if the user does not exist
-    if user is None:
-        return {"message": "User not found"}
-
-    # Update the username
-    user.username = user_data.username
-
-    # Save the updated data
-    db.commit()
-
-    # Refresh the object with the latest database values
-    db.refresh(user)
-
-    return user
-
-
-
-# Delete User
-
-@app.delete("/users/{user_id}")
-def delete_user(
-    user_id: int,
-    db: Session = Depends(get_db)
-):
-    # Find the user that needs to be deleted
-    user = db.query(User).filter(
-        User.id == user_id
-    ).first()
-
-    # Return an error if the user does not exist
-    if user is None:
-        return {"message": "User not found"}
-
-    # Delete the user from the database
-    db.delete(user)
-
-    # Save the changes
-    db.commit()
-
-    return {"message": "User deleted successfully"}
-
-
-
-# Conversation APIs
-
-@app.post("/conversations")
-def create_conversation(
-    conversation_data: ConversationCreate,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    # Check that the target user exists
-    target_user = db.query(User).filter(
-        User.id == conversation_data.user_id
-    ).first()
-
-    if target_user is None:
+    if not target_user:
         raise HTTPException(
             status_code=404,
             detail="User not found"
         )
 
-    # Create a new conversation
-    conversation = Conversation()
-
-    db.add(conversation)
-    db.commit()
-    db.refresh(conversation)
-
-    # Add current user as a participant
-    participant1 = ConversationParticipant(
-        conversation_id=conversation.id,
-        user_id=current_user.id
-    )
-
-    # Add target user as a participant
-    participant2 = ConversationParticipant(
-        conversation_id=conversation.id,
-        user_id=target_user.id
-    )
-
-    db.add(participant1)
-    db.add(participant2)
-
-    db.commit()
-
-    return conversation
-
-
-# Add User To Conversation
-
-@app.post("/conversations/{conversation_id}/participants")
-def add_participant(
-    conversation_id: int,
-    user_id: int,
-    db: Session = Depends(get_db)
-):
-    # Create a relationship between a user and a conversation
-    participant = ConversationParticipant(
-        conversation_id=conversation_id,
-        user_id=user_id
-    )
-
-    # Add the relationship to the database session
-    db.add(participant)
-
-    # Save the relationship
-    db.commit()
-
-    # Refresh to get the generated participant ID
-    db.refresh(participant)
-
-    return participant
-
-
-
-# Message APIs
-
-@app.post("/messages")
-def create_message(
-    message: MessageCreate,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    participant = db.query(
-        ConversationParticipant
-    ).filter(
-        ConversationParticipant.conversation_id == message.conversation_id,
-        ConversationParticipant.user_id == current_user.id
+    # Check duplicate chat
+    existing_chat = db.query(models.Chat).filter(
+        or_(
+            and_(
+                models.Chat.user1_id == current_user.id,
+                models.Chat.user2_id == chat.user2_id
+            ),
+            and_(
+                models.Chat.user1_id == chat.user2_id,
+                models.Chat.user2_id == current_user.id
+            )
+        )
     ).first()
 
-    if participant is None:
-        raise HTTPException(
-            status_code=403,
-            detail="User is not a participant of this conversation"
-        )
+    if existing_chat:
+        return existing_chat
 
-    new_message = Message(
-        conversation_id=message.conversation_id,
+    # Create new chat
+    new_chat = models.Chat(
+        user1_id=current_user.id,
+        user2_id=chat.user2_id
+    )
+
+    db.add(new_chat)
+    db.commit()
+    db.refresh(new_chat)
+
+    return new_chat
+
+
+# Send message
+@app.post("/messages")
+def send_message(
+    message: schemas.MessageCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    new_message = models.Message(
+        chat_id=message.chat_id,
         sender_id=current_user.id,
         content=message.content
     )
@@ -308,43 +239,243 @@ def create_message(
     return new_message
 
 
-# Get Conversation Messages
-
-@app.get("/conversations/{conversation_id}/messages")
+# Get chat messages
+@app.get("/messages/{chat_id}")
 def get_messages(
-    conversation_id: int,
-    current_user: User = Depends(get_current_user),
+    chat_id: int,
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    participant = db.query(
-        ConversationParticipant
-    ).filter(
-        ConversationParticipant.conversation_id == conversation_id,
-        ConversationParticipant.user_id == current_user.id
+    chat = db.query(models.Chat).filter(
+        models.Chat.id == chat_id
     ).first()
 
-    if participant is None:
+    if not chat:
         raise HTTPException(
-            status_code=403,
-            detail="User is not a participant of this conversation"
+            status_code=404,
+            detail="Chat not found"
         )
 
-    messages = db.query(Message).filter(
-        Message.conversation_id == conversation_id
+    if current_user.id not in [chat.user1_id, chat.user2_id]:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not a member of this chat"
+        )
+
+    messages = db.query(models.Message).filter(
+        models.Message.chat_id == chat_id
     ).all()
 
     return messages
 
+# Create chat
 
-@app.get("/conversations")
-def get_my_conversations(
-    current_user: User = Depends(get_current_user),
+@app.websocket("/ws/{chat_id}")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    chat_id: int,
+    token: str,
     db: Session = Depends(get_db)
 ):
-    conversations = db.query(
-        ConversationParticipant
-    ).filter(
-        ConversationParticipant.user_id == current_user.id
-    ).all()
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
 
-    return conversations
+        user_id = payload.get("sub")
+
+        if not user_id:
+            raise WebSocketException(
+                code=status.WS_1008_POLICY_VIOLATION
+            )
+
+        user_id = int(user_id)
+
+    except WebSocketException:
+        raise
+
+    except Exception:
+        raise WebSocketException(
+            code=status.WS_1008_POLICY_VIOLATION
+        )
+
+    # Check chat exists
+    chat = db.query(models.Chat).filter(
+        models.Chat.id == chat_id
+    ).first()
+
+    if not chat:
+        raise WebSocketException(
+            code=status.WS_1008_POLICY_VIOLATION
+        )
+
+    # Check user belongs to this chat
+    if user_id not in [chat.user1_id, chat.user2_id]:
+        raise WebSocketException(
+            code=status.WS_1008_POLICY_VIOLATION
+        )
+
+    # Find receiver
+    if user_id == chat.user1_id:
+        receiver_id = chat.user2_id
+    else:
+        receiver_id = chat.user1_id
+
+    # Connect user
+    await manager.connect(
+        user_id,
+        websocket
+    )
+
+    # Update online status
+    user = db.query(models.User).filter(
+        models.User.id == user_id
+    ).first()
+
+    user.is_online = True
+    db.commit()
+
+    # Notify receiver
+    await manager.notify_presence(
+        user_id,
+        "online",
+        receiver_id
+    )
+
+    try:
+        while True:
+
+            data = await websocket.receive_json()
+
+            # Debug: show exact data received from client
+            print("RAW DATA:", repr(data))
+
+            # -------------------------
+            # NORMAL MESSAGE
+            # -------------------------
+            if data.get("type") == "message":
+
+                message = data.get("content", "")
+
+                print("Normal message received")
+                print("Sender:", user_id)
+                print("Receiver:", receiver_id)
+                print("Message:", repr(message))
+
+                # Don't save empty messages
+                if not message.strip():
+                    print("EMPTY MESSAGE - NOT SAVING")
+                    continue
+
+                # Save message in database
+                new_message = models.Message(
+                    chat_id=chat_id,
+                    sender_id=user_id,
+                    content=message
+                )
+
+                db.add(new_message)
+                db.commit()
+                db.refresh(new_message)
+
+                print(
+                    "Saved message:",
+                    new_message.id,
+                    repr(new_message.content)
+                )
+
+                # Check if receiver is connected
+                receiver_websocket = manager.active_connections.get(
+                    receiver_id
+                )
+
+                if receiver_websocket:
+
+                    # Send message to receiver
+                    await manager.send_personal_message(
+                        {
+                            "type": "message",
+                            "message_id": new_message.id,
+                            "sender_id": user_id,
+                            "content": new_message.content,
+                            "created_at": new_message.created_at.isoformat()
+                        },
+                        receiver_id
+                    )
+
+                    # Mark message as delivered
+                    new_message.is_delivered = True
+                    db.commit()
+
+                    # Send delivery confirmation to sender
+                    await manager.send_personal_message(
+                        {
+                            "type": "message_delivered",
+                            "message_id": new_message.id
+                        },
+                        user_id
+                    )
+
+            # -------------------------
+            # TYPING INDICATOR
+            # -------------------------
+            elif data.get("type") == "typing":
+
+                print("User is typing")
+
+                await manager.send_personal_message(
+                    {
+                        "type": "typing"
+                    },
+                    receiver_id
+                )
+
+            # -------------------------
+            # READ STATUS
+            # -------------------------
+            elif data.get("type") == "read":
+
+                message_id = data.get("message_id")
+
+                message = db.query(models.Message).filter(
+                    models.Message.id == message_id,
+                    models.Message.chat_id == chat_id
+                ).first()
+
+                if message:
+
+                    message.is_read = True
+                    db.commit()
+
+                    # Notify sender that message was read
+                    await manager.send_personal_message(
+                        {
+                            "type": "message_read",
+                            "message_id": message_id
+                        },
+                        message.sender_id
+                    )
+
+    except WebSocketDisconnect:
+
+        # Remove connection
+        manager.disconnect(user_id)
+
+        # Update offline status
+        user = db.query(models.User).filter(
+            models.User.id == user_id
+        ).first()
+
+        user.is_online = False
+        user.last_seen = datetime.utcnow()
+
+        db.commit()
+
+        # Notify receiver
+        await manager.notify_presence(
+            user_id,
+            "offline",
+            receiver_id
+        )
