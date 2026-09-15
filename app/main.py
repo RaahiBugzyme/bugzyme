@@ -15,7 +15,7 @@ from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm
 )
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, text
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import Session
 from pwdlib import PasswordHash
