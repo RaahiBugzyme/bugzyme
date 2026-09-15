@@ -330,9 +330,10 @@ async def websocket_endpoint(
     else:
         receiver_id = chat.user1_id
 
-    # Connect user
+    # Connect user to THIS specific chat
     await manager.connect(
         user_id,
+        chat_id,
         websocket
     )
 
@@ -341,14 +342,16 @@ async def websocket_endpoint(
         models.User.id == user_id
     ).first()
 
-    user.is_online = True
-    db.commit()
+    if user:
+        user.is_online = True
+        db.commit()
 
-    # Notify receiver
+    # Notify receiver only in this chat
     await manager.notify_presence(
         user_id,
         "online",
-        receiver_id
+        receiver_id,
+        chat_id
     )
 
     try:
@@ -356,12 +359,11 @@ async def websocket_endpoint(
 
             data = await websocket.receive_json()
 
-            # Debug: show exact data received from client
             print("RAW DATA:", repr(data))
 
-            # -------------------------
+            # =========================
             # NORMAL MESSAGE
-            # -------------------------
+            # =========================
             if data.get("type") == "message":
 
                 message = data.get("content", "")
@@ -369,6 +371,7 @@ async def websocket_endpoint(
                 print("Normal message received")
                 print("Sender:", user_id)
                 print("Receiver:", receiver_id)
+                print("Chat:", chat_id)
                 print("Message:", repr(message))
 
                 # Don't save empty messages
@@ -376,7 +379,7 @@ async def websocket_endpoint(
                     print("EMPTY MESSAGE - NOT SAVING")
                     continue
 
-                # Save message in database
+                # Save message
                 new_message = models.Message(
                     chat_id=chat_id,
                     sender_id=user_id,
@@ -393,14 +396,13 @@ async def websocket_endpoint(
                     repr(new_message.content)
                 )
 
-                # Check if receiver is connected
-                receiver_websocket = manager.active_connections.get(
-                    receiver_id
-                )
+                # Check receiver in THIS chat
+                if manager.is_online_in_chat(
+                    receiver_id,
+                    chat_id
+                ):
 
-                if receiver_websocket:
-
-                    # Send message to receiver
+                    # Send ONLY to this chat
                     await manager.send_personal_message(
                         {
                             "type": "message",
@@ -410,39 +412,50 @@ async def websocket_endpoint(
                             "content": new_message.content,
                             "created_at": new_message.created_at.isoformat()
                         },
-                        receiver_id
+                        receiver_id,
+                        chat_id
                     )
 
-                    # Mark message as delivered
+                    # Mark delivered
                     new_message.is_delivered = True
                     db.commit()
 
-                    # Send delivery confirmation to sender
+                    # Delivery confirmation
                     await manager.send_personal_message(
                         {
                             "type": "message_delivered",
                             "message_id": new_message.id
                         },
-                        user_id
+                        user_id,
+                        chat_id
                     )
 
-            # -------------------------
+            # =========================
             # TYPING INDICATOR
-            # -------------------------
+            # =========================
             elif data.get("type") == "typing":
 
-                print("User is typing")
+                print(
+                    "User is typing:",
+                    user_id,
+                    "->",
+                    receiver_id,
+                    "Chat:",
+                    chat_id
+                )
 
+                # Send typing ONLY to this chat
                 await manager.send_personal_message(
                     {
                         "type": "typing"
                     },
-                    receiver_id
+                    receiver_id,
+                    chat_id
                 )
 
-            # -------------------------
+            # =========================
             # READ STATUS
-            # -------------------------
+            # =========================
             elif data.get("type") == "read":
 
                 message_id = data.get("message_id")
@@ -457,64 +470,48 @@ async def websocket_endpoint(
                     message.is_read = True
                     db.commit()
 
-                    # Notify sender that message was read
+                    # Notify original sender
+                    # ONLY inside this chat
                     await manager.send_personal_message(
                         {
                             "type": "message_read",
                             "message_id": message_id
                         },
-                        message.sender_id
+                        message.sender_id,
+                        chat_id
                     )
 
     except WebSocketDisconnect:
 
-        # Remove connection
-        manager.disconnect(user_id)
+        # Remove ONLY this specific WebSocket
+        manager.disconnect(
+            user_id,
+            chat_id,
+            websocket
+        )
 
-        # Update offline status
+        # Check if user still has another connection
+        still_online = manager.is_online(user_id)
+
         user = db.query(models.User).filter(
             models.User.id == user_id
         ).first()
 
-        user.is_online = False
-        user.last_seen = datetime.utcnow()
+        if user:
 
-        db.commit()
+            user.is_online = still_online
 
-        # Notify receiver
-        await manager.notify_presence(
-            user_id,
-            "offline",
-            receiver_id
-        )
+            if not still_online:
+                user.last_seen = datetime.utcnow()
 
-@app.post("/reset-database")
-def reset_database(secret: str, db: Session = Depends(get_db)):
+            db.commit()
 
-    if secret != "TEMP_RESET_2026":
-        raise HTTPException(
-            status_code=403,
-            detail="Forbidden"
-        )
+        # Notify receiver only if user is completely offline
+        if not still_online:
 
-    db.query(models.Message).delete(
-        synchronize_session=False
-    )
-
-    db.query(models.Chat).delete(
-        synchronize_session=False
-    )
-
-    db.query(models.User).delete(
-        synchronize_session=False
-    )
-
-    db.execute(
-        text("ALTER SEQUENCE users_id_seq RESTART WITH 1")
-    )
-
-    db.commit()
-
-    return {
-        "message": "Database reset successfully"
-    }
+            await manager.notify_presence(
+                user_id,
+                "offline",
+                receiver_id,
+                chat_id
+            )
