@@ -486,3 +486,30 @@ async def websocket_endpoint(
             "offline",
             receiver_id
         )
+
+@app.post("/reset-database")
+def reset_database(secret: str, db: Session = Depends(get_db)):
+
+    if secret != "TEMP_RESET_2026":
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden"
+        )
+
+    db.query(models.Message).delete(
+        synchronize_session=False
+    )
+
+    db.query(models.Chat).delete(
+        synchronize_session=False
+    )
+
+    db.query(models.User).delete(
+        synchronize_session=False
+    )
+
+    db.commit()
+
+    return {
+        "message": "Database reset successfully"
+    }
