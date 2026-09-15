@@ -1,31 +1,341 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WebSocket Test</title>
+    <title>Bugzyme Live Chat Test</title>
 </head>
+
 <body>
 
-    <h2>WebSocket Test</h2>
+    <h2>Bugzyme Live Chat</h2>
+
+    <h3>1. Login</h3>
+
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <p id="loginStatus"></p>
+
+    <h3>2. Connect Chat</h3>
+
+    <input id="chatId" placeholder="Chat ID">
+    <button onclick="connectWebSocket()">Connect</button>
+
+    <p id="connectionStatus">Not connected</p>
+
+    <h3>3. Send Message</h3>
 
     <input id="message" placeholder="Enter message">
     <button onclick="sendMessage()">Send</button>
 
+    <button onclick="sendTyping()">Typing</button>
+
+    <h3>Messages</h3>
+
+    <div id="messages"></div>
+
     <script>
-        const ws = new WebSocket("ws://127.0.0.1:8000/ws/1");
 
-        ws.onopen = function() {
-            console.log("Connected to WebSocket");
-        };
+        const API_BASE = "https://bugzyme-1.onrender.com";
+        const WS_BASE = "wss://bugzyme-1.onrender.com";
 
-        ws.onmessage = function(event) {
-            console.log("Message from server:", event.data);
-        };
+        let token = null;
+        let ws = null;
+
+        // -------------------------
+        // LOGIN
+        // -------------------------
+
+        async function login() {
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const formData = new URLSearchParams();
+
+            formData.append("username", email);
+            formData.append("password", password);
+
+            try {
+
+                const response = await fetch(
+                    API_BASE + "/login",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+                        },
+                        body: formData
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    document.getElementById("loginStatus").innerText =
+                        "Login failed: " + (data.detail || "Unknown error");
+                    return;
+                }
+
+                token = data.access_token;
+
+                document.getElementById("loginStatus").innerText =
+                    "Login successful";
+
+                console.log("Login successful");
+
+            } catch (error) {
+
+                console.error(error);
+
+                document.getElementById("loginStatus").innerText =
+                    "Login error";
+
+            }
+        }
+
+
+        // -------------------------
+        // WEBSOCKET CONNECT
+        // -------------------------
+
+        function connectWebSocket() {
+
+            if (!token) {
+
+                alert("Please login first");
+
+                return;
+            }
+
+            const chatId =
+                document.getElementById("chatId").value;
+
+            if (!chatId) {
+
+                alert("Enter Chat ID");
+
+                return;
+            }
+
+            const wsUrl =
+                WS_BASE +
+                "/ws/" +
+                chatId +
+                "?token=" +
+                encodeURIComponent(token);
+
+            console.log("Connecting:", wsUrl);
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+
+                console.log("WebSocket connected");
+
+                document.getElementById(
+                    "connectionStatus"
+                ).innerText = "Connected";
+
+            };
+
+
+            ws.onmessage = function(event) {
+
+                console.log(
+                    "Server:",
+                    event.data
+                );
+
+                const data =
+                    JSON.parse(event.data);
+
+                handleMessage(data);
+
+            };
+
+
+            ws.onerror = function(error) {
+
+                console.error(
+                    "WebSocket error:",
+                    error
+                );
+
+                document.getElementById(
+                    "connectionStatus"
+                ).innerText =
+                    "WebSocket Error";
+
+            };
+
+
+            ws.onclose = function(event) {
+
+                console.log(
+                    "WebSocket closed:",
+                    event.code
+                );
+
+                document.getElementById(
+                    "connectionStatus"
+                ).innerText =
+                    "Disconnected";
+
+            };
+        }
+
+
+        // -------------------------
+        // SEND MESSAGE
+        // -------------------------
 
         function sendMessage() {
-            const message = document.getElementById("message").value;
-            ws.send(message);
+
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+
+                alert("Connect WebSocket first");
+
+                return;
+            }
+
+            const message =
+                document.getElementById("message").value;
+
+            if (!message.trim()) {
+
+                return;
+            }
+
+            ws.send(
+                JSON.stringify({
+                    type: "message",
+                    content: message
+                })
+            );
+
+            addMessage(
+                "You: " + message
+            );
+
+            document.getElementById(
+                "message"
+            ).value = "";
         }
+
+
+        // -------------------------
+        // TYPING
+        // -------------------------
+
+        function sendTyping() {
+
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+
+                return;
+            }
+
+            ws.send(
+                JSON.stringify({
+                    type: "typing"
+                })
+            );
+        }
+
+
+        // -------------------------
+        // HANDLE SERVER EVENTS
+        // -------------------------
+
+        function handleMessage(data) {
+
+            if (data.type === "message") {
+
+                // Show actual sender username
+                addMessage(
+                    data.sender_name +
+                    ": " +
+                    data.content
+                );
+
+                // Tell server message was read
+                ws.send(
+                    JSON.stringify({
+                        type: "read",
+                        message_id: data.message_id
+                    })
+                );
+            }
+
+
+            else if (
+                data.type === "message_delivered"
+            ) {
+
+                addMessage(
+                    "✓ Message delivered (ID: " +
+                    data.message_id +
+                    ")"
+                );
+            }
+
+
+            else if (
+                data.type === "message_read"
+            ) {
+
+                addMessage(
+                    "✓✓ Message read (ID: " +
+                    data.message_id +
+                    ")"
+                );
+            }
+
+
+            else if (
+                data.type === "typing"
+            ) {
+
+                addMessage(
+                    "User is typing..."
+                );
+            }
+
+
+            else if (
+                data.type === "presence"
+            ) {
+
+                addMessage(
+                    "User " +
+                    data.user_id +
+                    " is " +
+                    data.status
+                );
+            }
+        }
+
+
+        // -------------------------
+        // UI
+        // -------------------------
+
+        function addMessage(text) {
+
+            const div =
+                document.createElement("div");
+
+            div.innerText = text;
+
+            document.getElementById(
+                "messages"
+            ).appendChild(div);
+        }
+
     </script>
 
 </body>
 </html>
+```

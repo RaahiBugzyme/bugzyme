@@ -406,6 +406,7 @@ async def websocket_endpoint(
                             "type": "message",
                             "message_id": new_message.id,
                             "sender_id": user_id,
+                            "sender_name": user.username,
                             "content": new_message.content,
                             "created_at": new_message.created_at.isoformat()
                         },
@@ -506,6 +507,10 @@ def reset_database(secret: str, db: Session = Depends(get_db)):
 
     db.query(models.User).delete(
         synchronize_session=False
+    )
+
+    db.execute(
+        text("ALTER SEQUENCE users_id_seq RESTART WITH 1")
     )
 
     db.commit()
