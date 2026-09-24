@@ -1,4 +1,5 @@
 from fastapi import WebSocket
+from app.redis_client import RedisClient
 
 
 class ConnectionManager:
@@ -9,6 +10,9 @@ class ConnectionManager:
         # user_id -> [(chat_id, websocket), ...]
         self.active_connections: dict[int, list[tuple[int, WebSocket]]] = {}
 
+        # Redis client
+        self.redis_client = RedisClient()
+
     async def connect(
         self,
         user_id: int,
@@ -17,6 +21,13 @@ class ConnectionManager:
     ):
         await websocket.accept()
 
+        # Store user as online in Redis
+        await self.redis_client.set_hash(
+            f"user:{user_id}",
+            "online",
+            "true"
+        )
+
         if user_id not in self.active_connections:
             self.active_connections[user_id] = []
 
@@ -24,7 +35,7 @@ class ConnectionManager:
             (chat_id, websocket)
         )
 
-    def disconnect(
+    async def disconnect(
         self,
         user_id: int,
         chat_id: int,
@@ -41,8 +52,37 @@ class ConnectionManager:
             if connected_websocket is not websocket
         ]
 
+        # User has no WebSocket connections left
         if not self.active_connections[user_id]:
             del self.active_connections[user_id]
+
+            # Store user as offline in Redis
+            await self.redis_client.set_hash(
+                f"user:{user_id}",
+                "online",
+                "false"
+            )
+
+    async def get_online_status(self, user_id: int):
+        return await self.redis_client.get_hash(
+            f"user:{user_id}",
+            "online"
+        )
+
+    async def set_typing(self, user_id: int):
+        await self.redis_client.set_with_expiry(
+            f"user:{user_id}:typing",
+            "true",
+            5
+    )
+
+    async def get_typing_status(self, user_id: int):
+        status = await self.redis_client.get_value(
+            f"user:{user_id}:typing"
+    )
+
+        return status == "true"
+
 
     def is_online(self, user_id: int) -> bool:
         return bool(self.active_connections.get(user_id))
@@ -69,8 +109,9 @@ class ConnectionManager:
 
             try:
                 await websocket.send_json(message)
+
             except Exception:
-                self.disconnect(
+                await self.disconnect(
                     user_id,
                     connected_chat_id,
                     websocket
@@ -95,8 +136,9 @@ class ConnectionManager:
                     "user_id": user_id,
                     "status": status
                 })
+
             except Exception:
-                self.disconnect(
+                await self.disconnect(
                     receiver_id,
                     connected_chat_id,
                     websocket
