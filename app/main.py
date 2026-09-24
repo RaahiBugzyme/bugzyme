@@ -225,6 +225,15 @@ def mark_read(db: Session, user_id: int, chat_id: int, message_id: int | None):
     if message_id is not None:
         q = q.filter(models.Message.id == message_id)
     rows = q.all()
+    print("MARK READ ROWS:", [
+    {
+        "id": m.id,
+        "sender_id": m.sender_id,
+        "is_read": m.is_read,
+        "is_delivered": m.is_delivered,
+    }
+    for m in rows
+])
     for m in rows:
         m.is_read = True
         m.is_delivered = True
