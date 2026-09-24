@@ -1376,7 +1376,7 @@ async function openChat(chatId){
     const msgs = await api(`/messages/${chatId}?limit=200`);
     MSG_CACHE.set(chatId, msgs);
     msgs.forEach(m=>appendBubble(m, true));
-    console.log("SENDING READ_CHAT:", d.chat_id);
+    
     wsSend({ type:'read_chat', chat_id: chatId });          // mark partner's msgs read
   }catch(err){ toast('❌ ' + err.message); }
   renderConvList();
