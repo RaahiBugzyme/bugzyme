@@ -649,11 +649,16 @@ async def handle_socket(websocket: WebSocket, token: str, bound_chat_id: int | N
                 if mid is not None and (isinstance(mid, bool) or not isinstance(mid, int)):
                     continue
                 res = await db_call(mark_read, user_id, chat_id, mid)
+                print("READ RESULT:", res)
+
                 if res:
                     for read_id in res["ids"]:
                         await manager.send_to_user(
                             res["sender"],
-                            {"type": "message_read", "chat_id": chat_id, "message_id": read_id}, chat_id)
+                            {"type": "message_read", "chat_id": chat_id, "message_id": read_id},
+                            chat_id
+                        )
+                   
     except WebSocketDisconnect:
         pass
     except Exception:
