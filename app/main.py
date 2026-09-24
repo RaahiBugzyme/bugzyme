@@ -657,6 +657,13 @@ async def handle_socket(websocket: WebSocket, token: str, bound_chat_id: int | N
                 mid = data.get("message_id") if kind == "read" else None
                 if mid is not None and (isinstance(mid, bool) or not isinstance(mid, int)):
                     continue
+
+                print("READ EVENT RECEIVED:", {
+                    "kind": kind,
+                    "user_id": user_id,
+                    "chat_id": chat_id,
+                    "message_id": mid
+                })
                 res = await db_call(mark_read, user_id, chat_id, mid)
                 print("READ RESULT:", res)
 
