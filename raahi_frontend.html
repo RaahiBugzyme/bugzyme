@@ -1430,8 +1430,28 @@ function appendBubble(msg, scroll){
   if (scroll) setTimeout(()=>{ ms.scrollTop = ms.scrollHeight; }, 40);
 }
 function setTick(idOrClient, state){
-  const e = MSG_ELS.get(String(idOrClient)); if (!e || !e.tick) return;
-  e.tick.textContent = state === 'read' ? '✓✓' : '✓✓';
+  const key = String(idOrClient);
+  let e = MSG_ELS.get(key);
+
+  // Fallback: directly find message in DOM
+  if ((!e || !e.tick) && key !== 'undefined') {
+    const row = document.querySelector(`[data-message-id="${CSS.escape(key)}"]`);
+
+    if (row) {
+      e = {
+        tick: row.querySelector('.tick'),
+        row
+      };
+
+      if (e.tick) {
+        MSG_ELS.set(key, e);
+      }
+    }
+  }
+
+  if (!e || !e.tick) return;
+
+  e.tick.textContent = '✓✓';
   e.tick.classList.toggle('seen', state === 'read');
 }
 function markDeleted(d){
