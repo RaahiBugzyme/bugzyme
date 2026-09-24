@@ -600,6 +600,13 @@ async def handle_socket(websocket: WebSocket, token: str, bound_chat_id: int | N
                 continue
             kind = data.get("type")
             chat_id = bound_chat_id if bound_chat_id is not None else data.get("chat_id")
+            print("WS EVENT RECEIVED:", {
+                "kind": kind,
+                "data": data,
+                "bound_chat_id": bound_chat_id,
+                "chat_id": chat_id,
+                "user_id": user_id
+            })
             if isinstance(chat_id, bool) or (chat_id is not None and not isinstance(chat_id, int)):
                 chat_id = None
 
