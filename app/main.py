@@ -589,17 +589,29 @@ async def handle_socket(websocket: WebSocket, token: str, bound_chat_id: int | N
         timeout = IDLE_TIMEOUT if bound_chat_id is None else None
         while True:
             try:
+                print("WAITING FOR WS MESSAGE:", user_id)
+
                 data = await asyncio.wait_for(websocket.receive_json(), timeout)
+
+                print("RAW WS DATA RECEIVED:", data)
+
             except asyncio.TimeoutError:
                 await websocket.close(code=1001, reason="Idle timeout")
                 break
+
             except ValueError:
-                await safe_send(websocket, {"type": "error", "detail": "Invalid JSON"})
+                await safe_send(websocket, {
+                    "type": "error",
+                    "detail": "Invalid JSON"
+                })
                 continue
+
             if not isinstance(data, dict):
                 continue
+
             kind = data.get("type")
             chat_id = bound_chat_id if bound_chat_id is not None else data.get("chat_id")
+
             print("WS EVENT RECEIVED:", {
                 "kind": kind,
                 "data": data,
@@ -607,8 +619,10 @@ async def handle_socket(websocket: WebSocket, token: str, bound_chat_id: int | N
                 "chat_id": chat_id,
                 "user_id": user_id
             })
+
             if isinstance(chat_id, bool) or (chat_id is not None and not isinstance(chat_id, int)):
                 chat_id = None
+            
 
             if kind == "ping":
                 await safe_send(websocket, {"type": "pong"})
