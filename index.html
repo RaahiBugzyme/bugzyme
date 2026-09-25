@@ -284,6 +284,94 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .me .bubble-time{justify-content:flex-end}
 .tick{transition:color .3s}
 .tick.seen{color:#4ade80}
+.msg-actions{
+  display:flex;
+  gap:5px;
+  margin-top:4px;
+  opacity:0;
+  transition:opacity .2s;
+}
+
+.msg-row:hover .msg-actions{
+  opacity:1;
+}
+
+.msg-action-btn{
+  border:none;
+  background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.7);
+  border-radius:12px;
+  padding:4px 8px;
+  font-size:.62rem;
+  cursor:pointer;
+}
+
+.msg-action-btn:hover{
+  background:rgba(255,255,255,.16);
+  color:#fff;
+}
+
+.msg-action-delete{
+  color:#f87171;
+}
+
+.reply-preview{
+  background:rgba(255,255,255,.08);
+  border-left:3px solid var(--ep);
+  border-radius:9px;
+  padding:6px 8px;
+  margin-bottom:6px;
+  font-size:.68rem;
+  color:rgba(255,255,255,.65);
+}
+
+.reply-preview-name{
+  font-weight:700;
+  color:var(--ep);
+  margin-bottom:2px;
+}
+
+.reply-bar{
+  display:none;
+  align-items:center;
+  gap:8px;
+  padding:7px 12px;
+  background:rgba(168,85,247,.10);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+.reply-bar.show{
+  display:flex;
+}
+
+.reply-bar-content{
+  flex:1;
+  min-width:0;
+}
+
+.reply-bar-title{
+  font-size:.68rem;
+  font-weight:700;
+  color:var(--ep);
+}
+
+.reply-bar-text{
+  font-size:.7rem;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.reply-cancel{
+  width:28px;
+  height:28px;
+  border:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+}
 /* special msg types */
 .msg-voice{display:flex;align-items:center;gap:9px;min-width:150px}
 .vplay{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);
@@ -766,6 +854,15 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
     <div class="typing-dots"><span></span><span></span><span></span></div>
     <span id="typingLabel" style="font-size:.72rem;color:var(--muted)"></span>
   </div>
+
+  <div class="reply-bar" id="replyBar">
+    <div class="reply-bar-content">
+      <div class="reply-bar-title" id="replyBarTitle">Replying to message</div>
+      <div class="reply-bar-text" id="replyBarText"></div>
+    </div>
+    <button class="reply-cancel" onclick="cancelReply()">✕</button>
+  </div>
+
   <!-- input -->
   <div class="chat-input-area">
     <div class="input-row">
@@ -885,6 +982,19 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
       <div class="mrow" onclick="toast('📁 Opening media…');closeModal('mChatSettings')"><div class="mrow-icon" style="background:rgba(255,255,255,.08)"><span class="e e-float">📁</span></div><div class="mrow-text">Shared Media</div></div>
       <div class="mrow yellow" onclick="toast('⚠️ Report submitted');closeModal('mChatSettings')"><div class="mrow-icon"><span class="e e-wiggle">⚠️</span></div><div class="mrow-text">Report</div></div>
       <div class="mrow red" onclick="toast('🚫 Blocked');closeModal('mChatSettings')"><div class="mrow-icon"><span class="e e-shake">🚫</span></div><div class="mrow-text">Block</div></div>
+      <div class="mrow red" onclick="deleteCurrentChat()">
+        <div class="mrow-icon">
+          <span class="e e-shake">🗑️</span>
+        </div>
+        <div>
+          <div class="mrow-text" style="font-weight:800">
+            Delete Chat
+          </div>
+          <div class="mrow-sub">
+            Delete this conversation for both users
+          </div>
+        </div>
+      </div>
       <div class="mrow red" onclick="toast('💔 Unmatched');closeModal('mChatSettings')"><div class="mrow-icon"><span class="e e-broken" style="animation:ebroken 2s ease-in-out infinite">💔</span></div><div class="mrow-text" style="font-weight:800">Unmatch</div></div>
     </div>
   </div>
@@ -1051,6 +1161,7 @@ const APP = {
   avatar:{ mode:'initials', emoji:'😎', color:'#a855f7', initials:'ME' },
   gemKey:'',
   currentChatId:null,
+  replyingTo:null,
   gameScore:{me:0,them:0}, gameType:null,
   voiceTimer:null, voiceSec:0,
 };
@@ -1070,11 +1181,37 @@ function avatarFor(name){
   return { mode:'initials', initials: ini, color:'#a855f7' };
 }
 function fmtTime(isoStr){
-  if (!isoStr) return '';
-  const d = new Date(isoStr), now = new Date();
-  const t = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  return d.toDateString() === now.toDateString() ? t
-       : d.toLocaleDateString([], {month:'short', day:'numeric'}) + ' ' + t;
+
+if (!isoStr) return '';
+
+const d = new Date(isoStr);
+
+if (isNaN(d.getTime())) return '';
+
+const now = new Date();
+
+const t = d.toLocaleTimeString('en-IN', {
+  timeZone: 'Asia/Kolkata',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true
+});
+
+const messageDate = d.toLocaleDateString('en-CA', {
+  timeZone: 'Asia/Kolkata'
+});
+
+const todayDate = now.toLocaleDateString('en-CA', {
+  timeZone: 'Asia/Kolkata'
+});
+
+return messageDate === todayDate
+  ? t
+  : d.toLocaleDateString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      month: 'short',
+      day: 'numeric'
+    }) + ' ' + t;
 }
 function fmtLastSeen(isoStr){
   if (!isoStr) return 'long ago';
@@ -1164,8 +1301,8 @@ async function submitAuth(){
   const pass  = document.getElementById('authPass').value;
   const user  = document.getElementById('authUser').value.trim();
   const btn   = document.getElementById('authBtn');
-  if (!email || !pass){ toast('⚠️ Email aur password daalo'); return; }
-  if (authMode==='register' && !user){ toast('⚠️ Username daalo'); return; }
+  if (!email || !pass){ toast('⚠️ Enter your email and password'); return; }
+  if (authMode==='register' && !user){ toast('⚠️ Enter your username'); return; }
   btn.disabled = true; btn.textContent = '⏳ Please wait…';
   try{
     if (authMode === 'register'){
@@ -1245,6 +1382,7 @@ function handleWSEvent(d){
     case 'typing':       showPartnerTyping(d); break;
     case 'presence':     updatePresence(d); break;
     case 'message_deleted': markDeleted(d); break;
+    case 'chat_deleted': handleChatDeleted(d); break;
     case 'pong': break;
     case 'error': toast('⚠️ ' + (d.detail || 'Server error')); break;
   }
@@ -1414,20 +1552,131 @@ function appendBubble(msg, scroll){
   const isMine = msg.sender_id === meId;
   const chat = getChat(msg.chat_id);
   const er = chat ? ERA[eraFor(chat.user.id)] : ERA[APP.era];
+
   const row = document.createElement('div');
   row.className = `msg-row ${isMine ? 'me' : 'them'}`;
-  const tickState = msg.is_read ? 'read' : (msg.is_delivered ? 'delivered' : (msg.id ? 'sent' : 'pending'));
-  const tick = isMine ? `<span class="tick${tickState==='read' ? ' seen' : ''}">${tickState==='pending' ? '⏳' : tickState==='sent' ? '✓' : '✓✓'}</span>` : '';
-  const body = msg.is_deleted
-    ? `<div class="bubble" style="opacity:.55;font-style:italic">🚫 This message was deleted<div class="bubble-time">${fmtTime(msg.created_at)}${tick}</div></div>`
-    : `<div class="bubble">${escapeHTML(msg.content)}<div class="bubble-time">${fmtTime(msg.created_at)}${tick}</div></div>`;
-  if (!isMine){
-    row.innerHTML = `<div class="msg-av-sm" style="border-color:${er.primary};background:${er.cbg}">${initialsHTML(chat ? chat.user.username : '?', .55)}</div><div>${body}</div>`;
-  } else row.innerHTML = `<div>${body}</div>`;
+
+  if (msg.id) {
+    row.dataset.messageId = msg.id;
+  }
+
+  const tickState = msg.is_read
+    ? 'read'
+    : (msg.is_delivered ? 'delivered' : (msg.id ? 'sent' : 'pending'));
+
+  const tick = isMine
+    ? `<span class="tick${tickState === 'read' ? ' seen' : ''}">
+        ${tickState === 'pending' ? '⏳' : tickState === 'sent' ? '✓' : '✓✓'}
+       </span>`
+    : '';
+
+  let replyHTML = '';
+
+  if (msg.reply_to_id) {
+    const arr = MSG_CACHE.get(msg.chat_id) || [];
+    const parent = arr.find(x => x.id === msg.reply_to_id);
+
+    if (parent) {
+      const parentName = parent.sender_id === meId
+        ? 'You'
+        : (chat ? chat.user.username : 'Message');
+
+      const parentText = parent.is_deleted
+        ? 'Message deleted'
+        : (parent.content || '');
+
+      replyHTML = `
+        <div class="reply-preview">
+          <div class="reply-preview-name">${escapeHTML(parentName)}</div>
+          <div>${escapeHTML(parentText.slice(0, 100))}</div>
+        </div>
+      `;
+    }
+  }
+
+  let body;
+
+  if (msg.is_deleted) {
+    body = `
+      <div class="bubble" style="opacity:.55;font-style:italic">
+        🚫 This message was deleted
+        <div class="bubble-time">
+          ${fmtTime(msg.created_at)}
+          ${tick}
+        </div>
+      </div>
+    `;
+  } else {
+    const actions = `
+      <div class="msg-actions">
+        <button
+          class="msg-action-btn"
+          onclick="event.stopPropagation();startReply(${msg.id})">
+          ↩ Reply
+        </button>
+
+        ${isMine ? `
+          <button
+            class="msg-action-btn msg-action-delete"
+            onclick="event.stopPropagation();deleteMessageForEveryone(${msg.id})">
+            🗑 Delete
+          </button>
+        ` : ''}
+      </div>
+    `;
+
+    body = `
+      <div class="bubble">
+        ${replyHTML}
+        <div>${escapeHTML(msg.content || '')}</div>
+
+        <div class="bubble-time">
+          ${fmtTime(msg.created_at)}
+          ${tick}
+        </div>
+      </div>
+
+      ${actions}
+    `;
+  }
+
+  if (!isMine) {
+    row.innerHTML = `
+      <div
+        class="msg-av-sm"
+        style="border-color:${er.primary};background:${er.cbg}">
+        ${initialsHTML(chat ? chat.user.username : '?', .55)}
+      </div>
+
+      <div>
+        ${body}
+      </div>
+    `;
+  } else {
+    row.innerHTML = `
+      <div>
+        ${body}
+      </div>
+    `;
+  }
+
   ms.appendChild(row);
+
   const key = String(msg.id || msg.client_id);
-  if (key && key !== 'undefined') MSG_ELS.set(key, { tick: row.querySelector('.tick'), row, msg });
-  if (scroll) setTimeout(()=>{ ms.scrollTop = ms.scrollHeight; }, 40);
+
+  if (key && key !== 'undefined') {
+    MSG_ELS.set(key, {
+      tick: row.querySelector('.tick'),
+      row,
+      msg
+    });
+  }
+
+  if (scroll) {
+    setTimeout(() => {
+      ms.scrollTop = ms.scrollHeight;
+    }, 40);
+  }
 }
 function setTick(idOrClient, state){
   const key = String(idOrClient);
@@ -1454,163 +1703,583 @@ function setTick(idOrClient, state){
   e.tick.textContent = '✓✓';
   e.tick.classList.toggle('seen', state === 'read');
 }
+function startReply(messageId){
+  const arr = MSG_CACHE.get(APP.currentChatId) || [];
+  const msg = arr.find(x => x.id === messageId);
+
+  if (!msg || msg.is_deleted) {
+    toast('This message cannot be replied to');
+    return;
+  }
+
+  APP.replyingTo = msg;
+
+  const chat = getChat(APP.currentChatId);
+  const meId = AUTH.me ? AUTH.me.id : -1;
+
+  const name = msg.sender_id === meId
+    ? 'You'
+    : (chat ? chat.user.username : 'Message');
+
+  document.getElementById('replyBarTitle').textContent =
+    `Replying to ${name}`;
+
+  document.getElementById('replyBarText').textContent =
+    msg.content || '';
+
+  document.getElementById('replyBar').classList.add('show');
+
+  const ta = document.getElementById('chatTA');
+  ta.focus();
+
+  if (navigator.vibrate) {
+    navigator.vibrate(10);
+  }
+}
+
+function cancelReply(){
+  APP.replyingTo = null;
+
+  document.getElementById('replyBar').classList.remove('show');
+  document.getElementById('replyBarTitle').textContent =
+    'Replying to message';
+
+  document.getElementById('replyBarText').textContent = '';
+}
 function markDeleted(d){
   const e = MSG_ELS.get(String(d.message_id));
-  if (e && e.row){
-    const b = e.row.querySelector('.bubble');
-    if (b){ b.style.opacity = .55; b.style.fontStyle = 'italic';
-      b.childNodes[0].textContent = '🚫 This message was deleted'; }
+
+  if (e && e.row) {
+    const bubble = e.row.querySelector('.bubble');
+
+    if (bubble) {
+      bubble.style.opacity = '.55';
+      bubble.style.fontStyle = 'italic';
+
+      const time = bubble.querySelector('.bubble-time');
+
+      bubble.innerHTML = `
+        <span>🚫 This message was deleted</span>
+        ${time ? time.outerHTML : ''}
+      `;
+    }
+
+    e.row.querySelectorAll('.msg-actions').forEach(el => {
+      el.remove();
+    });
   }
+
+
+
   const arr = MSG_CACHE.get(d.chat_id);
-  if (arr){ const m = arr.find(x=>x.id === d.message_id); if (m){ m.is_deleted = true; m.content = null; } }
+
+  if (arr) {
+    const msg = arr.find(x => x.id === d.message_id);
+
+    if (msg) {
+      msg.is_deleted = true;
+      msg.content = null;
+    }
+  }
+
   renderConvList();
 }
 
-/* ---------- SEND ---------- */
-function onChatInput(ta){
-  ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 88) + 'px';
-  const has = ta.value.trim().length > 0;
-  document.getElementById('sendBtn').classList.toggle('hide', !has);
-  document.getElementById('micBtn').classList.toggle('hide', has);
-  const now = Date.now();
-  if (has && APP.currentChatId && now - lastTypingSent > 2500){
-    lastTypingSent = now;
-    wsSend({ type:'typing', chat_id: APP.currentChatId });
+function markDeleted(d){
+  const e = MSG_ELS.get(String(d.message_id));
+
+  if (e && e.row){
+    
+  }
+
+  const arr = MSG_CACHE.get(d.chat_id);
+
+  if (arr){
+    
+  }
+
+  renderConvList();
+}
+
+
+
+
+async function deleteCurrentChat(){
+  const chatId = APP.currentChatId;
+
+  if (!chatId) return;
+
+  const chat = getChat(chatId);
+
+  if (!chat) return;
+
+  const confirmed = confirm(
+    `Delete your chat with ${chat.user.username}? This will remove the conversation and all its messages for both users.`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await api(`/chats/${chatId}`, {
+      method:'DELETE'
+    });
+
+    handleChatDeleted({
+      chat_id:chatId
+    });
+
+    toast('Chat deleted');
+  } catch(err) {
+    toast('❌ ' + err.message);
   }
 }
-function onChatKey(e){ if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); doSend(); } }
+
+function handleChatDeleted(d){
+  const chatId = Number(d.chat_id);
+
+  const index = CHATS.findIndex(
+    chat => chat.chat_id === chatId
+  );
+
+  if (index !== -1) {
+    CHATS.splice(index, 1);
+  }
+
+  MSG_CACHE.delete(chatId);
+
+  if (APP.currentChatId === chatId) {
+    APP.currentChatId = null;
+    APP.replyingTo = null;
+
+    cancelReply();
+
+    closeModal('mChatSettings');
+    closeModal('mMatchSettings');
+
+    showScreen('sMatches');
+  }
+
+  renderMatchesScreen();
+}
+
+async function deleteMessageForEveryone(messageId){
+  const arr = MSG_CACHE.get(APP.currentChatId) || [];
+  const msg = arr.find(x => x.id === messageId);
+
+  if (!msg) return;
+
+  if (msg.sender_id !== AUTH.me.id) {
+    toast('You can only delete your own messages');
+    return;
+  }
+
+  const confirmed = confirm(
+    'Delete this message for everyone?'
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await api(`/messages/${messageId}?for_everyone=true`, {
+      method:'DELETE'
+    });
+
+    markDeleted({
+      chat_id:APP.currentChatId,
+      message_id:messageId,
+      for_everyone:true
+    });
+
+    toast('Message deleted');
+  } catch(err) {
+    toast('❌ ' + err.message);
+  }
+}
+
+/* ---------- SEND ---------- */
+
+function onChatInput(ta){
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 88) + 'px';
+
+  const has = ta.value.trim().length > 0;
+
+  document.getElementById('sendBtn').classList.toggle('hide', !has);
+  document.getElementById('micBtn').classList.toggle('hide', has);
+
+  const now = Date.now();
+
+  if (
+    has &&
+    APP.currentChatId &&
+    now - lastTypingSent > 2500
+  ){
+    lastTypingSent = now;
+
+    wsSend({
+      type:'typing',
+      chat_id:APP.currentChatId
+    });
+  }
+}
+
+function onChatKey(e){
+  if (e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    doSend();
+  }
+}
+
 function doSend(){
   const ta = document.getElementById('chatTA');
-  const txt = ta.value.trim(); if (!txt || !APP.currentChatId) return;
-  const client_id = 'c' + Date.now() + Math.random().toString(36).slice(2, 7);
-  const msg = { id:null, client_id, chat_id:APP.currentChatId, sender_id:AUTH.me.id,
-                content:txt, created_at:new Date().toISOString(),
-                is_delivered:false, is_read:false };
-  const arr = MSG_CACHE.get(APP.currentChatId) || []; arr.push(msg); MSG_CACHE.set(APP.currentChatId, arr);
+  const txt = ta.value.trim();
+
+  if (!txt || !APP.currentChatId) return;
+
+  const client_id =
+    'c' + Date.now() + Math.random().toString(36).slice(2, 7);
+
+  const replyToId = APP.replyingTo
+    ? APP.replyingTo.id
+    : null;
+
+  const msg = {
+    id:null,
+    client_id,
+    chat_id:APP.currentChatId,
+    sender_id:AUTH.me.id,
+    content:txt,
+    created_at:new Date().toISOString(),
+    is_delivered:false,
+    is_read:false,
+    is_deleted:false,
+    reply_to_id:replyToId
+  };
+
+  const arr = MSG_CACHE.get(APP.currentChatId) || [];
+
+  arr.push(msg);
+
+  MSG_CACHE.set(APP.currentChatId, arr);
+
   appendBubble(msg, true);
-  wsSend({ type:'message', chat_id: APP.currentChatId, content: txt, client_id });
-  ta.value = ''; ta.style.height = 'auto'; onChatInput(ta);
-  if (navigator.vibrate) navigator.vibrate(10);
+
+  wsSend({
+    type:'message',
+    chat_id:APP.currentChatId,
+    content:txt,
+    client_id,
+    reply_to_id:replyToId
+  });
+
+  ta.value = '';
+  ta.style.height = 'auto';
+
+  cancelReply();
+
+  onChatInput(ta);
+
+  if (navigator.vibrate){
+    navigator.vibrate(10);
+  }
 }
+
 function confirmSent(d){
   const e = MSG_ELS.get(String(d.client_id));
   const arr = MSG_CACHE.get(d.chat_id) || [];
-  const m = arr.find(x=>x.client_id === d.client_id);
-  if (m) m.id = d.message_id;
+  const m = arr.find(x => x.client_id === d.client_id);
+
+  if (m){
+    m.id = d.message_id;
+  }
+
   if (e){
-    if (e.tick){ e.tick.textContent = '✓'; e.tick.classList.remove('seen'); }
+    if (e.tick){
+      e.tick.textContent = '✓';
+      e.tick.classList.remove('seen');
+    }
+
     const t = e.row.querySelector('.bubble-time');
-    if (t && d.created_at) t.innerHTML = t.innerHTML.replace(/^\d[^<]*/, fmtTime(d.created_at));
+
+    if (t && d.created_at){
+      t.innerHTML = t.innerHTML.replace(
+        /^\d[^<]*/,
+        fmtTime(d.created_at)
+      );
+    }
+
     MSG_ELS.set(String(d.message_id), e);
     MSG_ELS.delete(String(d.client_id));
   }
 }
 
 /* ---------- INCOMING ---------- */
+
 function onIncomingMessage(d){
   const chat = getChat(d.chat_id);
-  const msg = { id:d.message_id, chat_id:d.chat_id, sender_id:d.sender_id, sender_name:d.sender_name,
-                content:d.content, created_at:d.created_at, reply_to_id:d.reply_to_id,
-                is_delivered:true, is_read:false };
+
+  const msg = {
+    id:d.message_id,
+    chat_id:d.chat_id,
+    sender_id:d.sender_id,
+    sender_name:d.sender_name,
+    content:d.content,
+    created_at:d.created_at,
+    reply_to_id:d.reply_to_id,
+    is_delivered:true,
+    is_read:false
+  };
+
   const arr = MSG_CACHE.get(d.chat_id) || [];
-  if (!arr.find(x=>x.id === msg.id)){ arr.push(msg); MSG_CACHE.set(d.chat_id, arr); }
+
+  if (!arr.find(x => x.id === msg.id)){
+    arr.push(msg);
+    MSG_CACHE.set(d.chat_id, arr);
+  }
+
   if (chat){
     chat.last_message = msg;
-    const openHere = APP.currentChatId === d.chat_id && curScreen === 'sChat';
+
+    const openHere =
+      APP.currentChatId === d.chat_id &&
+      curScreen === 'sChat';
+
     console.log("READ DEBUG:", {
-        currentChat: APP.currentChatId,
-        incomingChat: d.chat_id,
-        screen: curScreen,
-        openHere: openHere
+      currentChat: APP.currentChatId,
+      incomingChat: d.chat_id,
+      screen: curScreen,
+      openHere: openHere
     });
+
     if (openHere){
       appendBubble(msg, true);
-      wsSend({ type:'read_chat', chat_id: d.chat_id });
+
+      wsSend({
+        type:'read_chat',
+        chat_id:d.chat_id
+      });
     } else {
-      chat.unread_count = (chat.unread_count || 0) + 1;
-      toast(`💬 ${d.sender_name}: "${(d.content||'').slice(0,40)}"`);
+      chat.unread_count =
+        (chat.unread_count || 0) + 1;
+
+      toast(
+        `💬 ${d.sender_name}: "${(d.content || '').slice(0,40)}"`
+      );
     }
+
     renderConvList();
+
     if (openHere){
-      const ch = document.getElementById('msgsScroll'); ch.scrollTop = ch.scrollHeight;
+      const ch = document.getElementById('msgsScroll');
+
+      ch.scrollTop = ch.scrollHeight;
+
       chat.unread_count = 0;
     }
   }
 }
+
 function showPartnerTyping(d){
-  if (APP.currentChatId !== d.chat_id || curScreen !== 'sChat') return;
-  const chat = getChat(d.chat_id); if (!chat) return;
+  if (
+    APP.currentChatId !== d.chat_id ||
+    curScreen !== 'sChat'
+  ){
+    return;
+  }
+
+  const chat = getChat(d.chat_id);
+
+  if (!chat) return;
+
   const tw = document.getElementById('typingWrap');
-  document.getElementById('typingAv').innerHTML = initialsHTML(chat.user.username, .55);
-  document.getElementById('typingLabel').textContent = chat.user.username + ' is typing…';
+
+  document.getElementById('typingAv').innerHTML =
+    initialsHTML(chat.user.username, .55);
+
+  document.getElementById('typingLabel').textContent =
+    chat.user.username + ' is typing…';
+
   tw.style.display = 'flex';
+
   clearTimeout(typingTO);
-  typingTO = setTimeout(()=>{ tw.style.display = 'none'; }, 2800);
-  const ms = document.getElementById('msgsScroll'); ms.scrollTop = ms.scrollHeight;
+
+  typingTO = setTimeout(()=>{
+    tw.style.display = 'none';
+  }, 2800);
+
+  const ms = document.getElementById('msgsScroll');
+
+  ms.scrollTop = ms.scrollHeight;
 }
+
 function clearTyping(){
   clearTimeout(typingTO);
-  document.getElementById('typingWrap').style.display = 'none';
+
+  document.getElementById('typingWrap').style.display =
+    'none';
 }
+
 function updatePresence(d){
   const online = d.status === 'online';
-  USERS.forEach(u=>{ if (u.id === d.user_id) u.is_online = online; });
+
+  USERS.forEach(u=>{
+    if (u.id === d.user_id){
+      u.is_online = online;
+    }
+  });
+
   CHATS.forEach(c=>{
     if (c.user.id === d.user_id){
       c.user.is_online = online;
-      if (!online) c.user.last_seen = d.last_seen;
+
+      if (!online){
+        c.user.last_seen = d.last_seen;
+      }
     }
   });
+
   renderMatchesScreen();
+
   const cur = getChat(APP.currentChatId);
-  if (cur && cur.user.id === d.user_id) renderChatHeader(cur);
+
+  if (
+    cur &&
+    cur.user.id === d.user_id
+  ){
+    renderChatHeader(cur);
+  }
 }
 
 /* ═══════════════════════════════════════════════════
-   MATCH NOTIFICATION SCREEN (kept for design; triggered on new chat)
+   MATCH NOTIFICATION SCREEN
 ═══════════════════════════════════════════════════ */
+
 let notifTimer;
+
 function showMatchNotif(chat){
   const er = ERA[eraFor(chat.user.id)];
-  document.getElementById('notifAvMe').innerHTML = initialsHTML(AUTH.me.username, 1.3);
-  document.getElementById('notifAvThem').innerHTML = initialsHTML(chat.user.username, 1.3);
-  document.getElementById('notifMatchName').textContent = chat.user.username;
-  document.getElementById('notifMatchMeta').textContent = `${er.name} ${er.emoji} · ${chat.user.is_online ? '🟢 Online' : '🕐 offline'}`;
-  document.getElementById('notifCompat').innerHTML = `<span class="e e-heart">💖</span> You two matched!`;
+
+  document.getElementById('notifAvMe').innerHTML =
+    initialsHTML(AUTH.me.username, 1.3);
+
+  document.getElementById('notifAvThem').innerHTML =
+    initialsHTML(chat.user.username, 1.3);
+
+  document.getElementById('notifMatchName').textContent =
+    chat.user.username;
+
+  document.getElementById('notifMatchMeta').textContent =
+    `${er.name} ${er.emoji} · ${chat.user.is_online ? '🟢 Online' : '🕐 offline'}`;
+
+  document.getElementById('notifCompat').innerHTML =
+    `<span class="e e-heart">💖</span> You two matched!`;
+
   spawnConfetti();
+
   APP.currentChatId = chat.chat_id;
+
   showScreen('sNotif');
-  let s = 5; const cd = document.getElementById('notifCount');
-  cd.textContent = `Auto-redirecting in ${s}s…`;
+
+  let s = 5;
+
+  const cd = document.getElementById('notifCount');
+
+  cd.textContent =
+    `Auto-redirecting in ${s}s…`;
+
   clearInterval(notifTimer);
-  notifTimer = setInterval(()=>{ s--; cd.textContent = `Auto-redirecting in ${s}s…`; if (s <= 0){ clearInterval(notifTimer); showMatches(); } }, 1000);
+
+  notifTimer = setInterval(()=>{
+    s--;
+
+    cd.textContent =
+      `Auto-redirecting in ${s}s…`;
+
+    if (s <= 0){
+      clearInterval(notifTimer);
+      showMatches();
+    }
+  }, 1000);
 }
-function openChatFromNotif(){ clearInterval(notifTimer); openChat(APP.currentChatId); }
+
+function openChatFromNotif(){
+  clearInterval(notifTimer);
+  openChat(APP.currentChatId);
+}
+
 function showMatches(){
   clearInterval(notifTimer);
+
   loadChats().catch(()=>{});
+
   showTab('sMatches','navMatches');
 }
+
 function spawnConfetti(){
-  const c = document.getElementById('confetti-layer'); c.innerHTML = '';
-  const cols = ['#a855f7','#ec4899','#f59e0b','#3b82f6','#4ade80','#f87171','#fbbf24','#818cf8'];
-  for (let i=0;i<30;i++){
-    const p = document.createElement('div'); p.className = 'cpc';
-    const s = 6 + Math.random()*10;
-    p.style.cssText = `left:${5+Math.random()*90}%;bottom:-10px;width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};--cd:${2+Math.random()*2}s;--cdl:${Math.random()*1.5}s`;
+  const c = document.getElementById('confetti-layer');
+
+  c.innerHTML = '';
+
+  const cols = [
+    '#a855f7',
+    '#ec4899',
+    '#f59e0b',
+    '#3b82f6',
+    '#4ade80',
+    '#f87171',
+    '#fbbf24',
+    '#818cf8'
+  ];
+
+  for (let i=0; i<30; i++){
+    const p = document.createElement('div');
+
+    p.className = 'cpc';
+
+    const s = 6 + Math.random() * 10;
+
+    p.style.cssText =
+      `left:${5 + Math.random()*90}%;` +
+      `bottom:-10px;` +
+      `width:${s}px;` +
+      `height:${s}px;` +
+      `background:${cols[Math.floor(Math.random()*cols.length)]};` +
+      `border-radius:${Math.random() > .5 ? '50%' : '2px'};` +
+      `--cd:${2 + Math.random()*2}s;` +
+      `--cdl:${Math.random()*1.5}s`;
+
     c.appendChild(p);
   }
-  setTimeout(()=>c.innerHTML = '', 4200);
+
+  setTimeout(()=>{
+    c.innerHTML = '';
+  }, 4200);
 }
+
 function openMatchSettings(chatId){
-  const chat = getChat(chatId); if (!chat) return;
+  const chat = getChat(chatId);
+
+  if (!chat) return;
+
   const er = ERA[eraFor(chat.user.id)];
+
   const av = document.getElementById('msAvEl');
-  av.style.borderColor = er.primary; av.style.background = er.cbg;
-  av.innerHTML = initialsHTML(chat.user.username, 1.1);
-  document.getElementById('msNameEl').textContent = chat.user.username;
-  document.getElementById('msMetaEl').textContent = `${er.name} ${er.emoji} · ${chat.user.is_online ? '🟢 Online' : '🕐 last seen ' + fmtLastSeen(chat.user.last_seen)}`;
-  document.getElementById('msCompatEl').innerHTML = `<span class="e e-heart">💖</span> Connected on raahi`;
+
+  av.style.borderColor = er.primary;
+  av.style.background = er.cbg;
+
+  av.innerHTML =
+    initialsHTML(chat.user.username, 1.1);
+
+  document.getElementById('msNameEl').textContent =
+    chat.user.username;
+
+  document.getElementById('msMetaEl').textContent =
+    `${er.name} ${er.emoji} · ${chat.user.is_online ? '🟢 Online' : '🕐 last seen ' + fmtLastSeen(chat.user.last_seen)}`;
+
+  document.getElementById('msCompatEl').innerHTML =
+    `<span class="e e-heart">💖</span> Connected on raahi`;
+
   openModal('mMatchSettings');
 }
 
@@ -1618,324 +2287,172 @@ function openMatchSettings(chatId){
 /* ═══════════════════════════════════════════════════
    EMOJI PICKER
 ═══════════════════════════════════════════════════ */
+
 const EMOJIS = {
   '😀':`😀😃😄😁😆😅🤣😂🙂😉😊🥰😍🤩😘😗😚😙🥲😋😛😜🤪😝🤑🤗🫠🫡🤭🫢🤫🤔🤐😬🙄😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥😓`.split(''),
+
   '❤️':`❤️🧡💛💚💙💜🖤🤍🤎💔❤️‍🔥💕💞💓💗💖💘💝💟✨💫⭐🌟🔥💥🌈`.split(''),
+
   '👍':`👍👎👊✊🤛🤜🤞✌️🤟🤘👌🤌🤏👈👉👆👇☝️👋🤚🖐✋🖖🫶🤲👐🙌👏🤝🙏`.split(''),
+
   '🐱':`🐶🐱🐭🐹🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🐔🐧🐦🦆🦅🦉🦇🐝🦋🐌🐞🐜🦟🦗🕷`.split(''),
+
   '🌸':`🌸🌺🌻🌹🌷🌼💐🍀🌿🌱🌲🌳🍁🍂🍃🪴🌵🌴🍄🌾🪸🌊🌙⭐☀️⛅🌤🌈`.split(''),
-  '🍕':`🍕🍔🌮🌯🥙🍜🍝🍛🍣🍱🍤🍙🍚🧁🍰🎂🍮🍭🍬🍫🍿🍩🍪🍞🥐☕🍵🧋🍺🥂🍷`.split(''),
+
+  '🍕':`🍕🍔🌮🌯🥙🍜🍝🍛🍣🍱🍤🍙🍚🧁🍰🎂🍮🍭🍬🍫🍿🍩🍪🍞🥐☕🍵🧋🍺🥂🍷`.split('')
 };
+
 const EP_CATS = Object.keys(EMOJIS);
+
 let curEpCat = EP_CATS[0];
+
 function initEmojiPicker(){
-  const cats = document.getElementById('epCats'); cats.innerHTML = '';
+  const cats = document.getElementById('epCats');
+
+  cats.innerHTML = '';
+
   EP_CATS.forEach(c=>{
     const b = document.createElement('button');
-    b.className = `ep-cat-btn${c === curEpCat ? ' act' : ''}`;
+
+    b.className =
+      `ep-cat-btn${c === curEpCat ? ' act' : ''}`;
+
     b.textContent = c;
-    b.onclick = ()=>{ curEpCat = c; document.querySelectorAll('.ep-cat-btn').forEach(x=>x.classList.remove('act')); b.classList.add('act'); renderEpGrid(); };
+
+    b.onclick = ()=>{
+      curEpCat = c;
+
+      document
+        .querySelectorAll('.ep-cat-btn')
+        .forEach(x => x.classList.remove('act'));
+
+      b.classList.add('act');
+
+      renderEpGrid();
+    };
+
     cats.appendChild(b);
   });
+
   renderEpGrid();
 }
+
 function renderEpGrid(){
-  const g = document.getElementById('epGrid'); g.innerHTML = '';
+  const g = document.getElementById('epGrid');
+
+  g.innerHTML = '';
+
   (EMOJIS[curEpCat] || []).forEach(em=>{
-    const b = document.createElement('button'); b.textContent = em;
-    b.onclick = ()=>{ const ta = document.getElementById('chatTA'); ta.value += em; onChatInput(ta); closeModal('mEmoji'); };
-    g.appendChild(b);
-  });
-}
-function filterEmojis(q){
-  const g = document.getElementById('epGrid'); g.innerHTML = '';
-  const list = q ? Object.values(EMOJIS).flat().filter(e=>e.includes(q)) : (EMOJIS[curEpCat] || []);
-  list.forEach(em=>{
-    const b = document.createElement('button'); b.textContent = em;
-    b.onclick = ()=>{ const ta = document.getElementById('chatTA'); ta.value += em; onChatInput(ta); closeModal('mEmoji'); };
+    const b = document.createElement('button');
+
+    b.textContent = em;
+
+    b.onclick = ()=>{
+      const ta = document.getElementById('chatTA');
+
+      ta.value += em;
+
+      onChatInput(ta);
+
+      closeModal('mEmoji');
+    };
+
     g.appendChild(b);
   });
 }
 
+function filterEmojis(q){
+  const g = document.getElementById('epGrid');
+
+  g.innerHTML = '';
+
+  const list = q
+    ? Object.values(EMOJIS)
+        .flat()
+        .filter(e => e.includes(q))
+    : (EMOJIS[curEpCat] || []);
+
+  list.forEach(em=>{
+    const b = document.createElement('button');
+
+    b.textContent = em;
+
+    b.onclick = ()=>{
+      const ta = document.getElementById('chatTA');
+
+      ta.value += em;
+
+      onChatInput(ta);
+
+      closeModal('mEmoji');
+    };
+
+    g.appendChild(b);
+  });
+}
+
+
 /* ═══════════════════════════════════════════════════
-   ATTACH & VOICE (backend has no upload endpoint — kept as UI)
+   ATTACH & VOICE
 ═══════════════════════════════════════════════════ */
+
 function doAttach(type){
   closeModal('mAttach');
-  toast('📎 File sharing ke liye backend me upload endpoint chahiye — abhi text chat live hai!');
+
+  toast(
+    '📎 File sharing requires a backend upload endpoint — text chat is currently available.'
+  );
 }
+
 function startVoice(){
-  const wf = document.getElementById('vrWf'); wf.innerHTML = '';
-  for (let i=0;i<18;i++){ const s = document.createElement('span'); s.style.cssText = `--h:${5+Math.random()*38}px;animation-delay:${i*.065}s`; wf.appendChild(s); }
+  const wf = document.getElementById('vrWf');
+
+  wf.innerHTML = '';
+
+  for (let i=0; i<18; i++){
+    const s = document.createElement('span');
+
+    s.style.cssText =
+      `--h:${5 + Math.random()*38}px;` +
+      `animation-delay:${i*.065}s`;
+
+    wf.appendChild(s);
+  }
+
   APP.voiceSec = 0;
-  document.getElementById('vrTimer').textContent = '00:00';
+
+  document.getElementById('vrTimer').textContent =
+    '00:00';
+
   APP.voiceTimer = setInterval(()=>{
     APP.voiceSec++;
-    const m = String(Math.floor(APP.voiceSec/60)).padStart(2,'0');
-    const s = String(APP.voiceSec%60).padStart(2,'0');
-    document.getElementById('vrTimer').textContent = `${m}:${s}`;
+
+    const m =
+      String(Math.floor(APP.voiceSec / 60)).padStart(2,'0');
+
+    const s =
+      String(APP.voiceSec % 60).padStart(2,'0');
+
+    document.getElementById('vrTimer').textContent =
+      `${m}:${s}`;
   }, 1000);
 }
-function cancelVoice(){ clearInterval(APP.voiceTimer); closeModal('mVoice'); }
+
+function cancelVoice(){
+  clearInterval(APP.voiceTimer);
+  closeModal('mVoice');
+}
+
 function sendVoiceNote(){
-  clearInterval(APP.voiceTimer); closeModal('mVoice');
-  toast('🎙️ Voice notes ke liye backend upload endpoint chahiye — abhi text bhejo!');
+  clearInterval(APP.voiceTimer);
+
+  closeModal('mVoice');
+
+  toast(
+    '🎙️ Voice notes require a backend upload endpoint — send a text message for now!'
+  );
 }
 
 /* ═══════════════════════════════════════════════════
-   GEMINI AI (direct to Google — same as before, context from live chat)
+   GEMINI AI
 ═══════════════════════════════════════════════════ */
-let gemTab = 'draft';
-function switchGemTab(tab){
-  gemTab = tab;
-  document.getElementById('gTabDraft').classList.toggle('act', tab==='draft');
-  document.getElementById('gTabExplain').classList.toggle('act', tab==='explain');
-  runGemini();
-}
-async function runGemini(){
-  const gc = document.getElementById('gemContent');
-  gc.innerHTML = `<div class="gem-spin-wrap"><div class="gem-spin"></div><div style="color:var(--muted);font-size:.8rem">Generating…</div></div>`;
-  const e = ERA[APP.era];
-  const msgs = (MSG_CACHE.get(APP.currentChatId) || []).slice(-5);
-  const lastMsgs = msgs.map(x=>`${x.sender_id === (AUTH.me&&AUTH.me.id) ? 'Me' : 'Them'}: ${x.content || ''}`).join('\n');
-  const chat = getChat(APP.currentChatId);
-  if (!APP.gemKey){
-    setTimeout(()=>{
-      if (gemTab === 'draft'){
-        const fb = {
-          genz:["no cap that hits different 🔥","bestie same energy fr fr 😭","it's giving connection vibes ✨","okay but unironically yes 👀"],
-          zillenial:["ok this is so relatable 🌀","lowkey same but hybrid","caught between replying fast vs playing cool 🎭"],
-          millennial:["That really resonates ☕","Honestly same, adulting is hard","I'd love to hear more about that 🌹"],
-        };
-        renderGemReplies(fb[APP.era] || fb.genz);
-      } else {
-        const last = [...msgs].reverse().find(x=>x.sender_id !== (AUTH.me&&AUTH.me.id));
-        gc.innerHTML = `<div class="gem-result">"${escapeHTML(last ? last.content : '…')}" — ${chat ? chat.user.username : 'they'}${"'"}re showing genuine interest. Match their energy, be authentic, keep it light. <span class="e e-float" style="display:inline-block">💡</span><br><small style="opacity:.6">Real AI analysis ke liye Settings me Gemini API key daalo.</small></div>`;
-      }
-    }, 800);
-    return;
-  }
-  try{
-    const prompt = gemTab === 'draft'
-      ? `Dating app assistant for ${e.name} user. Conversation:\n${lastMsgs}\n\nGenerate 3 short fun reply suggestions in ${e.name} style. Return ONLY a JSON array of 3 strings. No markdown.`
-      : `Analyze the last message from the conversation:\n${lastMsgs}\nExplain the other person's intent in 2-3 sentences and suggest an approach. Return ONLY JSON {"explanation":"..."}`;
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${APP.gemKey}`, {
-      method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
-    });
-    const data = await res.json();
-    const text = (data.candidates?.[0]?.content?.parts?.[0]?.text || '[]').replace(/```json|```/g,'').trim();
-    if (gemTab === 'draft') renderGemReplies(JSON.parse(text));
-    else { const obj = JSON.parse(text); gc.innerHTML = `<div class="gem-result">${escapeHTML(obj.explanation || obj)}</div>`; }
-  }catch(err){
-    gc.innerHTML = `<div class="gem-result" style="border-color:rgba(239,68,68,.3);color:#f87171">⚠️ ${err.message}<br><small style="opacity:.7">Add your Gemini key in Settings</small></div>`;
-  }
-}
-function renderGemReplies(arr){
-  const gc = document.getElementById('gemContent');
-  gc.innerHTML = arr.map(r=>`<div class="gem-result" onclick='useGemReply(${JSON.stringify(r).replace(/</g,"&lt;")})'>${escapeHTML(r)}</div>`).join('')
-    + `<div style="text-align:center;margin-top:8px"><button onclick="runGemini()" style="background:var(--cbg);border:1px solid var(--cbr);color:var(--ep);padding:8px 16px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600"><span class="e e-spin" style="display:inline-block">🔄</span> Refresh</button></div>`;
-}
-function useGemReply(text){
-  const ta = document.getElementById('chatTA'); ta.value = text; onChatInput(ta);
-  closeModal('mGemini'); ta.focus();
-}
-async function testGemini(){
-  const k = document.getElementById('gemKeyInp').value.trim();
-  if (!k){ toast('⚠️ Enter API key first'); return; }
-  APP.gemKey = k;
-  const el = document.getElementById('keyStatusEl');
-  el.innerHTML = '<div style="color:var(--muted)"><span class="e e-spin" style="display:inline-block">⚙️</span> Testing…</div>';
-  try{
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`, {
-      method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ contents:[{ parts:[{ text:'Reply with just: OK' }] }] })
-    });
-    const data = await res.json();
-    if (data.candidates){ el.innerHTML = '<div style="color:#4ade80;font-weight:700">✅ API key valid! Gemini ready.</div>'; toast('✅ Gemini API key verified!'); }
-    else throw new Error(data.error?.message || 'Invalid');
-  }catch(err){ el.innerHTML = `<div style="color:#f87171;font-weight:700">❌ ${err.message}</div>`; toast('❌ Invalid API key'); }
-}
-
-/* ═══════════════════════════════════════════════════
-   GAMES
-═══════════════════════════════════════════════════ */
-const FALLBACK = {
-  wyr:[
-    {q:'Would you rather go on a surprise trip with no destination revealed, or plan every detail of a perfect trip yourself?', a:'Mystery trip 🎲', b:'Planned perfection 📋'},
-    {q:'Would you rather never text again and only call, or never call and only text?', a:'Calls only 📞', b:'Texts only 📱'},
-    {q:'Would you rather date someone funnier or someone smarter?', a:'Funnier 😂', b:'Smarter 🧠'},
-  ],
-  truth:[
-    {q:"What's the most romantic thing you've secretly done for someone?"},
-    {q:"What's a dealbreaker you've never told anyone about?"},
-    {q:"What was your first impression of me? Be honest 👀"},
-  ],
-  dare:[
-    {q:'Send me a voice note doing your best impression of a movie character right now.'},
-    {q:"Tell me one compliment about me that you've been thinking but haven't said yet."},
-    {q:'Describe your ideal first date in exactly 10 words.'},
-  ],
-};
-function openGame(){ closeModal('mChatSettings'); APP.gameScore = {me:0,them:0}; openModal('mGame'); }
-function buildGameMenu(){
-  document.getElementById('gameBody').innerHTML = `
-    <div class="game-type-list">
-      <div class="gt-btn" onclick="startGame('wyr')"><div class="gt-icon-big"><span class="e e-orbit">🤔</span></div><div><div class="gt-info-title">Would You Rather</div><div class="gt-info-sub">Pick between two wild scenarios</div></div></div>
-      <div class="gt-btn" onclick="startGame('truth')"><div class="gt-icon-big"><span class="e e-float">💭</span></div><div><div class="gt-info-title">Truth</div><div class="gt-info-sub">Answer a flirty personal question</div></div></div>
-      <div class="gt-btn" onclick="startGame('dare')"><div class="gt-icon-big"><span class="e e-wiggle">🎲</span></div><div><div class="gt-info-title">Dare</div><div class="gt-info-sub">A playful text-based challenge</div></div></div>
-    </div>`;
-}
-async function startGame(type){
-  APP.gameType = type;
-  const body = document.getElementById('gameBody');
-  body.innerHTML = `<div class="gem-spin-wrap"><div class="gem-spin"></div><div style="color:var(--muted);font-size:.8rem">Generating question…</div></div>`;
-  let q = null;
-  if (APP.gemKey){
-    try{
-      const prompts = {
-        wyr:`Generate a fun creative "Would You Rather" for a dating app. Return ONLY JSON: {"q":"question","a":"Option A label","b":"Option B label"}`,
-        truth:`Generate a flirty respectful "Truth" question for a dating app. Return ONLY JSON: {"q":"question"}`,
-        dare:`Generate a playful text-based "Dare" for a dating app. Return ONLY JSON: {"q":"dare text"}`,
-      };
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${APP.gemKey}`, {
-        method:'POST', headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ contents:[{ parts:[{ text: prompts[type] }] }] })
-      });
-      const data = await res.json();
-      const text = (data.candidates?.[0]?.content?.parts?.[0]?.text || '{}').replace(/```json|```/g,'').trim();
-      q = JSON.parse(text);
-    }catch(e){}
-  }
-  if (!q){ const fb = FALLBACK[type]; q = fb[Math.floor(Math.random()*fb.length)]; }
-  renderGameQ(type, q);
-}
-function renderGameQ(type, q){
-  const icons = { wyr:'🤔', truth:'💭', dare:'🎲' };
-  const opts = type === 'wyr'
-    ? `<div class="game-opts"><div class="gopt" onclick="pickOpt(this)">${escapeHTML(q.a)}</div><div class="gopt" onclick="pickOpt(this)">${escapeHTML(q.b)}</div></div>`
-    : `<div class="gopt" style="cursor:default;opacity:.8;font-size:.82rem">💬 Answer honestly in the chat</div>
-       <button onclick="gameNext()" style="width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,var(--ep),var(--es));border:none;border-radius:30px;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer"><span class="e e-bounce" style="display:inline-block">✓</span> Send question to chat</button>`;
-  document.getElementById('gameBody').innerHTML = `
-    <div class="game-q-area">
-      <div class="game-score-row"><div class="gscore-item"><div class="gscore-num">${APP.gameScore.me}</div><div class="gscore-lbl">You</div></div><div style="color:var(--muted)">vs</div><div class="gscore-item"><div class="gscore-num">${APP.gameScore.them}</div><div class="gscore-lbl">Them</div></div></div>
-      <div class="game-q-text"><span class="e e-wiggle" style="display:inline-block">${icons[type]}</span> ${escapeHTML(q.q)}</div>
-      ${opts}
-    </div>
-    <button onclick="buildGameMenu()" style="width:100%;margin-top:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.55);padding:12px;border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.84rem">← Back to Games</button>`;
-  APP.curQuestion = q.q;
-}
-function pickOpt(el){
-  document.querySelectorAll('.gopt').forEach(o=>o.classList.remove('picked'));
-  el.classList.add('picked'); APP.gameScore.me++;
-  const ta = document.getElementById('chatTA');
-  ta.value = `🎮 Would You Rather: ${APP.curQuestion}\n👉 My pick: ${el.textContent}`;
-  onChatInput(ta);
-  closeModal('mGame');
-  toast('🎮 Reply ready — press send!');
-}
-function gameNext(){
-  APP.gameScore.me++;
-  const ta = document.getElementById('chatTA');
-  ta.value = `🎮 ${APP.curQuestion}`;
-  onChatInput(ta);
-  closeModal('mGame');
-  toast('🎮 Question sent to input — press send!');
-}
-
-
-/* ═══════════════════════════════════════════════════
-   AVATAR CREATOR (local — shown as your initials)
-═══════════════════════════════════════════════════ */
-const AV_COLORS = ['#a855f7','#ec4899','#3b82f6','#06b6d4','#f59e0b','#ef4444','#4ade80','#f97316','#8b5cf6','#fbbf24','#34d399','#fb7185','#60a5fa','#c084fc','#a3e635'];
-function initAvatarCreator(){
-  const cg = document.getElementById('avColors'); cg.innerHTML = '';
-  AV_COLORS.forEach(c=>{
-    const d = document.createElement('div');
-    d.className = `av-clr${c === APP.avatar.color ? ' sel' : ''}`;
-    d.style.background = c;
-    d.onclick = ()=>{ APP.avatar.color = c; document.querySelectorAll('.av-clr').forEach(x=>x.classList.remove('sel')); d.classList.add('sel'); updateAvPreview(); };
-    cg.appendChild(d);
-  });
-  document.getElementById('avInitInp').value = APP.avatar.initials || (AUTH.me ? avatarFor(AUTH.me.username).initials : 'ME');
-  setAvMode('initials');
-  updateAvPreview();
-}
-function setAvMode(mode){
-  APP.avatar.mode = mode;
-  document.getElementById('avModeEmoji').classList.toggle('act', mode==='emoji');
-  document.getElementById('avModeInit').classList.toggle('act', mode==='initials');
-  document.getElementById('avEmojiSec').style.display = mode==='emoji' ? 'block' : 'none';
-  document.getElementById('avInitSec').style.display  = mode==='initials' ? 'block' : 'none';
-  updateAvPreview();
-}
-function updateAvPreview(){
-  const pv = document.getElementById('avPreviewBig');
-  pv.style.background = APP.avatar.color; pv.style.borderColor = ERA[APP.era].primary;
-  const v = (document.getElementById('avInitInp').value || 'ME').toUpperCase().slice(0, 2);
-  APP.avatar.initials = v;
-  pv.innerHTML = `<span style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:#fff">${v}</span>`;
-}
-function saveAvatar(){
-  const v = document.getElementById('avInitInp').value;
-  if (v) APP.avatar.initials = v.toUpperCase().slice(0, 2);
-  buildAvatarsUI(); renderMatchesScreen();
-  closeModal('mAvatar'); toast('🎨 Avatar saved!');
-}
-function buildAvatarsUI(){
-  const e = ERA[APP.era];
-  ['myAv','settingsAv'].forEach(id=>{
-    const el = document.getElementById(id); if (!el) return;
-    el.style.borderColor = e.primary; el.style.background = APP.avatar.color;
-    el.innerHTML = initialsHTML(APP.avatar.initials || (AUTH.me ? AUTH.me.username : 'ME'), el.classList.contains('av-lg') ? 1.3 : .95);
-  });
-  const lbl = document.getElementById('srvUrlLbl'); if (lbl) lbl.textContent = API_BASE;
-  const nameEl = document.getElementById('settingsName');
-  if (nameEl && AUTH.me) nameEl.textContent = AUTH.me.username;
-}
-
-/* ═══════════════════════════════════════════════════
-   SETTINGS
-═══════════════════════════════════════════════════ */
-function promptServerUrl(){
-  const v = prompt('Backend server URL:', API_BASE);
-  if (v !== null){ setApiBase(v); buildAvatarsUI(); if (AUTH.token){ toast('🔄 Reconnecting…'); connectWS(); } }
-}
-function buildEraGrid(){
-  const g = document.getElementById('eraGridS'); g.innerHTML = '';
-  Object.keys(ERA).forEach(k=>{
-    const e = ERA[k];
-    const d = document.createElement('div');
-    d.className = `era-grid-btn${k === APP.era ? ' act' : ''}`; d.dataset.era = k;
-    d.innerHTML = `<span class="eg-emoji-big e ${e.emojiCls}">${e.emoji}</span><span class="eg-name-s">${e.name}</span><span class="eg-check">✓ Active</span>`;
-    d.onclick = ()=>{
-      APP.era = k; applyTheme(k);
-      document.querySelectorAll('.era-grid-btn').forEach(b=>b.classList.remove('act')); d.classList.add('act');
-      buildAvatarsUI(); renderMatchesScreen();
-      toast(`${e.emoji} Switched to ${e.name} mode!`);
-      if (navigator.vibrate) navigator.vibrate(22);
-    };
-    g.appendChild(d);
-  });
-}
-
-/* ═══════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', ()=>{
-  buildParticles();
-  applyTheme('genz');
-  buildAvatarsUI();
-  document.getElementById('apiUrlInp').value = API_BASE;
-  document.getElementById('emptyConvs').style.display = 'none';
-  if (AUTH.token){
-    toast('🔄 Restoring session…');
-    boot().catch(err=>{ toast('❌ ' + err.message); logout(true); });
-  } else {
-    document.getElementById('sAuth').classList.add('active');
-  }
-});
-
-</script>
-</body>
-</html>
