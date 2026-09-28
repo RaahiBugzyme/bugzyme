@@ -91,7 +91,24 @@ class Message(Base):
     is_deleted = Column(Boolean, default=False, nullable=False)
     deleted_at = Column(DateTime, nullable=True)
     reply_to_id = Column(Integer, ForeignKey("messages.id"), nullable=True, index=True)
-
+        # Voice message support
+    message_type = Column(
+        String(20),
+        default="text",
+        nullable=False,
+    )
+    audio_url = Column(
+        String(500),
+        nullable=True,
+    )
+    audio_duration = Column(
+        Integer,
+        nullable=True,
+    )
+    audio_mime_type = Column(
+        String(100),
+        nullable=True,
+    )
     chat = relationship("Chat", back_populates="messages")
     sender = relationship(
         "User",

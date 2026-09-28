@@ -2692,7 +2692,6 @@ function cancelVoice(){
   console.log('🎙️ Voice recording cancelled');
 }
 
-
 async function sendVoiceNote(){
 
 if (
@@ -2736,44 +2735,101 @@ recorder.onstop = async () => {
       localStorage.getItem('raahi_api') ||
       'http://127.0.0.1:8000';
 
+    const token = AUTH.token;
+
+    if (!token) {
+      throw new Error('Authentication token missing');
+    }
+
+    if (!APP.currentChatId) {
+      throw new Error('No active chat');
+    }
+
     const response = await fetch(
-      `${API_BASE}/upload-voice`,
+      `${API_BASE}/upload-voice` +
+      `?chat_id=${APP.currentChatId}` +
+      `&duration=${APP.voiceSec}`,
       {
         method: 'POST',
+
+        headers: {
+          'Authorization':
+            `Bearer ${token}`
+        },
+
         body: formData
       }
     );
 
     if (!response.ok) {
+
+      const errorText =
+        await response.text();
+
       throw new Error(
-        `Upload failed: ${response.status}`
+        `Upload failed: ${response.status} ${errorText}`
       );
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
-    console.log('🎙️ VOICE UPLOAD SUCCESS:', data);
+    console.log(
+      '🎙️ VOICE MESSAGE SUCCESS:',
+      data
+    );
 
-    toast('🎙️ Voice uploaded successfully');
+    const msg = data.message;
+
+    if (msg) {
+
+      const arr =
+        MSG_CACHE.get(APP.currentChatId) || [];
+
+      if (!arr.find(
+        x => x.id === msg.id
+      )) {
+
+        arr.push(msg);
+
+        MSG_CACHE.set(
+          APP.currentChatId,
+          arr
+        );
+
+        appendBubble(
+          msg,
+          true
+        );
+      }
+    }
+
+    toast(
+      '🎙️ Voice message sent'
+    );
 
   } catch (err) {
 
     console.error(
-      '🎙️ VOICE UPLOAD ERROR:',
+      '🎙️ VOICE MESSAGE ERROR:',
       err
     );
 
     toast(
-      '❌ Voice upload failed: ' +
+      '❌ Voice message failed: ' +
       err.message
     );
 
   } finally {
 
     if (APP.voiceStream) {
+
       APP.voiceStream
         .getTracks()
-        .forEach(track => track.stop());
+        .forEach(track =>
+          track.stop()
+        );
+
     }
 
     APP.voiceStream = null;
@@ -2786,7 +2842,6 @@ recorder.onstop = async () => {
 
 recorder.stop();
 }
-
   
 showScreen('sAuth');
 </script>

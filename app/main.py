@@ -292,6 +292,67 @@ def save_message(
     }
 
 
+
+def save_voice_message(
+    db: Session,
+    sender_id: int,
+    chat_id: int,
+    audio_url: str,
+    audio_duration: int | None,
+    audio_mime_type: str | None
+):
+    chat = member_chat(
+        db,
+        chat_id,
+        sender_id
+    )
+
+    if not chat:
+        return None
+
+    message = models.Message(
+        chat_id=chat_id,
+        sender_id=sender_id,
+        content=None,
+        created_at=utcnow(),
+        is_delivered=False,
+        is_read=False,
+        is_deleted=False,
+        reply_to_id=None,
+
+        message_type="voice",
+        audio_url=audio_url,
+        audio_duration=audio_duration,
+        audio_mime_type=audio_mime_type,
+    )
+
+    db.add(message)
+    db.commit()
+    db.refresh(message)
+
+    return {
+        "id": message.id,
+        "chat_id": chat_id,
+        "sender_id": sender_id,
+        "content": None,
+        "created_at": iso(message.created_at),
+        "is_delivered": False,
+        "is_read": False,
+        "is_deleted": False,
+        "reply_to_id": None,
+
+        "message_type": "voice",
+        "audio_url": message.audio_url,
+        "audio_duration": message.audio_duration,
+        "audio_mime_type": message.audio_mime_type,
+
+        "receiver_id": other_user(
+            chat,
+            sender_id
+        ),
+    }
+
+
 # ============================================================
 # MESSAGE DELETE
 # ============================================================
@@ -775,14 +836,44 @@ def register_user(
     db.refresh(new_user)
 
     return new_user
-
 @app.post("/upload-voice")
-async def upload_voice(file: UploadFile = File(...)):
+async def upload_voice(
+    file: UploadFile = File(...),
+    chat_id: int = Query(...),
+    duration: int | None = Query(default=None),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # -----------------------------------------
+    # 1. Check chat membership
+    # -----------------------------------------
+
+    chat = member_chat(
+        db,
+        chat_id,
+        current_user.id
+    )
+
+    if not chat:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not a member of this chat"
+        )
+
+    # -----------------------------------------
+    # 2. Save audio file
+    # -----------------------------------------
+
     upload_dir = "uploads/voice"
 
-    os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(
+        upload_dir,
+        exist_ok=True
+    )
 
-    extension = os.path.splitext(file.filename or "")[1]
+    extension = os.path.splitext(
+        file.filename or ""
+    )[1]
 
     if not extension:
         extension = ".webm"
@@ -796,17 +887,88 @@ async def upload_voice(file: UploadFile = File(...)):
 
     content = await file.read()
 
+    if not content:
+        raise HTTPException(
+            status_code=400,
+            detail="Empty audio file"
+        )
+
     with open(file_path, "wb") as f:
         f.write(content)
 
+    audio_url = f"/uploads/voice/{filename}"
+
+    # -----------------------------------------
+    # 3. Create voice message in DB
+    # -----------------------------------------
+
+    message = await db_call(
+        save_voice_message,
+        current_user.id,
+        chat_id,
+        audio_url,
+        duration,
+        file.content_type
+    )
+
+    if message is None:
+        # Remove uploaded file if DB message failed
+        try:
+            os.remove(file_path)
+        except OSError:
+            pass
+
+        raise HTTPException(
+            status_code=400,
+            detail="Could not create voice message"
+        )
+
+    # -----------------------------------------
+    # 4. Send voice message to receiver
+    # -----------------------------------------
+
+    payload = {
+        "type": "voice_message",
+        "chat_id": chat_id,
+        "message_id": message["id"],
+        "sender_id": current_user.id,
+        "sender_name": current_user.username,
+        "content": None,
+        "created_at": message["created_at"],
+        "reply_to_id": None,
+        "message_type": "voice",
+        "audio_url": message["audio_url"],
+        "audio_duration": message["audio_duration"],
+        "audio_mime_type": message["audio_mime_type"],
+    }
+
+    delivered = await manager.send_to_user(
+        message["receiver_id"],
+        payload,
+        chat_id
+    )
+
+    # -----------------------------------------
+    # 5. Mark delivered if receiver is online
+    # -----------------------------------------
+
+    if delivered:
+        await db_call(
+            mark_delivered,
+            [message["id"]]
+        )
+
+        message["is_delivered"] = True
+
+    # -----------------------------------------
+    # 6. Return message to sender
+    # -----------------------------------------
+
     return {
         "success": True,
-        "filename": filename,
-        "path": f"/uploads/voice/{filename}",
-        "content_type": file.content_type,
-        "size": len(content)
+        "message": message,
+        "delivered": delivered,
     }
-    
 # ============================================================
 # LOGIN
 # ============================================================

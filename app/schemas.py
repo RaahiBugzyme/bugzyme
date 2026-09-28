@@ -77,6 +77,27 @@ class MessageResponse(_FromOrm):
     is_deleted: bool = False
     reply_to_id: int | None = None
 
+    # Voice message support
+    message_type: str = "text"
+    audio_url: str | None = None
+    audio_duration: int | None = None
+    audio_mime_type: str | None = None
+
+    _fix_delivered = field_validator(
+        "is_delivered",
+        mode="before"
+    )(_none_to_false)
+
+    _fix_read = field_validator(
+        "is_read",
+        mode="before"
+    )(_none_to_false)
+
+    _fix_deleted = field_validator(
+        "is_deleted",
+        mode="before"
+    )(_none_to_false)
+
     _fix_delivered = field_validator("is_delivered", mode="before")(_none_to_false)
     _fix_read = field_validator("is_read", mode="before")(_none_to_false)
     _fix_deleted = field_validator("is_deleted", mode="before")(_none_to_false)
