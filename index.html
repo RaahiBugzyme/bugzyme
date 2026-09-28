@@ -1202,38 +1202,29 @@ function avatarFor(name){
   const ini = parts.slice(0,2).map(w=>w[0]).join('').toUpperCase() || '?';
   return { mode:'initials', initials: ini, color:'#a855f7' };
 }
-function fmtTime(isoStr){
+function fmtTime(isoStr) {
+  if (!isoStr) return '';
 
-if (!isoStr) return '';
+  const value = String(isoStr).trim();
 
-const d = new Date(isoStr);
+  if (!value) return '';
 
-if (isNaN(d.getTime())) return '';
+  const utcValue =
+    !value.endsWith('Z') &&
+    !/[+-]\d{2}:\d{2}$/.test(value)
+      ? value + 'Z'
+      : value;
 
-const now = new Date();
+  const d = new Date(utcValue);
 
-const t = d.toLocaleTimeString('en-IN', {
-  timeZone: 'Asia/Kolkata',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: true
-});
+  if (isNaN(d.getTime())) return '';
 
-const messageDate = d.toLocaleDateString('en-CA', {
-  timeZone: 'Asia/Kolkata'
-});
-
-const todayDate = now.toLocaleDateString('en-CA', {
-  timeZone: 'Asia/Kolkata'
-});
-
-return messageDate === todayDate
-  ? t
-  : d.toLocaleDateString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      month: 'short',
-      day: 'numeric'
-    }) + ' ' + t;
+  return d.toLocaleTimeString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
 }
 function fmtLastSeen(isoStr){
   if (!isoStr) return 'long ago';
@@ -1605,160 +1596,400 @@ function renderMatchIntro(chat){
 }
 
 function appendBubble(msg, scroll){
-  const ms = document.getElementById('msgsScroll');
-  const meId = AUTH.me ? AUTH.me.id : -1;
-  const isMine = msg.sender_id === meId;
-  const chat = getChat(msg.chat_id);
-  const er = chat ? ERA[eraFor(chat.user.id)] : ERA[APP.era];
 
-  const row = document.createElement('div');
-  row.className = `msg-row ${isMine ? 'me' : 'them'}`;
+const ms = document.getElementById('msgsScroll');
 
-  if (msg.id) {
-    row.dataset.messageId = String(msg.id);
-  }
+const meId = AUTH.me ? AUTH.me.id : -1;
 
-  const tickState = msg.is_read
-    ? 'read'
-    : (msg.is_delivered ? 'delivered' : (msg.id ? 'sent' : 'pending'));
+const isMine = msg.sender_id === meId;
 
-  const tick = isMine
-    ? `<span class="tick${tickState === 'read' ? ' seen' : ''}">
-        ${tickState === 'pending' ? '⏳' : tickState === 'sent' ? '✓' : '✓✓'}
-       </span>`
-    : '';
+const chat = getChat(msg.chat_id);
 
-  let replyHTML = '';
+const er = chat
+  ? ERA[eraFor(chat.user.id)]
+  : ERA[APP.era];
 
-  if (msg.reply_to_id) {
-    const arr = MSG_CACHE.get(msg.chat_id) || [];
-    const parent = arr.find(x => x.id === msg.reply_to_id);
 
-    if (parent) {
-      const parentName = parent.sender_id === meId
+const row = document.createElement('div');
+
+row.className =
+  `msg-row ${isMine ? 'me' : 'them'}`;
+
+
+if (msg.id) {
+  row.dataset.messageId = String(msg.id);
+}
+
+
+/* =========================
+   TICKS
+========================= */
+
+const tickState = msg.is_read
+  ? 'read'
+  : (
+      msg.is_delivered
+        ? 'delivered'
+        : (
+            msg.id
+              ? 'sent'
+              : 'pending'
+          )
+    );
+
+
+const tick = isMine
+  ? `
+    <span class="tick${tickState === 'read' ? ' seen' : ''}">
+      ${
+        tickState === 'pending'
+          ? '⏳'
+          : tickState === 'sent'
+            ? '✓'
+            : '✓✓'
+      }
+    </span>
+  `
+  : '';
+
+
+/* =========================
+   REPLY
+========================= */
+
+let replyHTML = '';
+
+if (msg.reply_to_id) {
+
+  const arr =
+    MSG_CACHE.get(msg.chat_id) || [];
+
+  const parent =
+    arr.find(
+      x => x.id === msg.reply_to_id
+    );
+
+
+  if (parent) {
+
+    const parentName =
+      parent.sender_id === meId
         ? 'You'
-        : (chat ? chat.user.username : 'Message');
+        : (
+            chat
+              ? chat.user.username
+              : 'Message'
+          );
 
-      const parentText = parent.is_deleted
+
+    let parentText =
+      parent.is_deleted
         ? 'Message deleted'
-        : (parent.content || '');
+        : (
+            parent.message_type === 'voice'
+              ? '🎙️ Voice message'
+              : (parent.content || '')
+          );
 
-      replyHTML = `
-        <div
-          class="reply-preview"
-          data-reply-to="${parent.id}"
-          onclick="event.stopPropagation();focusOriginalMessage(${parent.id})"
-          title="View original message"
-        >
-          <div class="reply-preview-name">
-            ${escapeHTML(parentName)}
-          </div>
 
-          <div>
-            ${escapeHTML(parentText.slice(0, 100))}
-          </div>
+    replyHTML = `
+      <div
+        class="reply-preview"
+        data-reply-to="${parent.id}"
+        onclick="event.stopPropagation();focusOriginalMessage(${parent.id})"
+        title="View original message"
+      >
+
+        <div class="reply-preview-name">
+          ${escapeHTML(parentName)}
         </div>
-      `;
-    }
-  }
-
-  let body;
-
-  if (msg.is_deleted) {
-
-    body = `
-      <div class="bubble deleted-bubble">
-        <span>🚫 This message was deleted</span>
-
-        <div class="bubble-time">
-          ${fmtTime(msg.created_at)}
-          ${tick}
-        </div>
-      </div>
-    `;
-
-  } else {
-
-    const actions = `
-      <div class="msg-actions">
-
-        <button
-          class="msg-action-btn"
-          onclick="event.stopPropagation();startReply(${msg.id})">
-          ↩ Reply
-        </button>
-
-        ${isMine ? `
-          <button
-            class="msg-action-btn msg-action-delete"
-            onclick="event.stopPropagation();deleteMessageForEveryone(${msg.id})">
-            🗑 Delete
-          </button>
-        ` : ''}
-
-      </div>
-    `;
-
-    body = `
-      <div class="bubble">
-
-        ${replyHTML}
 
         <div>
-          ${escapeHTML(msg.content || '')}
-        </div>
-
-        <div class="bubble-time">
-          ${fmtTime(msg.created_at)}
-          ${tick}
+          ${escapeHTML(parentText.slice(0, 100))}
         </div>
 
       </div>
-
-      ${actions}
     `;
   }
+}
 
-  if (!isMine) {
 
-    row.innerHTML = `
-      <div
-        class="msg-av-sm"
-        style="border-color:${er.primary};background:${er.cbg}">
-        ${initialsHTML(chat ? chat.user.username : '?', .55)}
+/* =========================
+   MESSAGE BODY
+========================= */
+
+let body = '';
+
+
+/* =========================
+   DELETED MESSAGE
+========================= */
+
+if (msg.is_deleted) {
+
+  body = `
+    <div class="bubble deleted-bubble">
+
+      <span>
+        🚫 This message was deleted
+      </span>
+
+      <div class="bubble-time">
+
+        ${fmtTime(msg.created_at)}
+
+        ${tick}
+
       </div>
+
+    </div>
+  `;
+
+}
+
+
+/* =========================
+   VOICE MESSAGE
+========================= */
+
+else if (msg.message_type === 'voice') {
+
+  const API_BASE =
+    localStorage.getItem('raahi_api') ||
+    'http://127.0.0.1:8000';
+
+
+  let audioSrc = msg.audio_url || '';
+
+
+  /*
+    Backend sends:
+    /uploads/voice/xxxxx.webm
+
+    We need:
+    https://bugzyme-final.onrender.com/uploads/voice/xxxxx.webm
+  */
+
+  if (
+    audioSrc &&
+    audioSrc.startsWith('/')
+  ) {
+
+    audioSrc =
+      API_BASE.replace(/\/$/, '') +
+      audioSrc;
+
+  }
+
+
+  const duration =
+    msg.audio_duration != null
+      ? `${Math.floor(msg.audio_duration / 60)
+          .toString()
+          .padStart(2, '0')}:${(msg.audio_duration % 60)
+          .toString()
+          .padStart(2, '0')}`
+      : 'Voice message';
+
+
+  body = `
+    <div class="bubble voice-bubble">
+
+      ${replyHTML}
+
+      <div class="voice-message">
+
+        <div class="voice-icon">
+          🎙️
+        </div>
+
+        <div class="voice-audio-wrap">
+
+          <audio
+            class="voice-audio"
+            controls
+            preload="metadata"
+            src="${escapeHTML(audioSrc)}">
+          </audio>
+
+          <div class="voice-duration">
+            ${duration}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="bubble-time">
+
+        ${fmtTime(msg.created_at)}
+
+        ${tick}
+
+      </div>
+
+    </div>
+
+
+    <div class="msg-actions">
+
+      <button
+        class="msg-action-btn"
+        onclick="event.stopPropagation();startReply(${msg.id})">
+        ↩ Reply
+      </button>
+
+      ${isMine ? `
+        <button
+          class="msg-action-btn msg-action-delete"
+          onclick="event.stopPropagation();deleteMessageForEveryone(${msg.id})">
+          🗑 Delete
+        </button>
+      ` : ''}
+
+    </div>
+  `;
+}
+
+
+/* =========================
+   NORMAL TEXT MESSAGE
+========================= */
+
+else {
+
+  const actions = `
+    <div class="msg-actions">
+
+      <button
+        class="msg-action-btn"
+        onclick="event.stopPropagation();startReply(${msg.id})">
+        ↩ Reply
+      </button>
+
+      ${isMine ? `
+        <button
+          class="msg-action-btn msg-action-delete"
+          onclick="event.stopPropagation();deleteMessageForEveryone(${msg.id})">
+          🗑 Delete
+        </button>
+      ` : ''}
+
+    </div>
+  `;
+
+
+  body = `
+    <div class="bubble">
+
+      ${replyHTML}
 
       <div>
-        ${body}
+        ${escapeHTML(msg.content || '')}
       </div>
-    `;
 
-  } else {
+      <div class="bubble-time">
 
-    row.innerHTML = `
-      <div>
-        ${body}
+        ${fmtTime(msg.created_at)}
+
+        ${tick}
+
       </div>
-    `;
-  }
 
-  ms.appendChild(row);
+    </div>
 
-  const key = String(msg.id || msg.client_id);
+    ${actions}
+  `;
+}
 
-  if (key && key !== 'undefined') {
-    MSG_ELS.set(key, {
-      tick: row.querySelector('.tick'),
-      row,
-      msg
-    });
-  }
 
-  if (scroll) {
-    setTimeout(() => {
-      ms.scrollTop = ms.scrollHeight;
-    }, 40);
-  }
+/* =========================
+   ROW
+========================= */
+
+if (!isMine) {
+
+  row.innerHTML = `
+
+    <div
+      class="msg-av-sm"
+      style="
+        border-color:${er.primary};
+        background:${er.cbg}
+      "
+    >
+      ${initialsHTML(
+        chat
+          ? chat.user.username
+          : '?',
+        .55
+      )}
+    </div>
+
+    <div>
+      ${body}
+    </div>
+
+  `;
+
+} else {
+
+  row.innerHTML = `
+
+    <div>
+      ${body}
+    </div>
+
+  `;
+}
+
+
+ms.appendChild(row);
+
+
+/* =========================
+   MESSAGE ELEMENT CACHE
+========================= */
+
+const key =
+  String(msg.id || msg.client_id);
+
+
+if (
+  key &&
+  key !== 'undefined'
+) {
+
+  MSG_ELS.set(key, {
+
+    tick:
+      row.querySelector('.tick'),
+
+    row,
+
+    msg
+
+  });
+
+}
+
+
+/* =========================
+   AUTO SCROLL
+========================= */
+
+if (scroll) {
+
+  setTimeout(() => {
+
+    ms.scrollTop =
+      ms.scrollHeight;
+
+  }, 40);
+
+}
+
 }
 
 function focusOriginalMessage(messageId){

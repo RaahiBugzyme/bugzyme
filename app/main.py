@@ -224,11 +224,17 @@ def find_chat(db: Session, user1_id: int, user2_id: int):
 
 def get_partners(db: Session, user_id: int):
     chats = db.query(models.Chat).filter(
-        or_(
-            models.Chat.user1_id == user_id,
-            models.Chat.user2_id == user_id
+    or_(
+        and_(
+            models.Chat.user1_id == my_id,
+            models.Chat.deleted_by_user1.is_(False)
+        ),
+        and_(
+            models.Chat.user2_id == my_id,
+            models.Chat.deleted_by_user2.is_(False)
         )
-    ).all()
+    )
+).all()
 
     return {
         chat.id: other_user(chat, user_id)
@@ -399,7 +405,6 @@ def soft_delete_message(
 # ============================================================
 # CHAT DELETE
 # ============================================================
-
 def delete_chat_from_database(
     db: Session,
     chat_id: int,
@@ -416,29 +421,22 @@ def delete_chat_from_database(
     ):
         return None
 
+    # Mark conversation as deleted only
+    # for the current user's side.
     if chat.user1_id == user_id:
-        other_user_id = chat.user2_id
+        chat.deleted_by_user1 = True
     else:
-        other_user_id = chat.user1_id
+        chat.deleted_by_user2 = True
 
-    # Delete all messages
-    db.query(models.Message).filter(
-        models.Message.chat_id == chat_id
-    ).delete(
-        synchronize_session=False
-    )
-
-    # Delete chat
-    db.delete(chat)
+    # IMPORTANT:
+    # Do NOT delete messages.
+    # Do NOT delete the chat.
     db.commit()
 
     return {
         "chat_id": chat_id,
-        "user_id": user_id,
-        "other_user_id": other_user_id
+        "user_id": user_id
     }
-
-
 # ============================================================
 # DELIVERY / READ
 # ============================================================
