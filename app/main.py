@@ -221,27 +221,24 @@ def find_chat(db: Session, user1_id: int, user2_id: int):
         )
     ).first()
 
-
 def get_partners(db: Session, user_id: int):
     chats = db.query(models.Chat).filter(
-    or_(
-        and_(
-            models.Chat.user1_id == my_id,
-            models.Chat.deleted_by_user1.is_(False)
-        ),
-        and_(
-            models.Chat.user2_id == my_id,
-            models.Chat.deleted_by_user2.is_(False)
+        or_(
+            and_(
+                models.Chat.user1_id == user_id,
+                models.Chat.deleted_by_user1.is_(False)
+            ),
+            and_(
+                models.Chat.user2_id == user_id,
+                models.Chat.deleted_by_user2.is_(False)
+            )
         )
-    )
-).all()
+    ).all()
 
     return {
         chat.id: other_user(chat, user_id)
         for chat in chats
     }
-
-
 # ============================================================
 # MESSAGE SAVE
 # ============================================================
