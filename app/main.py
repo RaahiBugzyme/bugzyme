@@ -4,6 +4,7 @@ import asyncio
 import contextlib
 import logging
 import os
+import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 
@@ -13,10 +14,13 @@ from fastapi import (
     HTTPException,
     Query,
     Request,
+    UploadFile,
+    File,
     WebSocket,
     WebSocketDisconnect,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -93,6 +97,16 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title="Bugzyme",
     lifespan=lifespan
+)
+
+# Voice upload folder
+os.makedirs("uploads/voice", exist_ok=True)
+
+# Serve uploaded voice files
+app.mount(
+    "/uploads",
+    StaticFiles(directory="uploads"),
+    name="uploads"
 )
 
 
@@ -703,6 +717,8 @@ def health():
     }
 
 
+
+
 # ============================================================
 # REGISTER
 # ============================================================
@@ -760,7 +776,37 @@ def register_user(
 
     return new_user
 
+@app.post("/upload-voice")
+async def upload_voice(file: UploadFile = File(...)):
+    upload_dir = "uploads/voice"
 
+    os.makedirs(upload_dir, exist_ok=True)
+
+    extension = os.path.splitext(file.filename or "")[1]
+
+    if not extension:
+        extension = ".webm"
+
+    filename = f"{uuid.uuid4()}{extension}"
+
+    file_path = os.path.join(
+        upload_dir,
+        filename
+    )
+
+    content = await file.read()
+
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    return {
+        "success": True,
+        "filename": filename,
+        "path": f"/uploads/voice/{filename}",
+        "content_type": file.content_type,
+        "size": len(content)
+    }
+    
 # ============================================================
 # LOGIN
 # ============================================================

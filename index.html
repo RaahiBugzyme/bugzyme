@@ -331,6 +331,22 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   margin-bottom:2px;
 }
 
+.reply-highlight .bubble{
+  animation: replyHighlight 1.8s ease;
+}
+
+@keyframes replyHighlight{
+  0%{
+    transform:scale(1.03);
+    box-shadow:0 0 0 3px rgba(168,85,247,.65);
+  }
+
+  100%{
+    transform:scale(1);
+    box-shadow:none;
+  }
+}
+
 .reply-bar{
   display:none;
   align-items:center;
@@ -1162,8 +1178,14 @@ const APP = {
   gemKey:'',
   currentChatId:null,
   replyingTo:null,
-  gameScore:{me:0,them:0}, gameType:null,
-  voiceTimer:null, voiceSec:0,
+  gameScore:{me:0,them:0},
+  gameType:null,
+
+  voiceTimer:null,
+  voiceSec:0,
+  voiceRecorder:null,
+  voiceStream:null,
+  voiceChunks:[]
 };
 
 const CHATS  = [];                    // GET /chats summaries
@@ -1247,22 +1269,58 @@ function buildParticles(){
 }
 
 /* ---------- SCREEN NAV ---------- */
-let curScreen = 'sAuth';
+let curScreen = null;
+
 function showScreen(id){
-  if (curScreen === id) return;
-  const prev = document.getElementById(curScreen), next = document.getElementById(id);
-  if (prev){ prev.classList.remove('active'); prev.classList.add('slide-left');
-    setTimeout(()=>prev.classList.remove('slide-left'),350); }
+
+  const screens = document.querySelectorAll('.screen');
+
+  screens.forEach(screen => {
+    screen.classList.remove('active');
+    screen.classList.remove('slide-left');
+    screen.style.display = 'none';
+  });
+
+  const next = document.getElementById(id);
+
+  if (!next) {
+    console.error('Screen not found:', id);
+    return;
+  }
+
   next.classList.add('active');
+  next.style.display = 'flex';
+
   curScreen = id;
-  document.getElementById('bottomNav').style.display =
-    ['sMatches','sSettings'].includes(id) ? 'flex' : 'none';
+
+  const bottomNav = document.getElementById('bottomNav');
+
+  if (bottomNav) {
+    bottomNav.style.display =
+      ['sMatches', 'sSettings'].includes(id)
+        ? 'flex'
+        : 'none';
+  }
 }
+
 function showTab(screenId, navId){
+
   showScreen(screenId);
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById(navId).classList.add('active');
-  if (screenId === 'sSettings'){ buildEraGrid(); buildAvatarsUI(); }
+
+  document.querySelectorAll('.nav-btn').forEach(b =>
+    b.classList.remove('active')
+  );
+
+  const nav = document.getElementById(navId);
+
+  if (nav) {
+    nav.classList.add('active');
+  }
+
+  if (screenId === 'sSettings'){
+    buildEraGrid();
+    buildAvatarsUI();
+  }
 }
 
 /* ---------- TOAST ---------- */
@@ -1557,7 +1615,7 @@ function appendBubble(msg, scroll){
   row.className = `msg-row ${isMine ? 'me' : 'them'}`;
 
   if (msg.id) {
-    row.dataset.messageId = msg.id;
+    row.dataset.messageId = String(msg.id);
   }
 
   const tickState = msg.is_read
@@ -1586,9 +1644,19 @@ function appendBubble(msg, scroll){
         : (parent.content || '');
 
       replyHTML = `
-        <div class="reply-preview">
-          <div class="reply-preview-name">${escapeHTML(parentName)}</div>
-          <div>${escapeHTML(parentText.slice(0, 100))}</div>
+        <div
+          class="reply-preview"
+          data-reply-to="${parent.id}"
+          onclick="event.stopPropagation();focusOriginalMessage(${parent.id})"
+          title="View original message"
+        >
+          <div class="reply-preview-name">
+            ${escapeHTML(parentName)}
+          </div>
+
+          <div>
+            ${escapeHTML(parentText.slice(0, 100))}
+          </div>
         </div>
       `;
     }
@@ -1597,18 +1665,23 @@ function appendBubble(msg, scroll){
   let body;
 
   if (msg.is_deleted) {
+
     body = `
-      <div class="bubble" style="opacity:.55;font-style:italic">
-        🚫 This message was deleted
+      <div class="bubble deleted-bubble">
+        <span>🚫 This message was deleted</span>
+
         <div class="bubble-time">
           ${fmtTime(msg.created_at)}
           ${tick}
         </div>
       </div>
     `;
+
   } else {
+
     const actions = `
       <div class="msg-actions">
+
         <button
           class="msg-action-btn"
           onclick="event.stopPropagation();startReply(${msg.id})">
@@ -1622,18 +1695,24 @@ function appendBubble(msg, scroll){
             🗑 Delete
           </button>
         ` : ''}
+
       </div>
     `;
 
     body = `
       <div class="bubble">
+
         ${replyHTML}
-        <div>${escapeHTML(msg.content || '')}</div>
+
+        <div>
+          ${escapeHTML(msg.content || '')}
+        </div>
 
         <div class="bubble-time">
           ${fmtTime(msg.created_at)}
           ${tick}
         </div>
+
       </div>
 
       ${actions}
@@ -1641,6 +1720,7 @@ function appendBubble(msg, scroll){
   }
 
   if (!isMine) {
+
     row.innerHTML = `
       <div
         class="msg-av-sm"
@@ -1652,7 +1732,9 @@ function appendBubble(msg, scroll){
         ${body}
       </div>
     `;
+
   } else {
+
     row.innerHTML = `
       <div>
         ${body}
@@ -1678,7 +1760,31 @@ function appendBubble(msg, scroll){
     }, 40);
   }
 }
-function setTick(idOrClient, state){
+
+function focusOriginalMessage(messageId){
+
+const el = MSG_ELS.get(String(messageId));
+
+if (!el || !el.row) {
+  toast('Original message is not loaded');
+  return;
+}
+
+const row = el.row;
+
+row.scrollIntoView({
+  behavior: 'smooth',
+  block: 'center'
+});
+
+row.classList.add('reply-highlight');
+
+setTimeout(() => {
+  row.classList.remove('reply-highlight');
+}, 1800);
+}
+
+  function setTick(idOrClient, state){
   const key = String(idOrClient);
   let e = MSG_ELS.get(key);
 
@@ -1746,60 +1852,89 @@ function cancelReply(){
 
   document.getElementById('replyBarText').textContent = '';
 }
-function markDeleted(d){
-  const e = MSG_ELS.get(String(d.message_id));
-
-  if (e && e.row) {
-    const bubble = e.row.querySelector('.bubble');
-
-    if (bubble) {
-      bubble.style.opacity = '.55';
-      bubble.style.fontStyle = 'italic';
-
-      const time = bubble.querySelector('.bubble-time');
-
-      bubble.innerHTML = `
-        <span>🚫 This message was deleted</span>
-        ${time ? time.outerHTML : ''}
-      `;
-    }
-
-    e.row.querySelectorAll('.msg-actions').forEach(el => {
-      el.remove();
-    });
-  }
-
-
-
-  const arr = MSG_CACHE.get(d.chat_id);
-
-  if (arr) {
-    const msg = arr.find(x => x.id === d.message_id);
-
-    if (msg) {
-      msg.is_deleted = true;
-      msg.content = null;
-    }
-  }
-
-  renderConvList();
-}
 
 function markDeleted(d){
-  const e = MSG_ELS.get(String(d.message_id));
 
-  if (e && e.row){
-    
-  }
+const messageId = Number(d.message_id);
+const chatId = Number(d.chat_id);
 
-  const arr = MSG_CACHE.get(d.chat_id);
+// 1. Update message in cache first
+const arr = MSG_CACHE.get(chatId) || [];
 
-  if (arr){
-    
-  }
+const msg = arr.find(x => Number(x.id) === messageId);
 
-  renderConvList();
+if (msg) {
+  msg.is_deleted = true;
+  msg.content = null;
 }
+
+MSG_CACHE.set(chatId, arr);
+
+// 2. Find message in the current DOM
+const e = MSG_ELS.get(String(messageId));
+
+if (e && e.row) {
+
+  const bubble = e.row.querySelector('.bubble');
+
+  if (bubble) {
+
+    bubble.classList.add('deleted-bubble');
+
+    bubble.style.opacity = '.55';
+    bubble.style.fontStyle = 'italic';
+
+    const time = bubble.querySelector('.bubble-time');
+
+    bubble.innerHTML = `
+      <span>🚫 This message was deleted</span>
+      ${
+        time
+          ? `<div class="bubble-time">${time.innerHTML}</div>`
+          : ''
+      }
+    `;
+  }
+
+  // Remove Reply + Delete buttons immediately
+  e.row.querySelectorAll('.msg-actions').forEach(el => {
+    el.remove();
+  });
+
+  // Remove reply preview if this message itself was deleted
+  e.row.querySelectorAll('.reply-preview').forEach(el => {
+    // Keep the bubble, just show deleted state in preview
+    el.innerHTML = `
+      <div class="reply-preview-name">
+        Message
+      </div>
+      <div>
+        Message deleted
+      </div>
+    `;
+  });
+
+  // Update stored DOM reference
+  e.msg = msg;
+}
+
+// 3. Update conversation preview immediately
+const chat = getChat(chatId);
+
+if (chat && chat.last_message) {
+
+  if (Number(chat.last_message.id) === messageId) {
+    chat.last_message.is_deleted = true;
+    chat.last_message.content = null;
+  }
+}
+
+// 4. Re-render conversation list immediately
+renderConvList();
+}
+  
+
+
 
 
 
@@ -1863,39 +1998,64 @@ function handleChatDeleted(d){
 }
 
 async function deleteMessageForEveryone(messageId){
-  const arr = MSG_CACHE.get(APP.currentChatId) || [];
-  const msg = arr.find(x => x.id === messageId);
 
-  if (!msg) return;
+const chatId = Number(APP.currentChatId);
+const numericMessageId = Number(messageId);
 
-  if (msg.sender_id !== AUTH.me.id) {
-    toast('You can only delete your own messages');
-    return;
-  }
+const arr = MSG_CACHE.get(chatId) || [];
 
-  const confirmed = confirm(
-    'Delete this message for everyone?'
-  );
+const msg = arr.find(
+  x => Number(x.id) === numericMessageId
+);
 
-  if (!confirmed) return;
+if (!msg) {
+  console.log('DELETE DEBUG: message not found', {
+    messageId,
+    numericMessageId,
+    chatId,
+    messages: arr
+  });
 
-  try {
-    await api(`/messages/${messageId}?for_everyone=true`, {
-      method:'DELETE'
-    });
-
-    markDeleted({
-      chat_id:APP.currentChatId,
-      message_id:messageId,
-      for_everyone:true
-    });
-
-    toast('Message deleted');
-  } catch(err) {
-    toast('❌ ' + err.message);
-  }
+  toast('Message not found');
+  return;
 }
 
+if (Number(msg.sender_id) !== Number(AUTH.me.id)) {
+  toast('You can only delete your own messages');
+  return;
+}
+
+const confirmed = confirm(
+  'Delete this message for everyone?'
+);
+
+if (!confirmed) return;
+
+try {
+
+  await api(
+    `/messages/${numericMessageId}?for_everyone=true`,
+    {
+      method:'DELETE'
+    }
+  );
+
+  // Update UI immediately
+  markDeleted({
+    chat_id:chatId,
+    message_id:numericMessageId,
+    for_everyone:true
+  });
+
+  toast('Message deleted');
+
+} catch(err) {
+
+  console.error('DELETE MESSAGE ERROR:', err);
+
+  toast('❌ ' + err.message);
+}
+}
 /* ---------- SEND ---------- */
 
 function onChatInput(ta){
@@ -2404,55 +2564,232 @@ function doAttach(type){
   );
 }
 
-function startVoice(){
+
+async function startVoice(){
+
   const wf = document.getElementById('vrWf');
 
   wf.innerHTML = '';
 
-  for (let i=0; i<18; i++){
+  // Create waveform
+  for (let i = 0; i < 18; i++){
+
     const s = document.createElement('span');
 
     s.style.cssText =
-      `--h:${5 + Math.random()*38}px;` +
-      `animation-delay:${i*.065}s`;
+      `--h:${5 + Math.random() * 38}px;` +
+      `animation-delay:${i * 0.065}s`;
 
     wf.appendChild(s);
   }
 
   APP.voiceSec = 0;
 
-  document.getElementById('vrTimer').textContent =
-    '00:00';
+  document.getElementById('vrTimer').textContent = '00:00';
 
-  APP.voiceTimer = setInterval(()=>{
-    APP.voiceSec++;
 
-    const m =
-      String(Math.floor(APP.voiceSec / 60)).padStart(2,'0');
+  // Ask for microphone permission
+  try {
 
-    const s =
-      String(APP.voiceSec % 60).padStart(2,'0');
+    APP.voiceStream =
+      await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
 
-    document.getElementById('vrTimer').textContent =
-      `${m}:${s}`;
-  }, 1000);
+    APP.voiceChunks = [];
+
+
+    // Create audio recorder
+    APP.voiceRecorder =
+      new MediaRecorder(APP.voiceStream);
+
+
+    // Collect audio data
+    APP.voiceRecorder.ondataavailable = (event) => {
+
+      if (event.data.size > 0) {
+        APP.voiceChunks.push(event.data);
+      }
+
+    };
+
+
+    // Start recording
+    APP.voiceRecorder.start();
+
+    console.log('🎙️ Voice recording started');
+
+
+    // Start timer
+    APP.voiceTimer = setInterval(() => {
+
+      APP.voiceSec++;
+
+      const m =
+        String(Math.floor(APP.voiceSec / 60))
+          .padStart(2, '0');
+
+      const s =
+        String(APP.voiceSec % 60)
+          .padStart(2, '0');
+
+      document.getElementById('vrTimer').textContent =
+        `${m}:${s}`;
+
+    }, 1000);
+
+
+  } catch (err) {
+
+    console.error('MIC ERROR:', err);
+
+    closeModal('mVoice');
+
+    toast('❌ Microphone permission is required');
+
+  }
 }
+
 
 function cancelVoice(){
+
+  // Stop timer
   clearInterval(APP.voiceTimer);
+  APP.voiceTimer = null;
+
+
+  // Stop recording if active
+  if (
+    APP.voiceRecorder &&
+    APP.voiceRecorder.state !== 'inactive'
+  ){
+
+    APP.voiceRecorder.stop();
+
+  }
+
+
+  // Stop microphone
+  if (APP.voiceStream){
+
+    APP.voiceStream
+      .getTracks()
+      .forEach(track => track.stop());
+
+  }
+
+
+  // Clear voice state
+  APP.voiceRecorder = null;
+  APP.voiceStream = null;
+  APP.voiceChunks = [];
+
+
+  // Close modal
   closeModal('mVoice');
+
+
+  console.log('🎙️ Voice recording cancelled');
 }
 
-function sendVoiceNote(){
-  clearInterval(APP.voiceTimer);
 
-  closeModal('mVoice');
+async function sendVoiceNote(){
 
-  toast(
-    '🎙️ Voice notes require a backend upload endpoint — send a text message for now!'
+if (
+  !APP.voiceRecorder ||
+  APP.voiceRecorder.state === 'inactive'
+){
+  toast('❌ No active recording');
+  return;
+}
+
+clearInterval(APP.voiceTimer);
+APP.voiceTimer = null;
+
+const recorder = APP.voiceRecorder;
+
+recorder.onstop = async () => {
+
+  const audioBlob = new Blob(
+    APP.voiceChunks,
+    {
+      type: recorder.mimeType || 'audio/webm'
+    }
   );
+
+  console.log('🎙️ Voice recording completed');
+  console.log('Audio size:', audioBlob.size);
+  console.log('Audio type:', audioBlob.type);
+  console.log('Audio duration:', APP.voiceSec);
+
+  try {
+
+    const formData = new FormData();
+
+    formData.append(
+      'file',
+      audioBlob,
+      `voice-${Date.now()}.webm`
+    );
+
+    const API_BASE =
+      localStorage.getItem('raahi_api') ||
+      'http://127.0.0.1:8000';
+
+    const response = await fetch(
+      `${API_BASE}/upload-voice`,
+      {
+        method: 'POST',
+        body: formData
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Upload failed: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    console.log('🎙️ VOICE UPLOAD SUCCESS:', data);
+
+    toast('🎙️ Voice uploaded successfully');
+
+  } catch (err) {
+
+    console.error(
+      '🎙️ VOICE UPLOAD ERROR:',
+      err
+    );
+
+    toast(
+      '❌ Voice upload failed: ' +
+      err.message
+    );
+
+  } finally {
+
+    if (APP.voiceStream) {
+      APP.voiceStream
+        .getTracks()
+        .forEach(track => track.stop());
+    }
+
+    APP.voiceStream = null;
+    APP.voiceRecorder = null;
+    APP.voiceChunks = [];
+
+    closeModal('mVoice');
+  }
+};
+
+recorder.stop();
 }
 
-/* ═══════════════════════════════════════════════════
-   GEMINI AI
-═══════════════════════════════════════════════════ */
+  
+showScreen('sAuth');
+</script>
+
+</body>
+</html>
