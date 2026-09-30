@@ -268,6 +268,9 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   padding:5px 13px;border-radius:20px;font-size:.73rem;font-weight:700;color:var(--ep)}
 /* messages */
 .msg-row{display:flex;align-items:flex-end;gap:6px}
+.message-date-separator{align-self:center;padding:5px 11px;border-radius:12px;
+  background:rgba(255,255,255,.08);color:var(--muted);font-size:.68rem;
+  line-height:1.2;text-align:center}
 .msg-row.me{align-self:flex-end;flex-direction:row-reverse;max-width:82%}
 .msg-row.them{align-self:flex-start;max-width:82%}
 .msg-av-sm{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
@@ -959,7 +962,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
       <input class="auth-inp" id="authUser" placeholder="Username" style="display:none" autocomplete="username">
       <input class="auth-inp" id="authPass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
       <button class="btn-pill btn-grad" style="width:100%;margin-top:2px" id="authBtn" onclick="submitAuth()">Login <span style="display:inline-block;animation:arrowb 1.4s ease-in-out infinite">→</span></button>
-      <div class="auth-api-row"><input id="apiUrlInp" placeholder="Backend URL (default: https://bugzyme-1.onrender.com)" onchange="setApiBase(this.value)"></div>
+      <div class="auth-api-row"><input id="apiUrlInp" placeholder="Backend URL (default: https://bugzyme-backend.onrender.com)" onchange="setApiBase(this.value)"></div>
       <div class="auth-hint">🐣 First time here? Create an account from the <b style="color:var(--ep)">Register</b> tab.<br>To chat with another user, create a second account as well!</div>
     </div>
   </div>
@@ -1132,13 +1135,21 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 ═══════════════════════════════════════════════════ */
 
 /* ---------- CONFIG & AUTH ---------- */
-let API_BASE = (localStorage.getItem('raahi_api') || 'https://bugzyme-backend.onrender.com').replace(/\/+$/,'');
+const PRODUCTION_API_BASE = 'https://bugzyme-backend.onrender.com';
+const LOCAL_API_BASE_PATTERN = /^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/i;
+function resolveApiBase(value){
+  const candidate = (value || '').trim().replace(/\/+$/,'');
+  return LOCAL_API_BASE_PATTERN.test(candidate) ? candidate : PRODUCTION_API_BASE;
+}
+let API_BASE = resolveApiBase(localStorage.getItem('raahi_api'));
+if (localStorage.getItem('raahi_api') !== API_BASE){
+  localStorage.setItem('raahi_api', API_BASE);
+}
 const AUTH = { token: localStorage.getItem('raahi_token') || '', me: null };
 let authMode = 'login';
 
 function setApiBase(v){
-  v = (v||'').trim() || 'https://bugzyme-1.onrender.com';
-  API_BASE = v.replace(/\/+$/,'');
+  API_BASE = resolveApiBase(v);
   localStorage.setItem('raahi_api', API_BASE);
   toast('🌐 Server set: ' + API_BASE);
 }
@@ -1225,6 +1236,56 @@ function fmtTime(isoStr) {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
+  });
+}
+function messageDateInfo(value, now = new Date()){
+  if (typeof value !== 'string' || !value.trim()) return null;
+
+  const timestamp = value.trim();
+  const utcValue = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(timestamp)
+    ? timestamp
+    : timestamp + 'Z';
+  const date = new Date(utcValue);
+  if (!Number.isFinite(date.getTime())) return null;
+
+  const key = [date.getFullYear(), date.getMonth() + 1, date.getDate()]
+    .map((part, index) => index === 0 ? String(part) : String(part).padStart(2, '0'))
+    .join('-');
+  const localDayNumber = value => Math.floor(Date.UTC(
+    value.getFullYear(), value.getMonth(), value.getDate()
+  ) / 86400000);
+  const daysAgo = localDayNumber(now) - localDayNumber(date);
+
+  let label;
+  if (daysAgo === 0) label = 'Today';
+  else if (daysAgo === 1) label = 'Yesterday';
+  else if (daysAgo > 1 && daysAgo <= 6) {
+    label = date.toLocaleDateString(undefined, { weekday: 'long' });
+  } else {
+    label = date.toLocaleDateString(undefined, {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  }
+
+  return { key, label };
+}
+function syncMessageDateSeparators(container){
+  container.querySelectorAll('.message-date-separator').forEach(node=>node.remove());
+
+  let previousKey = null;
+  Array.from(container.children).forEach(row=>{
+    if (!row.classList.contains('msg-row')) return;
+
+    const dateInfo = messageDateInfo(row.dataset.messageCreatedAt || '');
+    row.dataset.localDateKey = dateInfo ? dateInfo.key : '';
+    if (dateInfo && dateInfo.key !== previousKey){
+      const separator = document.createElement('div');
+      separator.className = 'message-date-separator';
+      separator.setAttribute('role', 'separator');
+      separator.textContent = dateInfo.label;
+      container.insertBefore(separator, row);
+    }
+    previousKey = dateInfo ? dateInfo.key : null;
   });
 }
 function fmtLastSeen(isoStr){
@@ -1630,7 +1691,7 @@ const row = document.createElement('div');
 
 row.className =
   `msg-row ${isMine ? 'me' : 'them'}`;
-
+row.dataset.messageCreatedAt = msg.created_at || '';
 
 if (msg.id) {
   row.dataset.messageId = String(msg.id);
@@ -1770,9 +1831,7 @@ if (msg.is_deleted) {
 
 else if (msg.message_type === 'voice') {
 
-  const API_BASE =
-    localStorage.getItem('raahi_api') ||
-    'http://127.0.0.1:8000';
+  const API_BASE = resolveApiBase(localStorage.getItem('raahi_api'));
 
 
   let audioSrc = msg.audio_url || '';
@@ -1783,7 +1842,7 @@ else if (msg.message_type === 'voice') {
     /uploads/voice/xxxxx.webm
 
     We need:
-    https://bugzyme-final.onrender.com/uploads/voice/xxxxx.webm
+    https://bugzyme-backend.onrender.com/uploads/voice/xxxxx.webm
   */
 
   if (
@@ -1962,6 +2021,7 @@ if (!isMine) {
 
 
 ms.appendChild(row);
+syncMessageDateSeparators(ms);
 
 
 /* =========================
@@ -2398,9 +2458,17 @@ function confirmSent(d){
 
   if (m){
     m.id = d.message_id;
+    if (d.created_at) m.created_at = d.created_at;
   }
 
   if (e){
+    if (d.created_at){
+      e.row.dataset.messageCreatedAt = d.created_at;
+      const container = e.row.parentElement;
+      if (container && container.id === 'msgsScroll'){
+        syncMessageDateSeparators(container);
+      }
+    }
     if (e.tick){
       e.tick.textContent = '✓';
       e.tick.classList.remove('seen');
@@ -3003,9 +3071,7 @@ recorder.onstop = async () => {
       `voice-${Date.now()}.webm`
     );
 
-    const API_BASE =
-      localStorage.getItem('raahi_api') ||
-      'http://127.0.0.1:8000';
+    const API_BASE = resolveApiBase(localStorage.getItem('raahi_api'));
 
     const token = AUTH.token;
 
