@@ -605,10 +605,17 @@ def load_context(
     ):
         return None
 
+    # A user with no chats has no pending messages to load. Avoid using a
+    # fabricated chat ID as an empty-result sentinel in the SQL query.
+    if not partners:
+        return {
+            "username": user.username,
+            "partners": partners,
+            "delivered": [],
+        }
+
     query = db.query(models.Message).filter(
-        models.Message.chat_id.in_(
-            list(partners) or [0]
-        ),
+        models.Message.chat_id.in_(list(partners)),
         models.Message.sender_id != user_id,
         models.Message.is_delivered.is_not(True),
         models.Message.is_deleted.is_not(True),
