@@ -405,11 +405,13 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 @keyframes wv{0%,100%{height:3px}50%{height:var(--h,14px)}}
 .vdur{font-size:.7rem;opacity:.65}
 .msg-img-thumb{border-radius:12px;overflow:hidden;max-width:200px}
+.msg-img-thumb img{display:block;width:100%;max-height:260px;object-fit:cover}
 .img-ph{width:190px;height:135px;background:rgba(255,255,255,.1);
   display:flex;align-items:center;justify-content:center;
   font-size:2.5rem;border-radius:12px}
 .msg-file-card{display:flex;align-items:center;gap:9px;padding:9px 12px;
-  background:rgba(255,255,255,.1);border-radius:13px;min-width:160px}
+  background:rgba(255,255,255,.1);border-radius:13px;min-width:160px;
+  border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .msg-file-icon{font-size:1.5rem;flex-shrink:0}
 .mfi-name{font-size:.8rem;font-weight:600;color:#fff}
 .mfi-size{font-size:.68rem;color:rgba(255,255,255,.5)}
@@ -884,6 +886,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 
   <!-- input -->
   <div class="chat-input-area">
+    <div id="attachmentUploadStatus" style="display:none;padding:0 8px 7px;font-size:.72rem;color:var(--muted)"></div>
     <div class="input-row">
       <div class="ib-btn" onclick="openModal('mEmoji')"><span class="e e-wiggle">😊</span></div>
       <div class="input-wrap">
@@ -897,6 +900,9 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
     </div>
   </div>
 </div>
+
+<input id="attachmentImageInput" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden onchange="handleAttachmentSelection(this)">
+<input id="attachmentFileInput" type="file" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.zip,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip" hidden onchange="handleAttachmentSelection(this)">
 
 <!-- ══════════════════════════════════════
      SCREEN: SETTINGS
@@ -938,7 +944,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
       <div class="srow"><div class="srow-icon" style="background:rgba(245,158,11,.2)"><span class="e e-pulse">🟢</span></div><div class="srow-info"><div class="srow-title">Activity Status</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
     </div>
     
-    <div class="srow" onclick="promptServerUrl()"><div class="srow-icon" style="background:rgba(6,182,212,.2)"><span class="e e-spin">🌐</span></div><div class="srow-info"><div class="srow-title">Backend Server<div class="srow-sub" id="srvUrlLbl">https://bugzyme-backend.onrender.com</div>></div></div></div>
+    <div class="srow" onclick="promptServerUrl()"><div class="srow-icon" style="background:rgba(6,182,212,.2)"><span class="e e-spin">🌐</span></div><div class="srow-info"><div class="srow-title">Backend Server<div class="srow-sub" id="srvUrlLbl">https://bugzyme-backend-51xq.onrender.com</div>></div></div></div>
     <div class="srow red" onclick="logout()"><div class="srow-icon" style="background:rgba(239,68,68,.18)"><span class="e e-shake">🚪</span></div><div class="srow-info"><div class="srow-title" style="color:#f87171">Logout</div><div class="srow-sub">End this session</div></div></div>
     <div class="settings-footer fiu"><span class="e e-heart" style="display:inline-block">💖</span> raahi v3.0 · Made with love<br>IT Act 2000 &amp; IT Rules 2021 compliant · 18+ only</div>
   </div>
@@ -962,7 +968,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
       <input class="auth-inp" id="authUser" placeholder="Username" style="display:none" autocomplete="username">
       <input class="auth-inp" id="authPass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
       <button class="btn-pill btn-grad" style="width:100%;margin-top:2px" id="authBtn" onclick="submitAuth()">Login <span style="display:inline-block;animation:arrowb 1.4s ease-in-out infinite">→</span></button>
-      <div class="auth-api-row"><input id="apiUrlInp" placeholder="Backend URL (default: https://bugzyme-1.onrender.com)" onchange="setApiBase(this.value)"></div>
+      <div class="auth-api-row"><input id="apiUrlInp" placeholder="Backend URL (default: https://bugzyme-backend-51xq.onrender.com)" onchange="setApiBase(this.value)"></div>
       <div class="auth-hint">🐣 First time here? Create an account from the <b style="color:var(--ep)">Register</b> tab.<br>To chat with another user, create a second account as well!</div>
     </div>
   </div>
@@ -1135,13 +1141,21 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 ═══════════════════════════════════════════════════ */
 
 /* ---------- CONFIG & AUTH ---------- */
-let API_BASE = (localStorage.getItem('raahi_api') || 'https://bugzyme-backend.onrender.com').replace(/\/+$/,'');
+const PRODUCTION_API_BASE = 'https://bugzyme-backend-51xq.onrender.com';
+const LOCAL_API_BASE_PATTERN = /^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/i;
+function resolveApiBase(value){
+  const candidate = (value || '').trim().replace(/\/+$/,'');
+  return LOCAL_API_BASE_PATTERN.test(candidate) ? candidate : PRODUCTION_API_BASE;
+}
+let API_BASE = resolveApiBase(localStorage.getItem('raahi_api'));
+if (localStorage.getItem('raahi_api') !== API_BASE){
+  localStorage.setItem('raahi_api', API_BASE);
+}
 const AUTH = { token: localStorage.getItem('raahi_token') || '', me: null };
 let authMode = 'login';
 
 function setApiBase(v){
-  v = (v||'').trim() || 'https://bugzyme-1.onrender.com';
-  API_BASE = v.replace(/\/+$/,'');
+  API_BASE = resolveApiBase(v);
   localStorage.setItem('raahi_api', API_BASE);
   toast('🌐 Server set: ' + API_BASE);
 }
@@ -1196,6 +1210,8 @@ let   USERS  = [];                    // GET /users
 let   ONLINE_USER_IDS = null;           // WebSocket presence snapshot
 const MSG_CACHE = new Map();          // chat_id -> [messages]
 const MSG_ELS   = new Map();          // message_id|client_id -> {tick, contentEl, row}
+const ATTACHMENT_OBJECT_URLS = new Map();
+let attachmentUploadInProgress = false;
 let   WS=null, wsPing=null, wsRetry=0, typingTO=null, lastTypingSent=0;
 
 /* ---------- DISPLAY HELPERS (backend has no era/avatar — derive cosmetically) ---------- */
@@ -1577,7 +1593,10 @@ function renderConvList(){
     const er = ERA[eraFor(c.user.id)];
     const last = c.last_message;
     let preview = 'Say hi! 👋';
-    if (last) preview = last.is_deleted ? '🚫 Message deleted' : (last.content || '');
+    if (last) preview = last.is_deleted ? '🚫 Message deleted' : (
+      last.content || (last.message_type === 'image' ? '🖼️ Photo' :
+        last.message_type === 'file' ? '📎 ' + (last.attachment_name || 'File') : '')
+    );
     if (c.unread_count > 0 && last && last.sender_id !== meId) preview = '• ' + preview;
     const card = document.createElement('div');
     card.className = 'conv-card' + (c.unread_count ? ' unread' : '');
@@ -1757,7 +1776,11 @@ if (msg.reply_to_id) {
         : (
             parent.message_type === 'voice'
               ? '🎙️ Voice message'
-              : (parent.content || '')
+              : parent.message_type === 'image'
+                ? '🖼️ Photo'
+                : parent.message_type === 'file'
+                  ? '📎 ' + (parent.attachment_name || 'File')
+                  : (parent.content || '')
           );
 
 
@@ -1823,9 +1846,7 @@ if (msg.is_deleted) {
 
 else if (msg.message_type === 'voice') {
 
-  const API_BASE =
-    localStorage.getItem('raahi_api') ||
-    'http://127.0.0.1:8000';
+  const API_BASE = resolveApiBase(localStorage.getItem('raahi_api'));
 
 
   let audioSrc = msg.audio_url || '';
@@ -1836,7 +1857,7 @@ else if (msg.message_type === 'voice') {
     /uploads/voice/xxxxx.webm
 
     We need:
-    https://bugzyme-final.onrender.com/uploads/voice/xxxxx.webm
+    https://bugzyme-backend-51xq.onrender.com/uploads/voice/xxxxx.webm
   */
 
   if (
@@ -1918,6 +1939,49 @@ else if (msg.message_type === 'voice') {
       ` : ''}
 
     </div>
+  `;
+}
+
+
+/* =========================
+   FILE ATTACHMENT MESSAGE
+========================= */
+
+else if (msg.message_type === 'image' || msg.message_type === 'file') {
+  const messageId = Number(msg.id) || 0;
+  const attachmentName = msg.attachment_name || (msg.message_type === 'image' ? 'Photo' : 'File');
+  const safeName = escapeHTML(attachmentName);
+  const attachmentContent = msg.message_type === 'image'
+    ? `
+      <div class="msg-img-thumb">
+        <div class="img-ph" data-attachment-placeholder="${messageId}">🖼️</div>
+        <img class="attachment-image" data-attachment-preview="${messageId}"
+          alt="${safeName}" style="display:none">
+      </div>`
+    : `
+      <button type="button" class="msg-file-card"
+        data-attachment-download="${messageId}"
+        data-attachment-name="${safeName}">
+        <span class="msg-file-icon">${attachmentFileIcon(attachmentName)}</span>
+        <span><span class="mfi-name">${safeName}</span><br>
+          <span class="mfi-size">${formatAttachmentSize(msg.attachment_size_bytes)}</span></span>
+        <span aria-hidden="true">⬇️</span>
+      </button>`;
+
+  const actions = `
+    <div class="msg-actions">
+      <button class="msg-action-btn" onclick="event.stopPropagation();startReply(${messageId})">↩ Reply</button>
+      ${isMine ? `<button class="msg-action-btn msg-action-delete" onclick="event.stopPropagation();deleteMessageForEveryone(${messageId})">🗑 Delete</button>` : ''}
+    </div>`;
+
+  body = `
+    <div class="bubble">
+      ${replyHTML}
+      ${attachmentContent}
+      ${msg.content ? `<div style="margin-top:6px;white-space:pre-wrap">${escapeHTML(msg.content)}</div>` : ''}
+      <div class="bubble-time">${fmtTime(msg.created_at)} ${tick}</div>
+    </div>
+    ${actions}
   `;
 }
 
@@ -2016,6 +2080,16 @@ if (!isMine) {
 
 ms.appendChild(row);
 syncMessageDateSeparators(ms);
+
+row.querySelectorAll('[data-attachment-preview]').forEach(img=>{
+  loadAttachmentPreview(img, Number(img.dataset.attachmentPreview));
+});
+row.querySelectorAll('[data-attachment-download]').forEach(button=>{
+  button.addEventListener('click', ()=>downloadAttachment(
+    Number(button.dataset.attachmentDownload),
+    button.dataset.attachmentName || 'attachment'
+  ));
+});
 
 
 /* =========================
@@ -2132,7 +2206,8 @@ function startReply(messageId){
     `Replying to ${name}`;
 
   document.getElementById('replyBarText').textContent =
-    msg.content || '';
+    msg.content || (msg.message_type === 'image' ? '🖼️ Photo' :
+      msg.message_type === 'file' ? '📎 ' + (msg.attachment_name || 'File') : '');
 
   document.getElementById('replyBar').classList.add('show');
 
@@ -2158,6 +2233,10 @@ function markDeleted(d){
 
 const messageId = Number(d.message_id);
 const chatId = Number(d.chat_id);
+
+const attachmentURL = ATTACHMENT_OBJECT_URLS.get(messageId);
+if (attachmentURL) URL.revokeObjectURL(attachmentURL);
+ATTACHMENT_OBJECT_URLS.delete(messageId);
 
 // 1. Update message in cache first
 const arr = MSG_CACHE.get(chatId) || [];
@@ -2495,13 +2574,21 @@ function onIncomingMessage(d){
     content:d.content,
     created_at:d.created_at,
     reply_to_id:d.reply_to_id,
+    message_type:d.message_type || 'text',
+    attachment_name:d.attachment_name,
+    attachment_mime_type:d.attachment_mime_type,
+    attachment_size_bytes:d.attachment_size_bytes,
     is_delivered:true,
     is_read:false
   };
 
   const arr = MSG_CACHE.get(d.chat_id) || [];
+  const isAttachment = msg.message_type === 'image' || msg.message_type === 'file';
+  const duplicateAttachment = isAttachment && arr.some(
+    item => Number(item.id) === Number(msg.id)
+  );
 
-  if (!arr.find(x => x.id === msg.id)){
+  if (!duplicateAttachment && !arr.find(x => x.id === msg.id)){
     arr.push(msg);
     MSG_CACHE.set(d.chat_id, arr);
   }
@@ -2521,7 +2608,7 @@ function onIncomingMessage(d){
     });
 
     if (openHere){
-      appendBubble(msg, true);
+      if (!duplicateAttachment) appendBubble(msg, true);
 
       wsSend({
         type:'read_chat',
@@ -2782,18 +2869,78 @@ function openMatchSettings(chatId){
    EMOJI PICKER
 ═══════════════════════════════════════════════════ */
 
+function splitEmojis(value){
+  if (typeof Intl.Segmenter === 'function'){
+    return Array.from(new Intl.Segmenter(undefined, { granularity:'grapheme' }).segment(value), part => part.segment);
+  }
+
+  const points = Array.from(value);
+  const result = [];
+  const isExtend = char => {
+    const cp = char.codePointAt(0);
+    return (cp >= 0x0300 && cp <= 0x036f) ||
+      (cp >= 0x1ab0 && cp <= 0x1aff) ||
+      (cp >= 0x1dc0 && cp <= 0x1dff) ||
+      (cp >= 0x20d0 && cp <= 0x20ff) ||
+      (cp >= 0xfe00 && cp <= 0xfe0f) ||
+      (cp >= 0xfe20 && cp <= 0xfe2f) ||
+      (cp >= 0x1f3fb && cp <= 0x1f3ff) ||
+      (cp >= 0xe0020 && cp <= 0xe007f) ||
+      (cp >= 0xe0100 && cp <= 0xe01ef);
+  };
+
+  for (let i = 0; i < points.length; i++){
+    let cluster = points[i];
+    const first = cluster.codePointAt(0);
+
+    if (first >= 0x1f1e6 && first <= 0x1f1ff && i + 1 < points.length){
+      const next = points[i + 1].codePointAt(0);
+      if (next >= 0x1f1e6 && next <= 0x1f1ff) cluster += points[++i];
+    }
+
+    while (i + 1 < points.length){
+      const next = points[i + 1];
+      if (isExtend(next)){
+        cluster += points[++i];
+      } else if (next === '\u200d' && i + 2 < points.length){
+        cluster += points[++i] + points[++i];
+      } else {
+        break;
+      }
+    }
+
+    result.push(cluster);
+  }
+
+  return result;
+}
+
+function insertChatEmoji(emoji){
+  const ta = document.getElementById('chatTA');
+  if (!ta) return;
+
+  const start = Number.isInteger(ta.selectionStart) ? ta.selectionStart : ta.value.length;
+  const end = Number.isInteger(ta.selectionEnd) ? ta.selectionEnd : start;
+  ta.setRangeText(emoji, start, end, 'end');
+  onChatInput(ta);
+  closeModal('mEmoji');
+  ta.focus({ preventScroll:true });
+  const caret = start + emoji.length;
+  ta.setSelectionRange(caret, caret);
+}
+
 const EMOJIS = {
-  '😀':`😀😃😄😁😆😅🤣😂🙂😉😊🥰😍🤩😘😗😚😙🥲😋😛😜🤪😝🤑🤗🫠🫡🤭🫢🤫🤔🤐😬🙄😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥😓`.split(''),
+  '😀':splitEmojis(`😀😃😄😁😆😅🤣😂🙂😉😊🥰😍🤩😘😗😚😙🥲😋😛😜🤪😝🤑🤗🫠🫡🤭🫢🤫🤔🤐😬🙄😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥😓`),
 
-  '❤️':`❤️🧡💛💚💙💜🖤🤍🤎💔❤️‍🔥💕💞💓💗💖💘💝💟✨💫⭐🌟🔥💥🌈`.split(''),
+  '❤️':splitEmojis(`❤️🧡💛💚💙💜🖤🤍🤎💔❤️‍🔥💕💞💓💗💖💘💝💟✨💫⭐🌟🔥💥🌈`),
 
-  '👍':`👍👎👊✊🤛🤜🤞✌️🤟🤘👌🤌🤏👈👉👆👇☝️👋🤚🖐✋🖖🫶🤲👐🙌👏🤝🙏`.split(''),
+  '👍':splitEmojis(`👍👎👊✊🤛🤜🤞✌️🤟🤘👌🤌🤏👈👉👆👇☝️👋🤚🖐✋🖖🫶🤲👐🙌👏🤝🙏`),
 
-  '🐱':`🐶🐱🐭🐹🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🐔🐧🐦🦆🦅🦉🦇🐝🦋🐌🐞🐜🦟🦗🕷`.split(''),
+  '🐱':splitEmojis(`🐶🐱🐭🐹🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🐔🐧🐦🦆🦅🦉🦇🐝🦋🐌🐞🐜🦟🦗🕷`),
 
-  '🌸':`🌸🌺🌻🌹🌷🌼💐🍀🌿🌱🌲🌳🍁🍂🍃🪴🌵🌴🍄🌾🪸🌊🌙⭐☀️⛅🌤🌈`.split(''),
+  '🌸':splitEmojis(`🌸🌺🌻🌹🌷🌼💐🍀🌿🌱🌲🌳🍁🍂🍃🪴🌵🌴🍄🌾🪸🌊🌙⭐☀️⛅🌤🌈`),
 
-  '🍕':`🍕🍔🌮🌯🥙🍜🍝🍛🍣🍱🍤🍙🍚🧁🍰🎂🍮🍭🍬🍫🍿🍩🍪🍞🥐☕🍵🧋🍺🥂🍷`.split('')
+  '🍕':splitEmojis(`🍕🍔🌮🌯🥙🍜🍝🍛🍣🍱🍤🍙🍚🧁🍰🎂🍮🍭🍬🍫🍿🍩🍪🍞🥐☕🍵🧋🍺🥂🍷`)
 };
 
 const EP_CATS = Object.keys(EMOJIS);
@@ -2842,13 +2989,7 @@ function renderEpGrid(){
     b.textContent = em;
 
     b.onclick = ()=>{
-      const ta = document.getElementById('chatTA');
-
-      ta.value += em;
-
-      onChatInput(ta);
-
-      closeModal('mEmoji');
+      insertChatEmoji(em);
     };
 
     g.appendChild(b);
@@ -2872,13 +3013,7 @@ function filterEmojis(q){
     b.textContent = em;
 
     b.onclick = ()=>{
-      const ta = document.getElementById('chatTA');
-
-      ta.value += em;
-
-      onChatInput(ta);
-
-      closeModal('mEmoji');
+      insertChatEmoji(em);
     };
 
     g.appendChild(b);
@@ -2890,12 +3025,322 @@ function filterEmojis(q){
    ATTACH & VOICE
 ═══════════════════════════════════════════════════ */
 
+const MAX_ATTACHMENT_SIZE = 25 * 1024 * 1024;
+
+function formatAttachmentSize(value){
+  const bytes = Number(value);
+  if (!Number.isFinite(bytes) || bytes < 0) return 'File';
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ['KB', 'MB', 'GB'];
+  let size = bytes / 1024;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1){
+    size /= 1024;
+    unit++;
+  }
+  return `${size.toFixed(size >= 10 ? 0 : 1)} ${units[unit]}`;
+}
+
+function attachmentFileIcon(filename){
+  const ext = String(filename).split('.').pop().toLowerCase();
+  if (ext === 'pdf') return '📕';
+  if (ext === 'zip') return '🗜️';
+  if (['doc', 'docx'].includes(ext)) return '📝';
+  if (['xls', 'xlsx'].includes(ext)) return '📊';
+  if (ext === 'txt') return '📄';
+  return '📎';
+}
+
+async function fetchAttachmentBlob(messageId){
+  const token = AUTH.token;
+  const url = `${API_BASE}/attachments/${encodeURIComponent(messageId)}/content`;
+  console.debug('[attachment] protected content GET', {
+    messageId,
+    apiBase:API_BASE,
+    url,
+    jwtPresent:Boolean(token)
+  });
+  if (!token) throw new Error('Authentication token missing');
+
+  const response = await fetch(url, {
+    headers:{ Authorization:`Bearer ${token}` }
+  });
+  console.debug('[attachment] content response', {
+    messageId,
+    status:response.status,
+    ok:response.ok
+  });
+  if (!response.ok){
+    const responseText = await response.text().catch(()=>'(response body unavailable)');
+    console.error('[attachment] protected content request failed', {
+      messageId,
+      status:response.status,
+      responseText
+    });
+    if (response.status === 401 && AUTH.token){
+      logout(true);
+      throw new Error('Session expired — login again');
+    }
+    let detail = responseText || `Attachment request failed (${response.status})`;
+    try{
+      const body = JSON.parse(responseText);
+      if (body.detail) detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+    }catch(_){}
+    throw new Error(detail);
+  }
+  return response.blob();
+}
+
+async function loadAttachmentPreview(img, messageId){
+  try{
+    let objectURL = ATTACHMENT_OBJECT_URLS.get(messageId);
+    let createdObjectURL = false;
+    if (!objectURL){
+      const blob = await fetchAttachmentBlob(messageId);
+      objectURL = URL.createObjectURL(blob);
+      ATTACHMENT_OBJECT_URLS.set(messageId, objectURL);
+      createdObjectURL = true;
+    }
+    if (!img.isConnected){
+      if (createdObjectURL){
+        URL.revokeObjectURL(objectURL);
+        ATTACHMENT_OBJECT_URLS.delete(messageId);
+      }
+      return;
+    }
+    img.src = objectURL;
+    img.style.display = 'block';
+    const placeholder = img.parentElement.querySelector(`[data-attachment-placeholder="${messageId}"]`);
+    if (placeholder) placeholder.style.display = 'none';
+  }catch(_){
+    console.error('[attachment] image preview failed', { messageId, error:_ });
+    const placeholder = img.parentElement && img.parentElement.querySelector(`[data-attachment-placeholder="${messageId}"]`);
+    if (placeholder) placeholder.textContent = 'Image unavailable';
+  }
+}
+
+async function downloadAttachment(messageId, filename){
+  try{
+    const blob = await fetchAttachmentBlob(messageId);
+    const objectURL = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectURL;
+    link.download = filename || 'attachment';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(()=>URL.revokeObjectURL(objectURL), 1000);
+  }catch(err){
+    console.error('[attachment] file download failed', { messageId, error:err });
+    toast('❌ ' + err.message);
+  }
+}
+
+async function handleAttachmentSelection(input){
+  const selectedFiles = input && input.files;
+  const file = selectedFiles && selectedFiles[0];
+  console.debug('[attachment] picker change', {
+    inputId:input && input.id,
+    selectedCount:selectedFiles ? selectedFiles.length : 0,
+    accept:input && input.accept,
+    capture:input && input.getAttribute('capture')
+  });
+  if (!file){
+    console.debug('[attachment] picker closed without a selected file');
+    if (input) input.value = '';
+    return;
+  }
+
+  console.debug('[attachment] file selected', {
+    filename:file.name,
+    mimeType:file.type || '(not supplied by browser)',
+    sizeBytes:file.size,
+    currentChatId:APP.currentChatId,
+    apiBase:API_BASE,
+    jwtPresent:Boolean(AUTH.token)
+  });
+  input.value = '';
+  if (attachmentUploadInProgress){
+    console.error('[attachment] upload rejected: another upload is in progress');
+    toast('An attachment is already uploading');
+    return;
+  }
+  if (!APP.currentChatId){
+    console.error('[attachment] upload rejected: no current chat ID');
+    toast('Open a chat before attaching a file');
+    return;
+  }
+  if (!AUTH.token){
+    console.error('[attachment] upload rejected: JWT is missing');
+    toast('❌ Please log in before uploading an attachment');
+    return;
+  }
+  if (!file.size){
+    console.error('[attachment] upload rejected: selected file is empty');
+    toast('❌ This file is empty');
+    return;
+  }
+  if (file.size > MAX_ATTACHMENT_SIZE){
+    console.error('[attachment] upload rejected: file exceeds 25 MiB', { sizeBytes:file.size });
+    toast('❌ Attachments must be 25 MiB or smaller');
+    return;
+  }
+
+  const chatId = APP.currentChatId;
+  const uploadURL = `${API_BASE}/chats/${chatId}/attachments`;
+  const replyToId = APP.replyingTo && APP.replyingTo.id
+    ? APP.replyingTo.id
+    : null;
+  const status = document.getElementById('attachmentUploadStatus');
+  const imageInput = document.getElementById('attachmentImageInput');
+  const fileInput = document.getElementById('attachmentFileInput');
+  attachmentUploadInProgress = true;
+  imageInput.disabled = true;
+  fileInput.disabled = true;
+  status.textContent = `⏳ Uploading ${file.name}…`;
+  status.style.display = 'block';
+  let uploadHTTPStatus = null;
+
+  try{
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    if (replyToId != null) formData.append('reply_to_id', String(replyToId));
+
+    const token = AUTH.token;
+    console.debug('[attachment] POST request', {
+      filename:file.name,
+      mimeType:file.type || '(not supplied by browser)',
+      sizeBytes:file.size,
+      chatId,
+      apiBase:API_BASE,
+      jwtPresent:Boolean(token),
+      url:uploadURL,
+      formFields:Array.from(formData.keys()),
+      contentTypeHeaderSet:false
+    });
+
+    const response = await fetch(uploadURL, {
+      method:'POST',
+      headers:{ Authorization:`Bearer ${token}` },
+      body:formData
+    });
+    uploadHTTPStatus = response.status;
+    const responseText = await response.text();
+    console.debug('[attachment] POST response', {
+      status:response.status,
+      ok:response.ok,
+      responseBodyLength:responseText.length
+    });
+    if (!response.ok){
+      console.error('[attachment] upload failed', {
+        status:response.status,
+        url:uploadURL,
+        chatId,
+        responseText
+      });
+      let detail = responseText || `Upload failed (${response.status})`;
+      try{
+        const body = JSON.parse(responseText);
+        if (body.detail) detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+      }catch(_){}
+      if (response.status === 401 && AUTH.token){
+        logout(true);
+        throw new Error(`Session expired — login again. ${detail}`);
+      }
+      throw new Error(detail);
+    }
+
+    let message;
+    try{
+      message = JSON.parse(responseText);
+    }catch(err){
+      console.error('[attachment] successful upload returned invalid JSON', {
+        status:response.status,
+        responseText,
+        error:err
+      });
+      throw new Error('The server returned an unreadable upload response');
+    }
+    console.debug('[attachment] upload response shape', {
+      keys:message && typeof message === 'object' ? Object.keys(message) : [],
+      messageId:message && message.id,
+      messageType:message && message.message_type
+    });
+    if (!message || !message.id){
+      console.error('[attachment] upload response is missing the direct message object', { message });
+      throw new Error('The server response did not contain the uploaded message');
+    }
+
+    const messages = MSG_CACHE.get(chatId) || [];
+    if (!messages.some(item => Number(item.id) === Number(message.id))){
+      messages.push(message);
+      MSG_CACHE.set(chatId, messages);
+      if (APP.currentChatId === chatId && curScreen === 'sChat') appendBubble(message, true);
+    }
+    const chat = getChat(chatId);
+    if (chat){
+      chat.last_message = message;
+      renderConvList();
+    }
+    if (
+      APP.currentChatId === chatId && replyToId != null && APP.replyingTo &&
+      Number(APP.replyingTo.id) === Number(replyToId)
+    ) cancelReply();
+
+    status.textContent = '✓ Attachment sent';
+    setTimeout(()=>{ if (status.textContent === '✓ Attachment sent') status.style.display = 'none'; }, 1800);
+  }catch(err){
+    console.error('[attachment] upload flow error', {
+      chatId,
+      url:uploadURL,
+      httpStatus:uploadHTTPStatus,
+      error:err
+    });
+    status.style.display = 'none';
+    toast('❌ Attachment upload failed: ' + err.message);
+  }finally{
+    attachmentUploadInProgress = false;
+    imageInput.disabled = false;
+    fileInput.disabled = false;
+  }
+}
+
 function doAttach(type){
   closeModal('mAttach');
-
-  toast(
-    '📎 File sharing requires a backend upload endpoint — text chat is currently available.'
-  );
+  if (attachmentUploadInProgress){
+    toast('An attachment is already uploading');
+  } else if (type === 'photo' || type === 'camera'){
+    const input = document.getElementById('attachmentImageInput');
+    console.debug('[attachment] opening image picker', {
+      type,
+      inputFound:Boolean(input),
+      inputId:input && input.id,
+      accept:input && input.accept,
+      capture:input && input.getAttribute('capture')
+    });
+    if (!input){
+      console.error('[attachment] image picker input not found');
+      toast('❌ Image picker is unavailable');
+      return;
+    }
+    input.click();
+  } else if (type === 'doc'){
+    const input = document.getElementById('attachmentFileInput');
+    console.debug('[attachment] opening document picker', {
+      inputFound:Boolean(input),
+      inputId:input && input.id,
+      accept:input && input.accept,
+      capture:input && input.getAttribute('capture')
+    });
+    if (!input){
+      console.error('[attachment] document picker input not found');
+      toast('❌ Document picker is unavailable');
+      return;
+    }
+    input.click();
+  } else {
+    toast('📎 This attachment type is not available yet');
+  }
 }
 
 
@@ -3065,9 +3510,7 @@ recorder.onstop = async () => {
       `voice-${Date.now()}.webm`
     );
 
-    const API_BASE =
-      localStorage.getItem('raahi_api') ||
-      'http://127.0.0.1:8000';
+    const API_BASE = resolveApiBase(localStorage.getItem('raahi_api'));
 
     const token = AUTH.token;
 
