@@ -108,11 +108,22 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .nav-btn .ni{font-size:1.25rem}
 .nav-btn .nl{font-size:.6rem;font-weight:600;color:var(--muted);letter-spacing:.04em;transition:color .2s}
 .nav-btn.active .nl{color:var(--ep)}
-.nav-btn.active .ni{animation:wiggle 2s ease-in-out infinite}
+.nav-btn.active .ni{animation:none}
 .nav-badge{position:relative}
 .nav-badge-dot{position:absolute;top:-2px;right:-4px;width:8px;height:8px;
   border-radius:50%;background:var(--es);border:2px solid var(--bd);
-  animation:epulse 1.5s ease-in-out infinite}
+  animation:none}
+
+/* Keep navigation and action icons still until a mouse hover. */
+.nav-btn .ni,.nav-btn .ni .e,button .e,
+.srow .e,.mrow .e,.att-item .e,
+#sMatches .e,#sSettings .e,.modal-hdr .e{
+  animation:none !important;transform:none;transition:transform .16s ease}
+@media (hover:hover) and (pointer:fine){
+  .nav-btn:hover .ni,button:hover .e,
+  .srow:hover .e,.mrow:hover .e,.att-item:hover .e{
+    transform:translateY(-1px) scale(1.04)}
+}
 
 /* ═══════════ SHARED UI ═══════════ */
 .syne{font-family:'Syne',sans-serif}
@@ -246,10 +257,16 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   background:rgba(0,0,0,.5);backdrop-filter:blur(24px);
   border-bottom:1px solid rgba(255,255,255,.08);
   position:sticky;top:0;z-index:20;flex-shrink:0}
-.ch-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.09);
+.ch-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.13);
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;flex-shrink:0;font-size:1rem;border:none}
-.ch-back:active{background:rgba(255,255,255,.16)}
+  cursor:pointer;flex-shrink:0;font-size:1rem;color:#fff;
+  border:1px solid rgba(255,255,255,.24);
+  transition:background .18s,border-color .18s,transform .18s}
+.ch-back:active{background:rgba(255,255,255,.2)}
+@media (hover:hover) and (pointer:fine){
+  .ch-back:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.34);
+    transform:translateX(-1px)}
+}
 .ch-info{flex:1;min-width:0}
 .ch-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.98rem;color:#fff;line-height:1.2}
 .ch-sub{font-size:.67rem;color:var(--muted)}
