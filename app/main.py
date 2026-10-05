@@ -84,9 +84,26 @@ def iso(dt):
 # APP
 # ============================================================
 
+def ensure_attachment_columns(connection):
+    """Add attachment metadata columns missing from an existing PostgreSQL table."""
+    if connection.dialect.name != "postgresql":
+        return
+
+    for statement in (
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS attachment_storage_key VARCHAR(64)",
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS attachment_name VARCHAR(255)",
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS attachment_mime_type VARCHAR(100)",
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS attachment_size_bytes INTEGER",
+    ):
+        connection.exec_driver_sql(statement)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
+
+    with engine.begin() as connection:
+        ensure_attachment_columns(connection)
 
     with SessionLocal() as db:
         db.query(models.User).update(
