@@ -159,9 +159,24 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .matches-top-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
 .notif-bell{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;
-  justify-content:center;cursor:pointer;flex-shrink:0;position:relative}
-.bell-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;
-  background:var(--es);border:2px solid var(--bd);animation:epulse 1.5s ease-in-out infinite}
+  justify-content:center;cursor:pointer;flex-shrink:0;position:relative;padding:0;color:#fff;appearance:none}
+.notif-bell:focus-visible,.notification-item:focus-visible{outline:2px solid var(--ep);outline-offset:3px}
+.bell-count{position:absolute;top:-5px;right:-7px;min-width:19px;height:19px;padding:0 5px;
+  border-radius:11px;background:#ef4444;border:2px solid var(--bd);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:800}
+.notification-item{display:flex;width:100%;align-items:center;gap:11px;padding:12px 4px;
+  background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.08);color:#fff;
+  text-align:left;cursor:pointer;font:inherit}
+.notification-item:last-child{border-bottom:0}
+.notification-item:active{background:rgba(255,255,255,.05)}
+.notification-item-copy{min-width:0;flex:1}
+.notification-item-name{font-size:.88rem;font-weight:700}
+.notification-item-preview{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--muted);font-size:.76rem;margin-top:3px}
+.notification-item-time{color:var(--muted);font-size:.68rem;white-space:nowrap}
+.notification-item-count{min-width:20px;height:20px;padding:0 6px;border-radius:11px;
+  background:var(--ep);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:800}
 .search-wrap{padding:0 18px 14px;position:relative;z-index:2}
 .search-box{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.07);
   border:1.5px solid rgba(255,255,255,.11);border-radius:20px;
@@ -821,10 +836,10 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
       <div class="matches-top-title"><span class="e e-wiggle" id="hdrEmojiEl" style="display:inline-block">💀</span> Matches</div>
       <div class="matches-top-sub" id="hdrSubEl">0 matches · Gen Z Mode</div>
     </div>
-    <div class="notif-bell" onclick="toast('🔔 No new notifications!')">
+    <button class="notif-bell" id="notificationBell" type="button" onclick="openNotifications()" aria-label="Notifications" aria-haspopup="dialog" aria-controls="mNotifications">
       <span class="e e-wiggle">🔔</span>
-      <div class="bell-dot"></div>
-    </div>
+      <span class="bell-count" id="notificationBadge" style="display:none" aria-live="polite">0</span>
+    </button>
   </div>
   <div class="search-wrap">
     <div class="search-box">
@@ -939,7 +954,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
     <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px" class="fiu">Privacy & Safety <span class="e e-wiggle" style="display:inline-block;font-size:.9rem">🔒</span></div>
     <div class="settings-sec fiu">
       <div class="srow"><div class="srow-icon" style="background:rgba(34,197,94,.2)"><span class="e e-float">📍</span></div><div class="srow-info"><div class="srow-title">Location Sharing</div><div class="srow-sub">Share city with matches</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
-      <div class="srow"><div class="srow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-wiggle">🔔</span></div><div class="srow-info"><div class="srow-title">Notifications</div><div class="srow-sub">Match & message alerts</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="srow"><div class="srow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-wiggle">🔔</span></div><div class="srow-info"><div class="srow-title">Notifications</div><div class="srow-sub">In-app message alerts</div></div><div class="toggle-sw on" id="messageNotificationsToggle" role="switch" tabindex="0" aria-checked="true" aria-label="In-app message alerts" onclick="toggleMessageNotifications()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleMessageNotifications()}"></div></div>
       <div class="srow"><div class="srow-icon" style="background:rgba(59,130,246,.2)"><span class="e e-float">✓✓</span></div><div class="srow-info"><div class="srow-title">Read Receipts</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
       <div class="srow"><div class="srow-icon" style="background:rgba(245,158,11,.2)"><span class="e e-pulse">🟢</span></div><div class="srow-info"><div class="srow-title">Activity Status</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
     </div>
@@ -1035,7 +1050,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
         <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;margin-bottom:2px" id="msNameEl">Match</div><div style="font-size:.73rem;color:var(--muted)" id="msMetaEl">📍 City</div><div class="ms-compat-pill" id="msCompatEl"><span class="e e-heart">💖</span> 88%</div></div>
       </div>
       <div class="mrow"><div class="mrow-icon" style="background:rgba(34,197,94,.2)"><span class="e e-float">📍</span></div><div class="mrow-text">Location Sharing</div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
-      <div class="mrow"><div class="mrow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-wiggle">🔔</span></div><div class="mrow-text">Notifications</div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="mrow"><div class="mrow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-wiggle">🔔</span></div><div class="mrow-text">Notifications</div><div class="toggle-sw on" id="chatNotificationsToggle" role="switch" tabindex="0" aria-checked="true" aria-label="Notifications for this chat" onclick="toggleChatNotifications()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleChatNotifications()}"></div></div>
       <div class="mrow yellow" id="rptToggle" onclick="document.getElementById('rptList').classList.toggle('open')"><div class="mrow-icon"><span class="e e-wiggle">⚠️</span></div><div class="mrow-text" style="color:#fbbf24">Report</div></div>
       <div class="report-list" id="rptList">
         <div class="rpt-radio"><input type="radio" name="rpt" id="r1"><label for="r1">Inappropriate photos</label></div>
@@ -1114,6 +1129,15 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
     <div class="modal-hdr"><div class="modal-title"><span class="e e-wiggle" style="display:inline-block">🎮</span> Play a Game</div><button class="modal-close" onclick="closeModal('mGame')">✕</button></div>
     <div class="modal-body" id="gameBody">
     </div>
+  </div>
+</div>
+
+<!-- Notifications -->
+<div class="modal-overlay" id="mNotifications" role="dialog" aria-modal="true" aria-labelledby="notificationsTitle" onclick="closeOverlay(event,this)">
+  <div class="modal-sheet" style="max-height:78vh">
+    <div class="modal-drag"></div>
+    <div class="modal-hdr"><div class="modal-title" id="notificationsTitle"><span class="e e-wiggle" style="display:inline-block">🔔</span> Notifications</div><button class="modal-close" type="button" aria-label="Close notifications" onclick="closeModal('mNotifications')">✕</button></div>
+    <div class="modal-body" id="notificationList"></div>
   </div>
 </div>
 
@@ -1212,6 +1236,21 @@ const MSG_CACHE = new Map();          // chat_id -> [messages]
 const MSG_ELS   = new Map();          // message_id|client_id -> {tick, contentEl, row}
 const ATTACHMENT_OBJECT_URLS = new Map();
 let attachmentUploadInProgress = false;
+let messageNotificationsEnabled = localStorage.getItem('raahi_message_notifications') !== 'false';
+let CHAT_NOTIFICATION_PREFS = {};
+try{
+  const savedChatNotificationPrefs = JSON.parse(localStorage.getItem('raahi_chat_notifications') || '{}');
+  if (savedChatNotificationPrefs && typeof savedChatNotificationPrefs === 'object' && !Array.isArray(savedChatNotificationPrefs)){
+    CHAT_NOTIFICATION_PREFS = savedChatNotificationPrefs;
+  }
+}catch(_){}
+let notificationSettingsChatId = null;
+const PROCESSED_INCOMING_MESSAGE_IDS = new Set();
+const UNREAD_CHANGE_VERSIONS = new Map();
+let chatsLoadRequestId = 0;
+let appliedChatsLoadRequestId = 0;
+let chatLoadSessionGeneration = 0;
+const DELETED_CHAT_IDS = new Set();
 let   WS=null, wsPing=null, wsRetry=0, typingTO=null, lastTypingSent=0;
 
 /* ---------- DISPLAY HELPERS (backend has no era/avatar — derive cosmetically) ---------- */
@@ -1400,6 +1439,149 @@ function toast(msg){
   clearTimeout(_tt); _tt = setTimeout(()=>el.classList.remove('show'), 2800);
 }
 
+function notificationPreview(message){
+  if (!message) return 'New message';
+  if (message.is_deleted) return '🚫 Message deleted';
+  if (message.message_type === 'voice') return '🎙️ Voice message';
+  if (message.message_type === 'image') return '🖼️ Photo';
+  if (message.message_type === 'file') return '📎 ' + (message.attachment_name || 'File');
+  return message.content || 'New message';
+}
+
+function notificationUnreadTotal(){
+  return CHATS.reduce((total, chat)=>total + Math.max(0, Number(chat.unread_count) || 0), 0);
+}
+
+function renderNotificationUI(){
+  const total = notificationUnreadTotal();
+  const badge = document.getElementById('notificationBadge');
+  const bell = document.getElementById('notificationBell');
+  if (badge){
+    badge.textContent = total > 99 ? '99+' : String(total);
+    badge.style.display = total ? 'flex' : 'none';
+  }
+  if (bell){
+    bell.setAttribute('aria-label', total ? `Notifications, ${total} unread messages` : 'Notifications, no unread messages');
+  }
+
+  const list = document.getElementById('notificationList');
+  if (list){
+    list.replaceChildren();
+    const unreadChats = CHATS
+      .filter(chat => Number(chat.unread_count) > 0)
+      .sort((a,b)=>Number(b.last_message?.id || 0) - Number(a.last_message?.id || 0));
+    if (!unreadChats.length){
+      const empty = document.createElement('div');
+      empty.className = 'empty-sub';
+      empty.style.cssText = 'padding:22px 8px;text-align:center';
+      empty.textContent = 'You’re all caught up.';
+      list.appendChild(empty);
+    }else{
+      unreadChats.forEach(chat=>{
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'notification-item';
+        item.setAttribute('aria-label', `Open chat with ${chat.user.username}, ${chat.unread_count} unread messages`);
+        item.onclick = ()=>openNotificationChat(chat.chat_id);
+
+        const era = ERA[eraFor(chat.user.id)];
+        const avatar = document.createElement('span');
+        avatar.className = 'av av-sm';
+        avatar.style.cssText = `border-color:${era.primary};background:${era.cbg}`;
+        avatar.textContent = avatarFor(chat.user.username).initials;
+
+        const copy = document.createElement('span');
+        copy.className = 'notification-item-copy';
+        const name = document.createElement('span');
+        name.className = 'notification-item-name';
+        name.textContent = chat.user.username;
+        const preview = document.createElement('span');
+        preview.className = 'notification-item-preview';
+        preview.textContent = notificationPreview(chat.last_message);
+        copy.append(name, preview);
+
+        const time = document.createElement('span');
+        time.className = 'notification-item-time';
+        time.textContent = chat.last_message ? fmtTime(chat.last_message.created_at) : '';
+        const count = document.createElement('span');
+        count.className = 'notification-item-count';
+        count.textContent = Number(chat.unread_count) > 99 ? '99+' : String(chat.unread_count);
+
+        item.append(avatar, copy, time, count);
+        list.appendChild(item);
+      });
+    }
+  }
+  syncNotificationToggleUI();
+}
+
+function openNotifications(){
+  renderNotificationUI();
+  openModal('mNotifications');
+}
+
+function openNotificationChat(chatId){
+  closeModal('mNotifications');
+  openChat(Number(chatId));
+}
+
+function isChatNotificationEnabled(chatId){
+  return CHAT_NOTIFICATION_PREFS[chatNotificationPrefKey(chatId)] !== false;
+}
+
+function chatNotificationPrefKey(chatId){
+  return `${AUTH.me ? AUTH.me.id : 'guest'}:${chatId}`;
+}
+
+function syncNotificationToggleUI(){
+  const globalToggle = document.getElementById('messageNotificationsToggle');
+  if (globalToggle){
+    globalToggle.classList.toggle('on', messageNotificationsEnabled);
+    globalToggle.setAttribute('aria-checked', String(messageNotificationsEnabled));
+  }
+  const chatToggle = document.getElementById('chatNotificationsToggle');
+  if (chatToggle && notificationSettingsChatId != null){
+    const enabled = isChatNotificationEnabled(notificationSettingsChatId);
+    chatToggle.classList.toggle('on', enabled);
+    chatToggle.setAttribute('aria-checked', String(enabled));
+  }
+}
+
+function toggleMessageNotifications(){
+  messageNotificationsEnabled = !messageNotificationsEnabled;
+  localStorage.setItem('raahi_message_notifications', String(messageNotificationsEnabled));
+  syncNotificationToggleUI();
+  toast(messageNotificationsEnabled ? '🔔 In-app alerts enabled' : '🔕 In-app alerts muted');
+}
+
+function toggleChatNotifications(){
+  if (notificationSettingsChatId == null) return;
+  const key = chatNotificationPrefKey(notificationSettingsChatId);
+  CHAT_NOTIFICATION_PREFS[key] = !isChatNotificationEnabled(key);
+  localStorage.setItem('raahi_chat_notifications', JSON.stringify(CHAT_NOTIFICATION_PREFS));
+  syncNotificationToggleUI();
+}
+
+function noteUnreadChange(chatId){
+  const key = String(chatId);
+  UNREAD_CHANGE_VERSIONS.set(key, (UNREAD_CHANGE_VERSIONS.get(key) || 0) + 1);
+}
+
+function rememberIncomingMessage(chatId, messageId){
+  const key = `${chatId}:${messageId}`;
+  if (PROCESSED_INCOMING_MESSAGE_IDS.has(key)) return false;
+  PROCESSED_INCOMING_MESSAGE_IDS.add(key);
+  if (PROCESSED_INCOMING_MESSAGE_IDS.size > 2000){
+    PROCESSED_INCOMING_MESSAGE_IDS.delete(PROCESSED_INCOMING_MESSAGE_IDS.values().next().value);
+  }
+  return true;
+}
+
+function notifyIncomingMessage(chat, message){
+  if (!messageNotificationsEnabled || !isChatNotificationEnabled(chat.chat_id)) return;
+  toast(`💬 ${chat.user.username}: ${notificationPreview(message).slice(0, 60)}`);
+}
+
 /* ---------- MODALS ---------- */
 function openModal(id){
   document.getElementById(id).classList.add('open');
@@ -1454,6 +1636,8 @@ async function submitAuth(){
   }
 }
 async function boot(){
+  chatLoadSessionGeneration++;
+  DELETED_CHAT_IDS.clear();
   AUTH.me = await api('/me');
   const av = avatarFor(AUTH.me.username);
   APP.avatar.initials = av.initials;
@@ -1463,12 +1647,16 @@ async function boot(){
   await Promise.all([loadUsers(), loadChats()]);
 }
 function logout(silent){
+  chatLoadSessionGeneration++;
   AUTH.token = ''; AUTH.me = null;
   localStorage.removeItem('raahi_token');
   try{ if (WS) WS.close(); }catch(_){}
   WS = null; clearInterval(wsPing);
   CHATS.length = 0; USERS = []; ONLINE_USER_IDS = null; MSG_CACHE.clear(); MSG_ELS.clear();
+  PROCESSED_INCOMING_MESSAGE_IDS.clear(); UNREAD_CHANGE_VERSIONS.clear();
   APP.currentChatId = null;
+  closeModal('mNotifications');
+  renderNotificationUI();
   if (!silent) toast('👋 Logged out');
   showScreen('sAuth');
 }
@@ -1485,6 +1673,7 @@ function connectWS(){
     clearInterval(wsPing);
     wsPing = setInterval(()=>wsSend({type:'ping'}), 30000); // server idle-timeout = 70s
     setConnDot(true);
+    loadChats().catch(err=>console.warn('Unread notification refresh failed:', err));
   };
   WS.onmessage = (e)=>{ try{ handleWSEvent(JSON.parse(e.data)); }catch(_){} };
   WS.onclose = ()=>{
@@ -1504,12 +1693,13 @@ function handleWSEvent(d){
   switch(d.type){
     case 'ready':        markOnline(d.online_user_ids || []); break;
     case 'message':      onIncomingMessage(d); break;
+    case 'voice_message': onIncomingMessage(d); break;
     case 'message_sent': confirmSent(d); break;
     case 'message_delivered': setTick(d.message_id, 'delivered'); break;
     case 'message_read': setTick(d.message_id, 'read'); break;
     case 'typing':       showPartnerTyping(d); break;
     case 'presence':     updatePresence(d); break;
-    case 'message_deleted': markDeleted(d); break;
+    case 'message_deleted': markDeleted(d); loadChats().catch(err=>console.warn('Unread count refresh failed:', err)); break;
     case 'chat_deleted': handleChatDeleted(d); break;
     case 'pong': break;
     case 'error': toast('⚠️ ' + (d.detail || 'Server error')); break;
@@ -1526,11 +1716,29 @@ function markOnline(ids){
    CHAT LIST (GET /chats, GET /users)
 ═══════════════════════════════════════════════════ */
 async function loadChats(){
+  const requestId = ++chatsLoadRequestId;
+  const sessionGenerationAtStart = chatLoadSessionGeneration;
+  const unreadVersionsAtStart = new Map(UNREAD_CHANGE_VERSIONS);
   const data = await api('/chats');
+  if (sessionGenerationAtStart !== chatLoadSessionGeneration || !AUTH.token || requestId < appliedChatsLoadRequestId) return;
+  const existingChats = new Map(CHATS.map(chat=>[String(chat.chat_id), chat]));
+  const chatsToApply = data.filter(chat=>{
+    return !DELETED_CHAT_IDS.has(String(chat.chat_id));
+  });
+  chatsToApply.forEach(chat=>{
+    const key = String(chat.chat_id);
+    const versionAtStart = unreadVersionsAtStart.get(key) || 0;
+    const currentVersion = UNREAD_CHANGE_VERSIONS.get(key) || 0;
+    const localChat = existingChats.get(key);
+    if (localChat && currentVersion > versionAtStart){
+      chat.unread_count = localChat.unread_count;
+    }
+  });
   if (ONLINE_USER_IDS !== null){
-    data.forEach(c=>c.user.is_online = ONLINE_USER_IDS.has(String(c.user.id)));
+    chatsToApply.forEach(c=>c.user.is_online = ONLINE_USER_IDS.has(String(c.user.id)));
   }
-  CHATS.length = 0; CHATS.push(...data);
+  appliedChatsLoadRequestId = requestId;
+  CHATS.length = 0; CHATS.push(...chatsToApply);
   renderMatchesScreen();
 }
 async function loadUsers(){
@@ -1550,6 +1758,7 @@ function renderMatchesScreen(){
     `<span id="connDotEl" class="conn-dot${WS && WS.readyState===1 ? '' : ' off'}"></span> ${CHATS.length} chats · ${e.name} Mode`;
   renderNewMatchRow();
   renderConvList();
+  renderNotificationUI();
 }
 function renderNewMatchRow(){
   const row = document.getElementById('nmRow'); if (!row) return;
@@ -1594,7 +1803,8 @@ function renderConvList(){
     const last = c.last_message;
     let preview = 'Say hi! 👋';
     if (last) preview = last.is_deleted ? '🚫 Message deleted' : (
-      last.content || (last.message_type === 'image' ? '🖼️ Photo' :
+      last.content || (last.message_type === 'voice' ? '🎙️ Voice message' :
+        last.message_type === 'image' ? '🖼️ Photo' :
         last.message_type === 'file' ? '📎 ' + (last.attachment_name || 'File') : '')
     );
     if (c.unread_count > 0 && last && last.sender_id !== meId) preview = '• ' + preview;
@@ -1641,7 +1851,6 @@ function getChat(chatId){ return CHATS.find(c=>c.chat_id===chatId); }
 async function openChat(chatId){
   const chat = getChat(chatId); if (!chat) return;
   APP.currentChatId = chatId;
-  chat.unread_count = 0;
   renderChatHeader(chat);
   renderMatchIntro(chat);
   showScreen('sChat');
@@ -1652,7 +1861,12 @@ async function openChat(chatId){
     MSG_CACHE.set(chatId, msgs);
     msgs.forEach(m=>appendBubble(m, true));
     
-    wsSend({ type:'read_chat', chat_id: chatId });          // mark partner's msgs read
+    if (WS && WS.readyState === 1){
+      wsSend({ type:'read_chat', chat_id: chatId });        // mark partner's msgs read
+      chat.unread_count = 0;
+      noteUnreadChange(chatId);
+      renderNotificationUI();
+    }
   }catch(err){ toast('❌ ' + err.message); }
   renderConvList();
   setTimeout(()=>{ ms.scrollTop = ms.scrollHeight; }, 50);
@@ -2351,6 +2565,7 @@ async function deleteCurrentChat(){
 
 function handleChatDeleted(d){
   const chatId = Number(d.chat_id);
+  DELETED_CHAT_IDS.add(String(chatId));
 
   const index = CHATS.findIndex(
     chat => chat.chat_id === chatId
@@ -2361,6 +2576,8 @@ function handleChatDeleted(d){
   }
 
   MSG_CACHE.delete(chatId);
+  delete CHAT_NOTIFICATION_PREFS[chatNotificationPrefKey(chatId)];
+  localStorage.setItem('raahi_chat_notifications', JSON.stringify(CHAT_NOTIFICATION_PREFS));
 
   if (APP.currentChatId === chatId) {
     APP.currentChatId = null;
@@ -2564,17 +2781,28 @@ function confirmSent(d){
 /* ---------- INCOMING ---------- */
 
 function onIncomingMessage(d){
-  const chat = getChat(d.chat_id);
+  const chatId = Number(d.chat_id);
+  const messageId = Number(d.message_id);
+  if (!Number.isFinite(chatId) || !Number.isFinite(messageId) || messageId <= 0) return;
+
+  const chat = getChat(chatId);
+  const arr = MSG_CACHE.get(chatId) || [];
+  const duplicate = arr.some(item=>String(item.id) === String(messageId)) ||
+    !rememberIncomingMessage(chatId, messageId);
+  if (duplicate) return;
 
   const msg = {
-    id:d.message_id,
-    chat_id:d.chat_id,
+    id:messageId,
+    chat_id:chatId,
     sender_id:d.sender_id,
     sender_name:d.sender_name,
     content:d.content,
     created_at:d.created_at,
     reply_to_id:d.reply_to_id,
     message_type:d.message_type || 'text',
+    audio_url:d.audio_url,
+    audio_duration:d.audio_duration,
+    audio_mime_type:d.audio_mime_type,
     attachment_name:d.attachment_name,
     attachment_mime_type:d.attachment_mime_type,
     attachment_size_bytes:d.attachment_size_bytes,
@@ -2582,56 +2810,40 @@ function onIncomingMessage(d){
     is_read:false
   };
 
-  const arr = MSG_CACHE.get(d.chat_id) || [];
-  const isAttachment = msg.message_type === 'image' || msg.message_type === 'file';
-  const duplicateAttachment = isAttachment && arr.some(
-    item => Number(item.id) === Number(msg.id)
-  );
+  arr.push(msg);
+  MSG_CACHE.set(chatId, arr);
 
-  if (!duplicateAttachment && !arr.find(x => x.id === msg.id)){
-    arr.push(msg);
-    MSG_CACHE.set(d.chat_id, arr);
+  if (!chat){
+    if (messageNotificationsEnabled && isChatNotificationEnabled(chatId)){
+      toast(`💬 ${d.sender_name || 'New message'}: ${notificationPreview(msg).slice(0, 60)}`);
+    }
+    loadChats().catch(err=>console.warn('Unread notification refresh failed:', err));
+    return;
   }
 
-  if (chat){
-    chat.last_message = msg;
+  chat.last_message = msg;
 
-    const openHere =
-      APP.currentChatId === d.chat_id &&
-      curScreen === 'sChat';
+  const openHere =
+    Number(APP.currentChatId) === chatId &&
+    curScreen === 'sChat';
 
-    console.log("READ DEBUG:", {
-      currentChat: APP.currentChatId,
-      incomingChat: d.chat_id,
-      screen: curScreen,
-      openHere: openHere
-    });
+  if (openHere){
+    appendBubble(msg, true);
+    wsSend({ type:'read_chat', chat_id:chatId });
+    chat.unread_count = 0;
+    noteUnreadChange(chatId);
+  } else {
+    chat.unread_count = (Number(chat.unread_count) || 0) + 1;
+    noteUnreadChange(chatId);
+    notifyIncomingMessage(chat, msg);
+  }
 
-    if (openHere){
-      if (!duplicateAttachment) appendBubble(msg, true);
+  renderConvList();
+  renderNotificationUI();
 
-      wsSend({
-        type:'read_chat',
-        chat_id:d.chat_id
-      });
-    } else {
-      chat.unread_count =
-        (chat.unread_count || 0) + 1;
-
-      toast(
-        `💬 ${d.sender_name}: "${(d.content || '').slice(0,40)}"`
-      );
-    }
-
-    renderConvList();
-
-    if (openHere){
-      const ch = document.getElementById('msgsScroll');
-
-      ch.scrollTop = ch.scrollHeight;
-
-      chat.unread_count = 0;
-    }
+  if (openHere){
+    const messages = document.getElementById('msgsScroll');
+    messages.scrollTop = messages.scrollHeight;
   }
 }
 
@@ -2841,6 +3053,8 @@ function openMatchSettings(chatId){
 
   if (!chat) return;
 
+  notificationSettingsChatId = chat.chat_id;
+
   const er = ERA[eraFor(chat.user.id)];
 
   const av = document.getElementById('msAvEl');
@@ -2861,6 +3075,7 @@ function openMatchSettings(chatId){
   document.getElementById('msCompatEl').innerHTML =
     `<span class="e e-heart">💖</span> Connected on raahi`;
 
+  syncNotificationToggleUI();
   openModal('mMatchSettings');
 }
 
@@ -3621,6 +3836,13 @@ recorder.stop();
 }
   
 showScreen('sAuth');
+if (AUTH.token){
+  boot().catch(err=>{
+    console.warn('Session restore failed:', err);
+    showScreen('sAuth');
+    toast('⚠️ ' + err.message);
+  });
+}
 </script>
 
 </body>
