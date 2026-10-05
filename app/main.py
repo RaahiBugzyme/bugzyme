@@ -28,7 +28,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from pwdlib import PasswordHash
-from sqlalchemy import and_, or_, func
+from sqlalchemy import and_, or_, func, inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
@@ -84,9 +84,85 @@ def iso(dt):
 # APP
 # ============================================================
 
+def ensure_attachment_columns(connection):
+    """Add attachment metadata columns missing from an existing PostgreSQL table."""
+    logger.info(
+        "Checking attachment columns during startup (dialect=%s)",
+        connection.dialect.name,
+    )
+
+    if connection.dialect.name != "postgresql":
+        logger.info(
+            "Skipping PostgreSQL attachment-column check for dialect=%s",
+            connection.dialect.name,
+        )
+        return
+
+    statements = {
+        "attachment_storage_key": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_storage_key VARCHAR(64) NULL"
+        ),
+        "attachment_name": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_name VARCHAR(255) NULL"
+        ),
+        "attachment_mime_type": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_mime_type VARCHAR(100) NULL"
+        ),
+        "attachment_size_bytes": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_size_bytes INTEGER NULL"
+        ),
+    }
+
+    try:
+        existing = {
+            column["name"]
+            for column in inspect(connection).get_columns("messages")
+        }
+        missing = [name for name in statements if name not in existing]
+
+        if missing:
+            logger.warning(
+                "Adding missing attachment columns to messages: %s",
+                ", ".join(missing),
+            )
+            for name in missing:
+                connection.exec_driver_sql(statements[name])
+
+            # Explicitly persist the PostgreSQL DDL before startup proceeds.
+            connection.commit()
+        else:
+            logger.info("All attachment columns already exist on messages")
+
+        remaining = {
+            column["name"]
+            for column in inspect(connection).get_columns("messages")
+        }
+        missing_after_check = [
+            name for name in statements if name not in remaining
+        ]
+        if missing_after_check:
+            raise RuntimeError(
+                "Attachment columns still missing after startup check: "
+                + ", ".join(missing_after_check)
+            )
+    except Exception:
+        connection.rollback()
+        logger.exception("Attachment-column startup check failed")
+        raise
+
+    logger.info("Attachment-column startup check passed")
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
+
+    with engine.connect() as connection:
+        ensure_attachment_columns(connection)
 
     with SessionLocal() as db:
         db.query(models.User).update(
