@@ -30,7 +30,7 @@ from jose import JWTError, jwt
 from pwdlib import PasswordHash
 from sqlalchemy import and_, or_, func, inspect
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from starlette.concurrency import run_in_threadpool
 
 from . import models, schemas
@@ -60,6 +60,7 @@ ALLOWED_ORIGINS = [
 ]
 
 IDLE_TIMEOUT = 70
+ALLOWED_MESSAGE_REACTIONS = frozenset({"❤️", "😂", "👍", "🔥", "😮", "😢"})
 
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -528,6 +529,11 @@ def soft_delete_message(
     if for_everyone and message.sender_id != user_id:
         return None
 
+    # Messages are soft-deleted, so explicitly remove their reactions.
+    db.query(models.MessageReaction).filter(
+        models.MessageReaction.message_id == message.id
+    ).delete(synchronize_session=False)
+
     message.is_deleted = True
     message.deleted_at = utcnow()
     message.content = None
@@ -541,6 +547,101 @@ def soft_delete_message(
         "for_everyone": for_everyone,
         "receiver_id": other_user(chat, user_id),
         "attachment_storage_key": message.attachment_storage_key,
+    }
+
+
+def toggle_message_reaction(
+    db: Session,
+    user_id: int,
+    chat_id: int,
+    message_id: int,
+    reaction: str,
+):
+    if reaction not in ALLOWED_MESSAGE_REACTIONS:
+        return None
+
+    chat = member_chat(db, chat_id, user_id)
+    if not chat:
+        return None
+
+    # Lock the owning message before reading or changing a user's reaction.
+    # This serializes all reaction mutations for this message in PostgreSQL.
+    for attempt in range(2):
+        message = (
+            db.query(models.Message)
+            .filter(
+                models.Message.id == message_id,
+                models.Message.chat_id == chat_id,
+                models.Message.is_deleted.is_(False),
+            )
+            .with_for_update()
+            .first()
+        )
+        if not message:
+            return None
+
+        current = db.query(models.MessageReaction).filter_by(
+            message_id=message_id,
+            user_id=user_id,
+        ).first()
+
+        if current and current.reaction == reaction:
+            db.delete(current)
+        elif current:
+            current.reaction = reaction
+            current.created_at = utcnow()
+        else:
+            db.add(models.MessageReaction(
+                message_id=message_id,
+                user_id=user_id,
+                reaction=reaction,
+                created_at=utcnow(),
+            ))
+
+        message.reaction_revision = (message.reaction_revision or 0) + 1
+        try:
+            db.commit()
+            break
+        except IntegrityError:
+            # The message row lock serializes normal callers. Retrying once
+            # also handles a concurrent insert from a legacy/unlocked caller;
+            # the unique constraint remains the final guard.
+            db.rollback()
+            if attempt:
+                raise
+
+    # Generate the canonical snapshot only after the mutation is committed.
+    # Re-locking the message keeps the revision and reaction rows stable while
+    # they are read. A later update can still broadcast first; clients order
+    # these committed snapshots by revision.
+    snapshot_message = (
+        db.query(models.Message)
+        .filter(
+            models.Message.id == message_id,
+            models.Message.chat_id == chat_id,
+            models.Message.is_deleted.is_(False),
+        )
+        .with_for_update()
+        .first()
+    )
+    if not snapshot_message:
+        return None
+
+    reactions = db.query(models.MessageReaction).filter_by(
+        message_id=message_id
+    ).order_by(models.MessageReaction.user_id).all()
+    revision = snapshot_message.reaction_revision or 0
+    db.commit()
+
+    return {
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "revision": revision,
+        "receiver_id": other_user(chat, user_id),
+        "reactions": [
+            {"user_id": row.user_id, "reaction": row.reaction}
+            for row in reactions
+        ],
     }
 
 
@@ -1688,6 +1789,8 @@ def get_messages(
 
     query = db.query(
         models.Message
+    ).options(
+        selectinload(models.Message.reactions)
     ).filter(
         models.Message.chat_id == chat_id
     )
@@ -1915,6 +2018,74 @@ async def handle_socket(
                             "Not a member of this chat or invalid reply"
                         }
                     )
+
+            # =================================================
+            # MESSAGE REACTION
+            # =================================================
+
+            elif event_type == "message_reaction":
+
+                message_id = data.get("message_id")
+                reaction = data.get("reaction")
+                request_id = data.get("request_id")
+
+                if (
+                    chat_id is None
+                    or isinstance(message_id, bool)
+                    or not isinstance(message_id, int)
+                    or not isinstance(reaction, str)
+                    or reaction not in ALLOWED_MESSAGE_REACTIONS
+                ):
+                    await safe_send(
+                        websocket,
+                        {
+                            "type": "message_reaction_error",
+                            "chat_id": chat_id,
+                            "message_id": message_id,
+                            "request_id": request_id,
+                            "detail": "Invalid message reaction",
+                        },
+                    )
+                    continue
+
+                result = await db_call(
+                    toggle_message_reaction,
+                    user_id,
+                    chat_id,
+                    message_id,
+                    reaction,
+                )
+                if result is None:
+                    await safe_send(
+                        websocket,
+                        {
+                            "type": "message_reaction_error",
+                            "chat_id": chat_id,
+                            "message_id": message_id,
+                            "request_id": request_id,
+                            "detail": "Message not found or you are not a chat participant",
+                        },
+                    )
+                    continue
+
+                reaction_event = {
+                    "type": "message_reaction",
+                    "chat_id": result["chat_id"],
+                    "message_id": result["message_id"],
+                    "revision": result["revision"],
+                    "request_id": request_id,
+                    "reactions": result["reactions"],
+                }
+                await manager.send_to_user(
+                    user_id,
+                    reaction_event,
+                    result["chat_id"],
+                )
+                await manager.send_to_user(
+                    result["receiver_id"],
+                    reaction_event,
+                    result["chat_id"],
+                )
 
             # =================================================
             # DELETE MESSAGE
