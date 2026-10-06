@@ -86,43 +86,43 @@ def iso(dt):
 # ============================================================
 
 def ensure_message_schema_columns(connection):
-    """Add attachment metadata columns missing from an existing PostgreSQL table."""
+    """Add missing message metadata columns to an existing PostgreSQL table."""
     logger.info(
-        "Checking attachment columns during startup (dialect=%s)",
+        "Checking message schema columns during startup (dialect=%s)",
         connection.dialect.name,
     )
 
     if connection.dialect.name != "postgresql":
         logger.info(
-            "Skipping PostgreSQL attachment-column check for dialect=%s",
+            "Skipping PostgreSQL message-schema check for dialect=%s",
             connection.dialect.name,
         )
         return
 
-statements = {
-    "attachment_storage_key": (
-        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-        "attachment_storage_key VARCHAR(64) NULL"
-    ),
-    "attachment_name": (
-        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-        "attachment_name VARCHAR(255) NULL"
-    ),
-    "attachment_mime_type": (
-        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-        "attachment_mime_type VARCHAR(100) NULL"
-    ),
-    "attachment_size_bytes": (
-        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-        "attachment_size_bytes INTEGER NULL"
-    ),
-    "reaction_revision": (
-        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-        "reaction_revision INTEGER DEFAULT 0 NOT NULL"
-    ),
-}
+    statements = {
+        "attachment_storage_key": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_storage_key VARCHAR(64) NULL"
+        ),
+        "attachment_name": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_name VARCHAR(255) NULL"
+        ),
+        "attachment_mime_type": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_mime_type VARCHAR(100) NULL"
+        ),
+        "attachment_size_bytes": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "attachment_size_bytes INTEGER NULL"
+        ),
+        "reaction_revision": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "reaction_revision INTEGER DEFAULT 0 NOT NULL"
+        ),
+    }
 
-try:
+    try:
         existing = {
             column["name"]
             for column in inspect(connection).get_columns("messages")
@@ -131,35 +131,40 @@ try:
 
         if missing:
             logger.warning(
-                "Adding missing attachment columns to messages: %s",
+                "Adding missing message schema columns to messages: %s",
                 ", ".join(missing),
             )
+
             for name in missing:
                 connection.exec_driver_sql(statements[name])
 
-            # Explicitly persist the PostgreSQL DDL before startup proceeds.
             connection.commit()
         else:
-            logger.info("All attachment columns already exist on messages")
+            logger.info(
+                "All message schema columns already exist on messages"
+            )
 
         remaining = {
             column["name"]
             for column in inspect(connection).get_columns("messages")
         }
+
         missing_after_check = [
             name for name in statements if name not in remaining
         ]
+
         if missing_after_check:
             raise RuntimeError(
-                "Attachment columns still missing after startup check: "
+                "Message schema columns still missing after startup check: "
                 + ", ".join(missing_after_check)
             )
-except Exception:
+
+    except Exception:
         connection.rollback()
-        logger.exception("Attachment-column startup check failed")
+        logger.exception("Message schema startup check failed")
         raise
 
-logger.info("Attachment-column startup check passed")
+    logger.info("Message schema startup check passed")
 
 
 @asynccontextmanager
