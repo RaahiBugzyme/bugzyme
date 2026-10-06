@@ -85,7 +85,7 @@ def iso(dt):
 # APP
 # ============================================================
 
-def ensure_attachment_columns(connection):
+def ensure_message_schema_columns(connection):
     """Add attachment metadata columns missing from an existing PostgreSQL table."""
     logger.info(
         "Checking attachment columns during startup (dialect=%s)",
@@ -99,26 +99,30 @@ def ensure_attachment_columns(connection):
         )
         return
 
-    statements = {
-        "attachment_storage_key": (
-            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-            "attachment_storage_key VARCHAR(64) NULL"
-        ),
-        "attachment_name": (
-            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-            "attachment_name VARCHAR(255) NULL"
-        ),
-        "attachment_mime_type": (
-            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-            "attachment_mime_type VARCHAR(100) NULL"
-        ),
-        "attachment_size_bytes": (
-            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
-            "attachment_size_bytes INTEGER NULL"
-        ),
-    }
+statements = {
+    "attachment_storage_key": (
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+        "attachment_storage_key VARCHAR(64) NULL"
+    ),
+    "attachment_name": (
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+        "attachment_name VARCHAR(255) NULL"
+    ),
+    "attachment_mime_type": (
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+        "attachment_mime_type VARCHAR(100) NULL"
+    ),
+    "attachment_size_bytes": (
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+        "attachment_size_bytes INTEGER NULL"
+    ),
+    "reaction_revision": (
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+        "reaction_revision INTEGER DEFAULT 0 NOT NULL"
+    ),
+}
 
-    try:
+try:
         existing = {
             column["name"]
             for column in inspect(connection).get_columns("messages")
@@ -150,12 +154,12 @@ def ensure_attachment_columns(connection):
                 "Attachment columns still missing after startup check: "
                 + ", ".join(missing_after_check)
             )
-    except Exception:
+except Exception:
         connection.rollback()
         logger.exception("Attachment-column startup check failed")
         raise
 
-    logger.info("Attachment-column startup check passed")
+logger.info("Attachment-column startup check passed")
 
 
 @asynccontextmanager
@@ -163,7 +167,7 @@ async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
 
     with engine.connect() as connection:
-        ensure_attachment_columns(connection)
+        ensure_message_schema_columns(connection)
 
     with SessionLocal() as db:
         db.query(models.User).update(
