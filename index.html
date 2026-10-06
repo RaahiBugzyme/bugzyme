@@ -349,6 +349,36 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .msg-action-delete{
   color:#f87171;
 }
+.msg-content-wrap{position:relative;min-width:0}
+.reaction-trigger{position:absolute;top:-11px;right:5px;z-index:3;width:27px;height:27px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);background:#211832;color:#fff;font-size:.85rem;
+  cursor:pointer;opacity:0;pointer-events:none;transform:scale(.94);
+  transition:opacity .16s,transform .16s,background .16s}
+.msg-row:hover .reaction-trigger,.reaction-trigger:focus-visible{opacity:1;pointer-events:auto}
+.msg-row .reaction-trigger:hover{transform:translateY(-1px) scale(1.04);background:#35244d}
+@media (hover:none),(pointer:coarse){
+  .reaction-trigger{opacity:1;pointer-events:auto;transform:none}
+}
+.msg-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;max-width:min(100%,320px)}
+.msg-reactions[hidden]{display:none}
+.msg-row.me .msg-reactions{justify-content:flex-end}
+.msg-reaction-badge{display:inline-flex;align-items:center;gap:4px;min-height:23px;
+  padding:2px 7px;border:1px solid rgba(255,255,255,.14);border-radius:12px;
+  background:rgba(13,10,26,.78);color:#fff;font:600 .68rem 'DM Sans',sans-serif;
+  cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+.msg-reaction-badge .reaction-count{color:rgba(255,255,255,.82)}
+.msg-reaction-badge.reacted{border-color:var(--ep);background:rgba(168,85,247,.22)}
+.msg-reaction-badge:hover{transform:translateY(-1px);background:rgba(255,255,255,.15)}
+#messageReactionPicker{position:fixed;z-index:500;display:flex;gap:2px;padding:6px;
+  border:1px solid rgba(255,255,255,.16);border-radius:18px;
+  background:rgba(25,17,42,.97);box-shadow:0 8px 28px rgba(0,0,0,.4);backdrop-filter:blur(16px)}
+#messageReactionPicker[hidden]{display:none}
+#messageReactionPicker button{width:36px;height:36px;border:0;border-radius:12px;
+  background:transparent;color:#fff;font-size:1.2rem;cursor:pointer;
+  transition:background .14s,transform .14s}
+#messageReactionPicker button:hover,#messageReactionPicker button:focus-visible{
+  background:rgba(255,255,255,.12);transform:scale(1.08);outline:none}
 
 .reply-preview{
   background:rgba(255,255,255,.08);
@@ -1174,6 +1204,15 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   </div>
 </div>
 
+<div id="messageReactionPicker" hidden role="group" aria-label="Choose a message reaction">
+  <button type="button" data-reaction="❤️" aria-label="React with heart">❤️</button>
+  <button type="button" data-reaction="😂" aria-label="React with laughter">😂</button>
+  <button type="button" data-reaction="👍" aria-label="React with thumbs up">👍</button>
+  <button type="button" data-reaction="🔥" aria-label="React with fire">🔥</button>
+  <button type="button" data-reaction="😮" aria-label="React with surprise">😮</button>
+  <button type="button" data-reaction="😢" aria-label="React with sadness">😢</button>
+</div>
+
 <script>
 /* ═══════════════════════════════════════════════════
    raahi — Bugzyme backend connected build
@@ -1251,6 +1290,13 @@ let   USERS  = [];                    // GET /users
 let   ONLINE_USER_IDS = null;           // WebSocket presence snapshot
 const MSG_CACHE = new Map();          // chat_id -> [messages]
 const MSG_ELS   = new Map();          // message_id|client_id -> {tick, contentEl, row}
+const MESSAGE_REACTION_EMOJIS = Object.freeze(['❤️','😂','👍','🔥','😮','😢']);
+const REACTION_OVERRIDES = new Map();  // message_id -> latest websocket state
+const REACTION_VERSIONS = new Map();
+const REACTION_REVISIONS = new Map();  // message_id -> server-authoritative revision
+const PENDING_REACTIONS = new Map();
+let activeReactionTarget = null;
+let reactionEventSequence = 0;
 const ATTACHMENT_OBJECT_URLS = new Map();
 let attachmentUploadInProgress = false;
 let messageNotificationsEnabled = localStorage.getItem('raahi_message_notifications') !== 'false';
@@ -1671,6 +1717,7 @@ function logout(silent){
   WS = null; clearInterval(wsPing);
   CHATS.length = 0; USERS = []; ONLINE_USER_IDS = null; MSG_CACHE.clear(); MSG_ELS.clear();
   PROCESSED_INCOMING_MESSAGE_IDS.clear(); UNREAD_CHANGE_VERSIONS.clear();
+  REACTION_OVERRIDES.clear(); REACTION_VERSIONS.clear(); REACTION_REVISIONS.clear(); PENDING_REACTIONS.clear(); closeMessageReactionPicker();
   APP.currentChatId = null;
   closeModal('mNotifications');
   renderNotificationUI();
@@ -1708,9 +1755,14 @@ function setConnDot(on){
 }
 function handleWSEvent(d){
   switch(d.type){
-    case 'ready':        markOnline(d.online_user_ids || []); break;
+    case 'ready':
+      markOnline(d.online_user_ids || []);
+      reconcileVisibleMessageReactions().catch(err=>console.warn('Message reaction refresh failed:', err));
+      break;
     case 'message':      onIncomingMessage(d); break;
     case 'voice_message': onIncomingMessage(d); break;
+    case 'message_reaction': handleMessageReaction(d); break;
+    case 'message_reaction_error': handleMessageReactionError(d); break;
     case 'message_sent': confirmSent(d); break;
     case 'message_delivered': setTick(d.message_id, 'delivered'); break;
     case 'message_read': setTick(d.message_id, 'read'); break;
@@ -1867,6 +1919,7 @@ function getChat(chatId){ return CHATS.find(c=>c.chat_id===chatId); }
 
 async function openChat(chatId){
   const chat = getChat(chatId); if (!chat) return;
+  const reactionSequenceAtStart = reactionEventSequence;
   APP.currentChatId = chatId;
   renderChatHeader(chat);
   renderMatchIntro(chat);
@@ -1875,6 +1928,10 @@ async function openChat(chatId){
   ms.innerHTML = ''; renderMatchIntro(chat);
   try{
     const msgs = await api(`/messages/${chatId}?limit=200`);
+    msgs.forEach(message=>{
+      const cachedMessage = (MSG_CACHE.get(chatId) || []).find(item=>Number(item.id) === Number(message.id));
+      reconcileHistoryReactionState(message, cachedMessage, reactionSequenceAtStart);
+    });
     MSG_CACHE.set(chatId, msgs);
     msgs.forEach(m=>appendBubble(m, true));
     
@@ -2349,6 +2406,8 @@ if (
 
 }
 
+if (msg.id && !msg.is_deleted) ensureMessageReactionUI(msg, row);
+
 
 /* =========================
    AUTO SCROLL
@@ -2366,6 +2425,257 @@ if (scroll) {
 }
 
 }
+
+function normalizeMessageReactions(reactions){
+  const byUser = new Map();
+  (Array.isArray(reactions) ? reactions : []).forEach(item=>{
+    const userId = Number(item && item.user_id);
+    if (Number.isFinite(userId) && MESSAGE_REACTION_EMOJIS.includes(item.reaction)){
+      byUser.set(userId, {user_id:userId, reaction:item.reaction});
+    }
+  });
+  return Array.from(byUser.values());
+}
+
+function ensureMessageReactionUI(message, row){
+  if (!message || !message.id || !row || message.is_deleted) return;
+  const bubble = row.querySelector('.bubble');
+  const messageContent = bubble && bubble.parentElement;
+  if (!messageContent) return;
+  messageContent.classList.add('msg-content-wrap');
+  let trigger = messageContent.querySelector('.reaction-trigger');
+  if (!trigger){
+    trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'reaction-trigger';
+    trigger.textContent = '☺';
+    trigger.title = 'React to message';
+    trigger.setAttribute('aria-label', 'React to message');
+    trigger.addEventListener('click', event=>{
+      event.stopPropagation();
+      openMessageReactionPicker(Number(message.id), Number(message.chat_id), trigger);
+    });
+    messageContent.appendChild(trigger);
+  }
+  let reactions = messageContent.querySelector('.msg-reactions');
+  if (!reactions){
+    reactions = document.createElement('div');
+    reactions.className = 'msg-reactions';
+    reactions.setAttribute('aria-label', 'Message reactions');
+    const actions = messageContent.querySelector('.msg-actions');
+    if (actions) actions.after(reactions);
+    else messageContent.appendChild(reactions);
+  }
+  renderMessageReactions(message, reactions);
+}
+
+function renderMessageReactions(message, container){
+  if (!container) return;
+  const reactions = normalizeMessageReactions(message.reactions);
+  message.reactions = reactions;
+  container.replaceChildren();
+  const grouped = new Map();
+  reactions.forEach(item=>{
+    const current = grouped.get(item.reaction) || {count:0, reacted:false};
+    current.count++;
+    if (AUTH.me && Number(item.user_id) === Number(AUTH.me.id)) current.reacted = true;
+    grouped.set(item.reaction, current);
+  });
+  MESSAGE_REACTION_EMOJIS.forEach(emoji=>{
+    const group = grouped.get(emoji);
+    if (!group) return;
+    const badge = document.createElement('button');
+    badge.type = 'button';
+    badge.className = 'msg-reaction-badge' + (group.reacted ? ' reacted' : '');
+    badge.setAttribute('aria-label', `${emoji}, ${group.count} reaction${group.count === 1 ? '' : 's'}`);
+    const icon = document.createElement('span');
+    icon.textContent = emoji;
+    const count = document.createElement('span');
+    count.className = 'reaction-count';
+    count.textContent = String(group.count);
+    badge.append(icon, count);
+    badge.addEventListener('click', event=>{
+      event.stopPropagation();
+      sendMessageReaction(Number(message.chat_id), Number(message.id), emoji);
+    });
+    container.appendChild(badge);
+  });
+  container.hidden = grouped.size === 0;
+}
+
+function refreshMessageReaction(messageId){
+  const entry = MSG_ELS.get(String(messageId));
+  if (!entry || !entry.row || !entry.msg || entry.msg.is_deleted) return;
+  renderMessageReactions(entry.msg, entry.row.querySelector('.msg-reactions'));
+}
+
+function validReactionRevision(value){
+  return Number.isSafeInteger(value) && value >= 0;
+}
+
+function reconcileHistoryReactionState(serverMessage, cachedMessage, sequenceAtStart){
+  const key = String(serverMessage.id);
+  const hasHistoryRevision = validReactionRevision(serverMessage.reaction_revision);
+  const historyRevision = hasHistoryRevision ? serverMessage.reaction_revision : null;
+  const knownRevision = REACTION_REVISIONS.get(key);
+  const override = REACTION_OVERRIDES.get(key);
+  const pending = PENDING_REACTIONS.get(key);
+
+  // A history response started before a local action/event must not replace
+  // that more recent visible state while its websocket confirmation is pending.
+  if (pending && cachedMessage){
+    serverMessage.reactions = normalizeMessageReactions(cachedMessage.reactions);
+    serverMessage.reaction_revision = knownRevision ?? cachedMessage.reaction_revision ?? historyRevision;
+    return;
+  }
+  if (override && (REACTION_VERSIONS.get(key) || 0) > sequenceAtStart){
+    serverMessage.reactions = override;
+    serverMessage.reaction_revision = knownRevision ?? historyRevision;
+    return;
+  }
+  // Server history is authoritative unless we have already observed a newer
+  // committed websocket snapshot for this message.
+  if (knownRevision !== undefined && (historyRevision === null || historyRevision < knownRevision)){
+    serverMessage.reactions = override || (cachedMessage && normalizeMessageReactions(cachedMessage.reactions)) || [];
+    serverMessage.reaction_revision = knownRevision;
+    return;
+  }
+  serverMessage.reactions = normalizeMessageReactions(serverMessage.reactions);
+  if (hasHistoryRevision){
+    serverMessage.reaction_revision = historyRevision;
+    REACTION_REVISIONS.set(key, historyRevision);
+  }else if (knownRevision !== undefined){
+    serverMessage.reaction_revision = knownRevision;
+  }
+  REACTION_OVERRIDES.delete(key);
+}
+
+function openMessageReactionPicker(messageId, chatId, trigger){
+  if (!messageId || !chatId || !trigger || !document.getElementById('messageReactionPicker')) return;
+  const picker = document.getElementById('messageReactionPicker');
+  activeReactionTarget = {messageId, chatId};
+  picker.hidden = false;
+  const rect = trigger.getBoundingClientRect();
+  const width = picker.offsetWidth || 264;
+  const height = picker.offsetHeight || 48;
+  const left = Math.max(8, Math.min(window.innerWidth - width - 8, rect.left + rect.width / 2 - width / 2));
+  const above = rect.top - height - 8;
+  picker.style.left = `${left}px`;
+  picker.style.top = `${above >= 8 ? above : Math.min(window.innerHeight - height - 8, rect.bottom + 8)}px`;
+}
+
+function closeMessageReactionPicker(){
+  const picker = document.getElementById('messageReactionPicker');
+  if (picker) picker.hidden = true;
+  activeReactionTarget = null;
+}
+
+function sendMessageReaction(chatId, messageId, reaction){
+  if (!MESSAGE_REACTION_EMOJIS.includes(reaction) || !AUTH.me || !WS || WS.readyState !== 1) return;
+  const entry = MSG_ELS.get(String(messageId));
+  const message = entry && entry.msg;
+  if (!message || message.is_deleted || Number(message.chat_id) !== Number(chatId)) return;
+  const key = String(messageId);
+  if (PENDING_REACTIONS.has(key)) return;
+
+  const previous = normalizeMessageReactions(message.reactions);
+  const existing = previous.find(item=>Number(item.user_id) === Number(AUTH.me.id));
+  const optimistic = previous.filter(item=>Number(item.user_id) !== Number(AUTH.me.id));
+  if (!existing || existing.reaction !== reaction){
+    optimistic.push({user_id:Number(AUTH.me.id), reaction});
+  }
+  message.reactions = optimistic;
+  refreshMessageReaction(messageId);
+
+  const requestId = `${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
+  const timeout = setTimeout(()=>{
+    const current = PENDING_REACTIONS.get(key);
+    if (!current || current.requestId !== requestId) return;
+    PENDING_REACTIONS.delete(key);
+    message.reactions = previous;
+    refreshMessageReaction(messageId);
+    toast('⚠️ Reaction could not be confirmed. Try again.');
+  }, 12000);
+  PENDING_REACTIONS.set(key, {requestId, previous, timeout});
+  wsSend({type:'message_reaction', chat_id:chatId, message_id:messageId, reaction, request_id:requestId});
+  closeMessageReactionPicker();
+}
+
+function handleMessageReaction(data){
+  const messageId = Number(data.message_id);
+  const chatId = Number(data.chat_id);
+  if (!Number.isFinite(messageId) || messageId <= 0 || !Number.isFinite(chatId)) return;
+  const reactions = normalizeMessageReactions(data.reactions);
+  const key = String(messageId);
+  const revisioned = validReactionRevision(data.revision);
+  const latestRevision = REACTION_REVISIONS.get(key);
+  // Legacy events are accepted until the first revisioned snapshot. Once a
+  // revision is known, an unversioned event cannot safely supersede it.
+  if (!revisioned && latestRevision !== undefined) return;
+  if (revisioned && latestRevision !== undefined && data.revision < latestRevision) return;
+  if (revisioned) REACTION_REVISIONS.set(key, data.revision);
+  REACTION_OVERRIDES.set(key, reactions);
+  REACTION_VERSIONS.set(key, ++reactionEventSequence);
+  const pending = PENDING_REACTIONS.get(key);
+  if (pending && (!data.request_id || data.request_id === pending.requestId)){
+    clearTimeout(pending.timeout);
+    PENDING_REACTIONS.delete(key);
+  }
+  const entry = MSG_ELS.get(key);
+  if (entry && entry.msg && Number(entry.msg.chat_id) === chatId && !entry.msg.is_deleted){
+    entry.msg.reactions = reactions;
+    if (revisioned) entry.msg.reaction_revision = data.revision;
+    refreshMessageReaction(messageId);
+  }
+}
+
+function handleMessageReactionError(data){
+  const messageId = Number(data.message_id);
+  const key = String(messageId);
+  const pending = PENDING_REACTIONS.get(key);
+  if (pending && (!data.request_id || data.request_id === pending.requestId)){
+    clearTimeout(pending.timeout);
+    PENDING_REACTIONS.delete(key);
+    const entry = MSG_ELS.get(key);
+    if (entry && entry.msg){
+      entry.msg.reactions = pending.previous;
+      refreshMessageReaction(messageId);
+    }
+  }
+  toast('⚠️ ' + (data.detail || 'Reaction could not be saved'));
+}
+
+async function reconcileVisibleMessageReactions(){
+  const chatId = Number(APP.currentChatId);
+  if (!Number.isFinite(chatId) || chatId <= 0 || curScreen !== 'sChat') return;
+  const sequenceAtStart = reactionEventSequence;
+  const history = await api(`/messages/${chatId}?limit=200`);
+  if (Number(APP.currentChatId) !== chatId || curScreen !== 'sChat') return;
+  const cached = MSG_CACHE.get(chatId) || [];
+  history.forEach(serverMessage=>{
+    const message = cached.find(item=>Number(item.id) === Number(serverMessage.id));
+    if (!message) return;
+    const key = String(message.id);
+    reconcileHistoryReactionState(serverMessage, message, sequenceAtStart);
+    message.reactions = serverMessage.reactions;
+    message.reaction_revision = serverMessage.reaction_revision;
+    refreshMessageReaction(message.id);
+  });
+}
+
+document.getElementById('messageReactionPicker')?.addEventListener('click', event=>{
+  const button = event.target.closest('[data-reaction]');
+  if (!button || !activeReactionTarget) return;
+  event.stopPropagation();
+  sendMessageReaction(activeReactionTarget.chatId, activeReactionTarget.messageId, button.dataset.reaction);
+});
+document.addEventListener('click', event=>{
+  const picker = document.getElementById('messageReactionPicker');
+  if (picker && !picker.hidden && !picker.contains(event.target) && !event.target.closest('.reaction-trigger')) closeMessageReactionPicker();
+});
+document.addEventListener('keydown', event=>{ if (event.key === 'Escape') closeMessageReactionPicker(); });
+window.addEventListener('resize', closeMessageReactionPicker);
+window.addEventListener('scroll', closeMessageReactionPicker, true);
 
 function focusOriginalMessage(messageId){
 
@@ -2468,6 +2778,13 @@ const chatId = Number(d.chat_id);
 const attachmentURL = ATTACHMENT_OBJECT_URLS.get(messageId);
 if (attachmentURL) URL.revokeObjectURL(attachmentURL);
 ATTACHMENT_OBJECT_URLS.delete(messageId);
+if (activeReactionTarget && activeReactionTarget.messageId === messageId) closeMessageReactionPicker();
+REACTION_OVERRIDES.delete(String(messageId));
+REACTION_VERSIONS.delete(String(messageId));
+REACTION_REVISIONS.delete(String(messageId));
+const pendingReaction = PENDING_REACTIONS.get(String(messageId));
+if (pendingReaction) clearTimeout(pendingReaction.timeout);
+PENDING_REACTIONS.delete(String(messageId));
 
 // 1. Update message in cache first
 const arr = MSG_CACHE.get(chatId) || [];
@@ -2477,6 +2794,7 @@ const msg = arr.find(x => Number(x.id) === messageId);
 if (msg) {
   msg.is_deleted = true;
   msg.content = null;
+  msg.reactions = [];
 }
 
 MSG_CACHE.set(chatId, arr);
@@ -2511,6 +2829,7 @@ if (e && e.row) {
   e.row.querySelectorAll('.msg-actions').forEach(el => {
     el.remove();
   });
+  e.row.querySelectorAll('.reaction-trigger,.msg-reactions').forEach(el=>el.remove());
 
   // Remove reply preview if this message itself was deleted
   e.row.querySelectorAll('.reply-preview').forEach(el => {
@@ -2583,6 +2902,16 @@ async function deleteCurrentChat(){
 function handleChatDeleted(d){
   const chatId = Number(d.chat_id);
   DELETED_CHAT_IDS.add(String(chatId));
+  (MSG_CACHE.get(chatId) || []).forEach(message=>{
+    const key = String(message.id);
+    REACTION_OVERRIDES.delete(key);
+    REACTION_VERSIONS.delete(key);
+    REACTION_REVISIONS.delete(key);
+    const pending = PENDING_REACTIONS.get(key);
+    if (pending) clearTimeout(pending.timeout);
+    PENDING_REACTIONS.delete(key);
+  });
+  if (activeReactionTarget && activeReactionTarget.chatId === chatId) closeMessageReactionPicker();
 
   const index = CHATS.findIndex(
     chat => chat.chat_id === chatId
@@ -2765,6 +3094,7 @@ function confirmSent(d){
 
   if (m){
     m.id = d.message_id;
+    m.reactions = Array.isArray(m.reactions) ? m.reactions : [];
     if (d.created_at) m.created_at = d.created_at;
   }
 
@@ -2792,6 +3122,7 @@ function confirmSent(d){
 
     MSG_ELS.set(String(d.message_id), e);
     MSG_ELS.delete(String(d.client_id));
+    if (m) ensureMessageReactionUI(m, e.row);
   }
 }
 
@@ -2823,6 +3154,7 @@ function onIncomingMessage(d){
     attachment_name:d.attachment_name,
     attachment_mime_type:d.attachment_mime_type,
     attachment_size_bytes:d.attachment_size_bytes,
+    reactions:Array.isArray(d.reactions) ? d.reactions : [],
     is_delivered:true,
     is_read:false
   };
