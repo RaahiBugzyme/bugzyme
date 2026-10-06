@@ -360,16 +360,67 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 @media (hover:none),(pointer:coarse){
   .reaction-trigger{opacity:1;pointer-events:auto;transform:none}
 }
-.msg-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;max-width:min(100%,320px)}
-.msg-reactions[hidden]{display:none}
-.msg-row.me .msg-reactions{justify-content:flex-end}
-.msg-reaction-badge{display:inline-flex;align-items:center;gap:4px;min-height:23px;
-  padding:2px 7px;border:1px solid rgba(255,255,255,.14);border-radius:12px;
-  background:rgba(13,10,26,.78);color:#fff;font:600 .68rem 'DM Sans',sans-serif;
-  cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
-.msg-reaction-badge .reaction-count{color:rgba(255,255,255,.82)}
-.msg-reaction-badge.reacted{border-color:var(--ep);background:rgba(168,85,247,.22)}
-.msg-reaction-badge:hover{transform:translateY(-1px);background:rgba(255,255,255,.15)}
+.msg-reactions{
+  position:absolute;
+  z-index:4;
+  right:8px;
+  bottom:-9px;
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:3px;
+  max-width:calc(100% - 16px);
+  pointer-events:auto;
+}
+
+.msg-reactions[hidden]{
+  display:none;
+}
+
+.msg-row.them .msg-reactions{
+  left:8px;
+  right:auto;
+  justify-content:flex-start;
+}
+
+.msg-row.me .msg-reactions{
+  right:8px;
+  left:auto;
+  justify-content:flex-end;
+}
+
+.msg-reaction-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-height:22px;
+  padding:2px 6px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;
+  background:rgba(30,24,43,.96);
+  box-shadow:0 2px 8px rgba(0,0,0,.28);
+  color:#fff;
+  font:600 .67rem 'DM Sans',sans-serif;
+  line-height:1;
+  cursor:pointer;
+  transition:background .15s,border-color .15s,transform .15s;
+}
+
+.msg-reaction-badge .reaction-count{
+  color:rgba(255,255,255,.82);
+  font-size:.62rem;
+}
+
+.msg-reaction-badge.reacted{
+  border-color:var(--ep);
+  background:rgba(168,85,247,.3);
+}
+
+.msg-reaction-badge:hover{
+  transform:translateY(-1px) scale(1.03);
+  background:rgba(50,40,68,.98);
+}
 #messageReactionPicker{position:fixed;z-index:500;display:flex;gap:2px;padding:6px;
   border:1px solid rgba(255,255,255,.16);border-radius:18px;
   background:rgba(25,17,42,.97);box-shadow:0 8px 28px rgba(0,0,0,.4);backdrop-filter:blur(16px)}
@@ -2457,16 +2508,20 @@ function ensureMessageReactionUI(message, row){
     });
     messageContent.appendChild(trigger);
   }
-  let reactions = messageContent.querySelector('.msg-reactions');
-  if (!reactions){
-    reactions = document.createElement('div');
-    reactions.className = 'msg-reactions';
-    reactions.setAttribute('aria-label', 'Message reactions');
-    const actions = messageContent.querySelector('.msg-actions');
-    if (actions) actions.after(reactions);
-    else messageContent.appendChild(reactions);
-  }
-  renderMessageReactions(message, reactions);
+  let reactions = bubble.querySelector('.msg-reactions');
+
+if (!reactions){
+  reactions = document.createElement('div');
+  reactions.className = 'msg-reactions';
+  reactions.setAttribute('aria-label', 'Message reactions');
+  bubble.appendChild(reactions);
+} else if (reactions.parentElement !== bubble){
+  // Keep reactions attached to the message bubble,
+  // not in the normal message flow.
+  bubble.appendChild(reactions);
+}
+
+renderMessageReactions(message, reactions);
 }
 
 function renderMessageReactions(message, container){
