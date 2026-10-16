@@ -1,3 +1,4 @@
+
 from datetime import datetime
 
 from sqlalchemy import (
@@ -5,14 +6,17 @@ from sqlalchemy import (
     Column,
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
     String,
+    Text,
     text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
+from pgvector.sqlalchemy import Vector
 
 from .database import Base
 
@@ -361,3 +365,50 @@ class MessageReaction(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     message = relationship("Message", back_populates="reactions")
+
+
+
+class UserMemory(Base):
+    __tablename__ = "user_memories"
+
+    __table_args__ = (
+        Index("ix_user_memories_user_id", "user_id"),
+        Index("ix_user_memories_user_type", "user_id", "memory_type"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    memory_text = Column(Text, nullable=False)
+
+    memory_type = Column(
+        String(30),
+        nullable=False,
+        default="general",
+    )
+
+    confidence = Column(
+        Float,
+        nullable=False,
+        default=0.8,
+    )
+
+    source_message_id = Column(
+        Integer,
+        ForeignKey("messages.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    # 384-dimensional multilingual embedding
+    embedding = Column(Vector(384), nullable=True)
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
