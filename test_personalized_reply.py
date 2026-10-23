@@ -1,44 +1,60 @@
+
 from app.database import SessionLocal
-from app.ai.personalization import (
-    build_personalized_context,
-    generate_personalized_reply,
-)
+from app.ai.personalization import suggest_next_messages
 
 USER_ID = 1
-QUERY = "What sports do I like?"
+USER_NAME = "Aarav"
+
+MESSAGES = [
+    {"sender": "Aarav", "content": "Hey, how was your day?"},
+    {"sender": "Meera", "content": "Pretty good! Work was a little busy."},
+    {"sender": "Aarav", "content": "Achha, busy day ke baad relax kaise karti ho?"},
+    {"sender": "Meera", "content": "Usually music sunti hoon ya koi show dekhti hoon."},
+]
 
 
 def main():
     db = SessionLocal()
 
     try:
-        # Step 1: Retrieve relevant memories.
-        print("\n=== STEP 1: RETRIEVING MEMORIES ===")
+        print("\n=== GENERATING PERSONALIZED SUGGESTIONS ===")
 
-        context = build_personalized_context(
+        result = suggest_next_messages(
             db=db,
-            user_id=USER_ID,
-            message=QUERY,
+            requesting_user_id=USER_ID,
+            requesting_user=USER_NAME,
+            messages=MESSAGES,
         )
 
-        print("\n=== RETRIEVED PERSONALIZED CONTEXT ===")
-        print(context)
+        analysis = result.get("analysis", {})
+        memories = result.get("memories_used", [])
+        suggestions = result.get("suggestions", [])
 
-        # Step 2: Generate a personalized reply.
-        print("\n=== STEP 2: GENERATING AI REPLY ===")
-        print("Sending context and query to the AI model...")
+        print("\n=== CONVERSATION ANALYSIS ===")
+        print(analysis)
 
-        reply = generate_personalized_reply(
-            context=context,
-            message=QUERY,
+        print("\n=== RELEVANT MEMORIES ===")
+        print(memories)
+
+        print("\n=== AI SUGGESTIONS ===")
+        for suggestion in suggestions:
+            print(
+                f"[{suggestion.get('style')}] "
+                f"{suggestion.get('message')}"
+            )
+
+        assert len(suggestions) == 3, (
+            f"Expected 3 suggestions, got {len(suggestions)}"
         )
 
-        print("\n=== PERSONALIZED AI REPLY ===")
-        print(reply)
+        expected_styles = {"natural", "playful", "thoughtful"}
+        actual_styles = {item.get("style") for item in suggestions}
 
-    except Exception as exc:
-        print(f"\nERROR: {type(exc).__name__}: {exc}")
-        raise
+        assert actual_styles == expected_styles, (
+            f"Unexpected suggestion styles: {actual_styles}"
+        )
+
+        print("\nPASS: Exactly 3 suggestions with all required styles.")
 
     finally:
         db.close()
