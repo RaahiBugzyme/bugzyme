@@ -60,6 +60,7 @@ def _normalize_messages(messages: List[Any]) -> List[Dict[str, str]]:
         sender = _get(
             message,
             "sender_id",
+            "sender_name",
             "sender",
             "speaker",
             "role",

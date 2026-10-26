@@ -32,7 +32,7 @@ from sqlalchemy import and_, or_, func, inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 from starlette.concurrency import run_in_threadpool
-
+from app.ai.graph import run_conversation_workflow
 from . import models, schemas
 from . import storage as attachment_storage
 from .connection_manager import ConnectionManager
@@ -1818,6 +1818,127 @@ def get_messages(
     messages.reverse()
 
     return messages
+
+
+# ============================================================
+# AI CONVERSATION SUGGESTIONS
+# ============================================================
+
+@app.post("/chats/{chat_id}/suggestions")
+def get_chat_suggestions(
+    chat_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # 1. Verify chat exists
+    chat = db.get(models.Chat, chat_id)
+
+    if not chat:
+        raise HTTPException(
+            status_code=404,
+            detail="Chat not found",
+        )
+
+    # 2. Verify current user belongs to this chat
+    if current_user.id not in (chat.user1_id, chat.user2_id):
+        raise HTTPException(
+            status_code=403,
+            detail="You are not a member of this chat",
+        )
+
+    # 3. Fetch recent, non-deleted text messages
+    db_messages = (
+        db.query(models.Message)
+        .filter(
+            models.Message.chat_id == chat_id,
+            models.Message.is_deleted.is_(False),
+            models.Message.message_type == "text",
+        )
+        .order_by(models.Message.id.desc())
+        .limit(60)
+        .all()
+    )
+
+    # AI needs chronological order
+    db_messages.reverse()
+
+    if not db_messages:
+        raise HTTPException(
+            status_code=400,
+            detail="No text messages available for AI analysis",
+        )
+
+    # 4. Fetch sender usernames
+    sender_ids = {message.sender_id for message in db_messages}
+
+    users = (
+        db.query(models.User)
+        .filter(models.User.id.in_(sender_ids))
+        .all()
+    )
+    usernames = {user.id: user.username for user in users}
+
+    # 5. Prepare the message format expected by the AI
+    messages = [
+        {
+            "sender_name": usernames.get(message.sender_id, "Unknown"),
+            "content": message.content or "",
+        }
+        for message in db_messages
+        if message.content and message.content.strip()
+    ]
+
+    if not messages:
+        raise HTTPException(
+            status_code=400,
+            detail="No usable text messages available for AI analysis",
+        )
+
+    # 6. Run the LangGraph workflow
+    try:
+        result = run_conversation_workflow(
+            db=db,
+            requesting_user_id=current_user.id,
+            requesting_user=current_user.username,
+            messages=messages,
+        )
+    except Exception:
+        logger.exception(
+            "AI suggestion workflow failed for chat_id=%s",
+            chat_id,
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Could not generate AI conversation suggestions",
+        )
+
+    # 7. Return death-zone analysis and suggestions
+    death_zone = result.get("death_zone", {})
+    suggestion_result = result.get("suggestion_result")
+
+    return {
+        "chat_id": chat_id,
+        "death_zone": death_zone,
+        "should_generate": result.get("should_generate", False),
+        "suggestions": (
+            suggestion_result.get("suggestions", [])
+            if suggestion_result
+            else []
+        ),
+        "analysis": (
+            suggestion_result.get("analysis")
+            if suggestion_result
+            else None
+        ),
+        "memories_used": (
+            suggestion_result.get("memories_used", [])
+            if suggestion_result
+            else []
+        ),
+    }
+
+
+
 
 
 # ============================================================
