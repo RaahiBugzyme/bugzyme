@@ -36,3 +36,4 @@ watchfiles==1.2.0
 websockets==17.1
 langgraph==1.2.17
 groq
+sentence-transformers
