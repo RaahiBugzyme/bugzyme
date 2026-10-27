@@ -580,6 +580,104 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   justify-content:center;font-size:.8rem;flex-shrink:0;
   align-self:flex-end;margin-bottom:2px;transition:opacity .2s}
 .ai-btn:active{opacity:.8}
+.ai-btn {
+  position: relative;
+}
+
+#aiSuggestionsIcon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.ai-alert-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #1a1130;
+  box-shadow: 0 0 8px rgba(34, 197, 94, .7);
+}
+
+.ai-alert-dot[hidden] {
+  display: none;
+}
+
+.ai-btn:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+
+.ai-suggestions-panel {
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 14px;
+  background: rgba(30, 24, 48, .96);
+  color: #fff;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.ai-suggestions-panel[hidden] {
+  display: none;
+}
+
+.ai-suggestions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.ai-suggestions-header button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px 7px;
+}
+
+.ai-suggestion-card {
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .05);
+}
+
+.ai-suggestion-text {
+  font-size: .84rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  margin-bottom: 9px;
+}
+
+.ai-use-reply {
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--ep), var(--es));
+  color: #fff;
+  font-size: .76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai-suggestions-message {
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.5;
+  padding: 8px 2px;
+}
+
 .send-btn{width:40px;height:40px;min-width:40px;border-radius:50%;
   background:linear-gradient(135deg,var(--ep),var(--es));border:none;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
@@ -998,21 +1096,60 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   </div>
 
   <!-- input -->
+
   <div class="chat-input-area">
     <div id="attachmentUploadStatus" style="display:none;padding:0 8px 7px;font-size:.72rem;color:var(--muted)"></div>
-    <div class="input-row">
-      <div class="ib-btn" onclick="openModal('mEmoji')"><span class="e e-wiggle">😊</span></div>
-      <div class="input-wrap">
-        <textarea id="chatTA" rows="1" placeholder="Message…"
-          oninput="onChatInput(this)" onkeydown="onChatKey(event)"></textarea>
-        <button class="ai-btn" onclick="openModal('mGemini')"><span class="e e-spin" style="display:inline-block;font-size:.76rem">🤖</span></button>
+  
+    <!-- AI Suggestions Panel -->
+    <div id="aiSuggestionsPanel" class="ai-suggestions-panel" hidden>
+      <div class="ai-suggestions-header">
+        <span>✦ AI Suggestions</span>
+        <button type="button" onclick="closeAISuggestions()" aria-label="Close AI suggestions">✕</button>
       </div>
-      <div class="ib-btn" onclick="openModal('mAttach')"><span class="e e-float">📎</span></div>
-      <button class="send-btn hide" id="sendBtn" onclick="doSend()"><span class="e e-bounce" style="display:inline-block">➤</span></button>
-      <button class="mic-btn" id="micBtn" onclick="openModal('mVoice')"><span class="e e-pulse">🎙️</span></button>
+      <div id="aiSuggestionsContent"></div>
+    </div>
+  
+    <div class="input-row">
+      <div class="ib-btn" onclick="openModal('mEmoji')">
+        <span class="e e-wiggle">😊</span>
+      </div>
+  
+      <div class="input-wrap">
+        <textarea
+          id="chatTA"
+          rows="1"
+          placeholder="Message…"
+          oninput="onChatInput(this)"
+          onkeydown="onChatKey(event)"
+        ></textarea>
+  
+        <button
+          class="ai-btn"
+          id="aiSuggestionsBtn"
+          onclick="openAISuggestions()"
+          aria-label="AI conversation suggestions"
+          title="AI Suggestions"
+        >
+          <span id="aiSuggestionsIcon">✦</span>
+          <span id="aiSuggestionsDot" class="ai-alert-dot" hidden></span>
+        </button>
+      </div>
+  
+      <div class="ib-btn" onclick="openModal('mAttach')">
+        <span class="e e-float">📎</span>
+      </div>
+  
+      <button class="send-btn hide" id="sendBtn" onclick="doSend()">
+        <span class="e e-bounce" style="display:inline-block">➤</span>
+      </button>
+  
+      <button class="mic-btn" id="micBtn" onclick="openModal('mVoice')">
+        <span class="e e-pulse">🎙️</span>
+      </button>
     </div>
   </div>
-</div>
+  </div>
+  
 
 <input id="attachmentImageInput" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden onchange="handleAttachmentSelection(this)">
 <input id="attachmentFileInput" type="file" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.zip,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip" hidden onchange="handleAttachmentSelection(this)">
@@ -4247,7 +4384,125 @@ if (AUTH.token){
     toast('⚠️ ' + err.message);
   });
 }
+
+
+async function openAISuggestions() {
+  const chatId = APP.currentChatId;
+  if (!chatId) {
+    toast('Please open a conversation first.');
+    return;
+  }
+
+  const panel = document.getElementById('aiSuggestionsPanel');
+  const content = document.getElementById('aiSuggestionsContent');
+  const button = document.getElementById('aiSuggestionsBtn');
+  const icon = document.getElementById('aiSuggestionsIcon');
+  const dot = document.getElementById('aiSuggestionsDot');
+
+  if (!panel || !content || !button) return;
+
+  panel.hidden = false;
+  content.innerHTML =
+    '<div class="ai-suggestions-message">✦ AI is thinking...</div>';
+
+  button.disabled = true;
+  if (icon) icon.textContent = '…';
+
+  try {
+    const result = await api(
+      `/chats/${encodeURIComponent(chatId)}/suggestions`,
+      { method: 'POST' }
+    );
+
+    // Ignore the result if the user switched to another chat.
+    if (String(APP.currentChatId) !== String(chatId)) return;
+
+    if (dot) dot.hidden = true;
+
+    const suggestions = Array.isArray(result.suggestions)
+      ? result.suggestions
+      : [];
+
+    if (!suggestions.length) {
+      const status = result.death_zone?.status;
+      const message =
+        result.should_generate === false
+          ? 'This conversation looks healthy right now. No suggestions needed.'
+          : 'No suggestions available right now. Please try again.';
+
+      content.textContent = message;
+      content.className = 'ai-suggestions-message';
+      return;
+    }
+
+    content.className = '';
+
+    content.innerHTML = suggestions.map((item, index) => {
+      const reply = typeof item === 'string'
+        ? item
+        : item?.text || item?.message || item?.content ||
+          item?.reply || item?.suggestion || '';
+
+      if (!reply.trim()) return '';
+
+      return `
+        <div class="ai-suggestion-card">
+          <div class="ai-suggestion-text">${escapeHTML(reply)}</div>
+          <button
+            type="button"
+            class="ai-use-reply"
+            data-ai-index="${index}"
+          >Use reply</button>
+        </div>
+      `;
+    }).join('');
+
+    content.querySelectorAll('.ai-use-reply').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = suggestions[Number(btn.dataset.aiIndex)];
+        const reply = typeof item === 'string'
+          ? item
+          : item?.text || item?.message || item?.content ||
+            item?.reply || item?.suggestion || '';
+
+        if (!reply) return;
+
+        // Fill the composer only. Do not send automatically.
+        const textarea = document.getElementById('chatTA');
+        textarea.value = reply;
+        onChatInput(textarea);
+        textarea.focus();
+        closeAISuggestions();
+      });
+    });
+
+    if (!content.innerHTML.trim()) {
+      content.textContent = 'No usable suggestions returned.';
+      content.className = 'ai-suggestions-message';
+    }
+  } catch (err) {
+    console.error('AI SUGGESTIONS ERROR:', err);
+
+    if (String(APP.currentChatId) === String(chatId)) {
+      content.className = 'ai-suggestions-message';
+      content.textContent =
+        'Could not load suggestions: ' + (err.message || 'Please try again.');
+    }
+  } finally {
+    button.disabled = false;
+    if (icon) icon.textContent = '✦';
+  }
+}
+
+function closeAISuggestions() {
+  const panel = document.getElementById('aiSuggestionsPanel');
+  if (panel) panel.hidden = true;
+}
+
 </script>
 
 </body>
 </html>
+q
+
+
