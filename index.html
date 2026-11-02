@@ -3044,11 +3044,20 @@ input:disabled, textarea:disabled, button:disabled { opacity: .55; cursor: not-a
 ═══════════════════════════════════════════════════ */
 
 /* ---------- CONFIG & AUTH ---------- */
-const PRODUCTION_API_BASE = 'http://127.0.0.1:8000';
+const PRODUCTION_API_BASE = 'https://bugzyme-backend-51xq.onrender.com';
+const LOCAL_API_BASE = 'http://127.0.0.1:8000';
 const LOCAL_API_BASE_PATTERN = /^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/i;
+
 function resolveApiBase(value){
-  const candidate = (value || '').trim().replace(/\/+$/,'');
-  return LOCAL_API_BASE_PATTERN.test(candidate) ? candidate : PRODUCTION_API_BASE;
+  const candidate = (value || '').trim().replace(/\/+$/, '');
+  const hostname = window.location.hostname.toLowerCase();
+  const isLocalFrontend = hostname === 'localhost' || hostname === '127.0.0.1';
+
+  if (isLocalFrontend) {
+    return LOCAL_API_BASE_PATTERN.test(candidate) ? candidate : LOCAL_API_BASE;
+  }
+
+  return PRODUCTION_API_BASE;
 }
 let API_BASE = resolveApiBase(localStorage.getItem('raahi_api'));
 if (localStorage.getItem('raahi_api') !== API_BASE){
