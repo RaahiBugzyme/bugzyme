@@ -120,6 +120,10 @@ def ensure_message_schema_columns(connection):
             "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
             "reaction_revision INTEGER DEFAULT 0 NOT NULL"
         ),
+        "read_at": (
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS "
+            "read_at TIMESTAMP NULL"
+        ),
     }
 
     try:
@@ -167,12 +171,40 @@ def ensure_message_schema_columns(connection):
     logger.info("Message schema startup check passed")
 
 
+def ensure_user_profile_columns(connection):
+    """Add public profile fields to existing PostgreSQL user tables."""
+    if connection.dialect.name != "postgresql":
+        return
+    statements = {
+        "full_name": "ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name VARCHAR(80) NULL",
+        "bio": "ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT NULL",
+        "ai_memory_enabled": "ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_memory_enabled BOOLEAN NOT NULL DEFAULT FALSE",
+        "ai_memory_processed_through_message_id": "ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_memory_processed_through_message_id INTEGER NULL",
+    }
+    existing = {column["name"] for column in inspect(connection).get_columns("users")}
+    missing = [name for name in statements if name not in existing]
+    try:
+        for name in missing:
+            connection.exec_driver_sql(statements[name])
+        if missing:
+            connection.commit()
+        remaining = {column["name"] for column in inspect(connection).get_columns("users")}
+        missing_after_check = [name for name in statements if name not in remaining]
+        if missing_after_check:
+            raise RuntimeError("User profile columns still missing after startup check: " + ", ".join(missing_after_check))
+    except Exception:
+        connection.rollback()
+        logger.exception("User profile schema startup check failed")
+        raise
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
 
     with engine.connect() as connection:
         ensure_message_schema_columns(connection)
+        ensure_user_profile_columns(connection)
 
     with SessionLocal() as db:
         db.query(models.User).update(
@@ -377,6 +409,7 @@ def save_message(
         "sender_id": sender_id,
         "content": message.content,
         "created_at": iso(message.created_at),
+        "read_at": iso(message.read_at),
         "is_delivered": False,
         "is_read": False,
         "is_deleted": False,
@@ -429,6 +462,7 @@ def save_voice_message(
         "sender_id": sender_id,
         "content": None,
         "created_at": iso(message.created_at),
+        "read_at": iso(message.read_at),
         "is_delivered": False,
         "is_read": False,
         "is_deleted": False,
@@ -498,6 +532,7 @@ def save_attachment_message(
         "sender_id": sender_id,
         "content": message.content,
         "created_at": iso(message.created_at),
+        "read_at": iso(message.read_at),
         "is_delivered": message.is_delivered,
         "is_read": message.is_read,
         "is_deleted": message.is_deleted,
@@ -725,7 +760,7 @@ def mark_read(
 
     query = db.query(models.Message).filter(
         models.Message.chat_id == chat_id,
-        models.Message.sender_id != user_id,
+        models.Message.sender_id == other_user(chat, user_id),
         models.Message.is_read.is_not(True),
         models.Message.is_deleted.is_not(True),
     )
@@ -740,12 +775,14 @@ def mark_read(
     for message in messages:
         message.is_read = True
         message.is_delivered = True
+        message.read_at = utcnow()
 
     db.commit()
 
     return {
         "sender": other_user(chat, user_id),
-        "ids": [message.id for message in messages]
+        "ids": [message.id for message in messages],
+        "read_at": {message.id: iso(message.read_at) for message in messages},
     }
 
 
@@ -974,6 +1011,9 @@ async def process_message(
         "sender_name": sender_name,
         "content": message["content"],
         "created_at": message["created_at"],
+        "is_delivered": False,
+        "is_read": False,
+        "read_at": None,
         "reply_to_id": message["reply_to_id"],
     }
 
@@ -1187,6 +1227,9 @@ async def upload_voice(
         "sender_name": current_user.username,
         "content": None,
         "created_at": message["created_at"],
+        "is_delivered": False,
+        "is_read": False,
+        "read_at": None,
         "reply_to_id": None,
         "message_type": "voice",
         "audio_url": message["audio_url"],
@@ -1280,6 +1323,9 @@ async def upload_chat_attachment(
         "sender_name": current_user.username,
         "content": message["content"],
         "created_at": message["created_at"],
+        "is_delivered": False,
+        "is_read": False,
+        "read_at": None,
         "reply_to_id": message["reply_to_id"],
         "message_type": message_type,
         "attachment_name": filename,
@@ -1408,6 +1454,101 @@ def me(
     return current_user
 
 
+@app.patch("/me", response_model=schemas.UserResponse)
+def update_me_profile(
+    changes: schemas.UserProfileUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    values = changes.model_dump(exclude_unset=True)
+    for field in ("full_name", "bio", "ai_memory_enabled"):
+        if field not in values:
+            continue
+        value = values[field]
+        if field == "ai_memory_enabled":
+            setattr(current_user, field, bool(value))
+        else:
+            value = value.strip() if isinstance(value, str) else None
+            setattr(current_user, field, value or None)
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@app.get("/me/ai-memories", response_model=list[schemas.UserMemoryResponse])
+def list_my_ai_memories(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return (
+        db.query(models.UserMemory)
+        .filter(models.UserMemory.user_id == current_user.id)
+        .order_by(models.UserMemory.created_at.desc(), models.UserMemory.id.desc())
+        .limit(100)
+        .all()
+    )
+
+
+@app.patch("/me/ai-memories/{memory_id}", response_model=schemas.UserMemoryResponse)
+def update_my_ai_memory(
+    memory_id: int,
+    changes: schemas.UserMemoryUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    memory = db.query(models.UserMemory).filter(
+        models.UserMemory.id == memory_id,
+        models.UserMemory.user_id == current_user.id,
+    ).first()
+    if not memory:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    value = changes.memory_text.strip()
+    if not value:
+        raise HTTPException(status_code=422, detail="Memory cannot be blank")
+    from app.ai.memory import generate_embedding
+    memory.memory_text = value
+    memory.embedding = generate_embedding(value)
+    db.commit()
+    db.refresh(memory)
+    return memory
+
+
+@app.delete("/me/ai-memories/{memory_id}")
+def delete_my_ai_memory(
+    memory_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    memory = db.query(models.UserMemory).filter(
+        models.UserMemory.id == memory_id,
+        models.UserMemory.user_id == current_user.id,
+    ).first()
+    if not memory:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    db.delete(memory)
+    db.commit()
+    return {"deleted": True}
+
+
+@app.delete("/me/ai-memories")
+def clear_my_ai_memories(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    db.query(models.UserMemory).filter(
+        models.UserMemory.user_id == current_user.id
+    ).delete(synchronize_session=False)
+    # Do not immediately recreate cleared memories from old history.
+    current_user.ai_memory_processed_through_message_id = (
+        db.query(func.max(models.Message.id))
+        .filter(models.Message.sender_id == current_user.id)
+        .scalar()
+    )
+    db.commit()
+    return {"deleted": True}
+
+
 # ============================================================
 # USERS
 # ============================================================
@@ -1432,6 +1573,8 @@ def get_users(
         schemas.UserPublic(
             id=user.id,
             username=user.username,
+            full_name=user.full_name,
+            bio=user.bio,
             is_online=manager.is_online(user.id),
             last_seen=user.last_seen,
         )
@@ -1647,6 +1790,8 @@ def list_chats(
                 user=schemas.UserPublic(
                     id=partner.id,
                     username=partner.username,
+                    full_name=partner.full_name,
+                    bio=partner.bio,
                     is_online=manager.is_online(partner.id),
                     last_seen=partner.last_seen
                 ),
@@ -1882,6 +2027,8 @@ def get_chat_suggestions(
     messages = [
         {
             "sender_name": usernames.get(message.sender_id, "Unknown"),
+            "sender_id": message.sender_id,
+            "message_id": message.id,
             "content": message.content or "",
         }
         for message in db_messages
@@ -1893,6 +2040,14 @@ def get_chat_suggestions(
             status_code=400,
             detail="No usable text messages available for AI analysis",
         )
+
+    if current_user.ai_memory_enabled:
+        try:
+            from app.ai.memory import extract_and_save_opt_in_memories
+            extract_and_save_opt_in_memories(db, current_user, messages)
+        except Exception:
+            db.rollback()
+            logger.exception("Opt-in AI memory extraction failed for user_id=%s", current_user.id)
 
     # 6. Run the LangGraph workflow
     try:
@@ -2406,7 +2561,9 @@ async def handle_socket(
                             {
                                 "type": "message_read",
                                 "chat_id": chat_id,
-                                "message_id": read_id
+                                "message_id": read_id,
+                                "reader_id": user_id,
+                                "read_at": result["read_at"].get(read_id),
                             },
                             chat_id
                         )

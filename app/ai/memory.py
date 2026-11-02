@@ -58,6 +58,7 @@ def save_memory(
     memory_text: str,
     memory_type: str = "general",
     confidence: float = 0.8,
+    source_message_id: int | None = None,
 ) -> UserMemory:
     """Save a memory for one user, avoiding exact duplicates."""
 
@@ -85,6 +86,9 @@ def save_memory(
     )
 
     if existing_memory:
+        if source_message_id is not None and existing_memory.source_message_id is None:
+            existing_memory.source_message_id = source_message_id
+            db.commit()
         return existing_memory
 
     embedding = generate_embedding(normalized_text)
@@ -94,6 +98,7 @@ def save_memory(
         memory_text=normalized_text,
         memory_type=memory_type.strip().lower(),
         confidence=confidence,
+        source_message_id=source_message_id,
         embedding=embedding,
     )
 
@@ -105,6 +110,48 @@ def save_memory(
     except Exception:
         db.rollback()
         raise
+
+
+def extract_and_save_opt_in_memories(db: Session, user, messages) -> int:
+    """Extract a small set of durable, non-sensitive memories after consent."""
+    if not getattr(user, "ai_memory_enabled", False):
+        return 0
+
+    cursor = user.ai_memory_processed_through_message_id
+    new_own_messages = [
+        item for item in messages
+        if item.get("sender_id") == user.id
+        and (cursor is None or item.get("message_id", 0) > cursor)
+        and item.get("content", "").strip()
+    ]
+    if not new_own_messages:
+        return 0
+    batch = new_own_messages[:30]
+
+    # Do not retain inferred behavior, relationship labels, or sensitive facts.
+    eligible_types = {"preference", "interest", "communication_style", "goal", "project"}
+    from app.ai.extraction import extract_memories
+
+    transcript = "\n".join(
+        f"{user.username}: {item['content']}" for item in batch
+    )
+    extracted = extract_memories(transcript)
+    source_message_id = max(item["message_id"] for item in batch)
+    saved = 0
+    for item in extracted:
+        memory_type = item.get("memory_type")
+        confidence = item.get("confidence", 0)
+        if memory_type not in eligible_types or confidence < 0.7:
+            continue
+        save_memory(
+            db, user.id, item.get("memory_text", ""), memory_type,
+            confidence, source_message_id=source_message_id,
+        )
+        saved += 1
+    user.ai_memory_processed_through_message_id = source_message_id
+    db.add(user)
+    db.commit()
+    return saved
 
 
 # ---------------------------------------------------------

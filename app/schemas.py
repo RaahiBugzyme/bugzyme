@@ -26,6 +26,8 @@ class UserCreate(BaseModel):
 class UserPublic(_FromOrm):
     id: int
     username: str
+    full_name: str | None = None
+    bio: str | None = None
     is_online: bool = False
     last_seen: datetime | None = None
 
@@ -34,6 +36,25 @@ class UserPublic(_FromOrm):
 
 class UserResponse(UserPublic):
     email: str
+    ai_memory_enabled: bool = False
+
+
+class UserProfileUpdate(BaseModel):
+    full_name: str | None = Field(default=None, max_length=80)
+    bio: str | None = Field(default=None, max_length=500)
+    ai_memory_enabled: bool | None = None
+
+
+class UserMemoryResponse(_FromOrm):
+    id: int
+    memory_text: str
+    memory_type: str
+    confidence: float
+    created_at: datetime
+
+
+class UserMemoryUpdate(BaseModel):
+    memory_text: str = Field(min_length=3, max_length=500)
 
 
 class Token(BaseModel):
@@ -77,6 +98,7 @@ class MessageResponse(_FromOrm):
     sender_id: int
     content: str | None = None
     created_at: datetime | None = None
+    read_at: datetime | None = None
     is_delivered: bool = False
     is_read: bool = False
     is_deleted: bool = False
@@ -109,11 +131,6 @@ class MessageResponse(_FromOrm):
         "is_deleted",
         mode="before"
     )(_none_to_false)
-
-    _fix_delivered = field_validator("is_delivered", mode="before")(_none_to_false)
-    _fix_read = field_validator("is_read", mode="before")(_none_to_false)
-    _fix_deleted = field_validator("is_deleted", mode="before")(_none_to_false)
-
 
 class MessageDelete(BaseModel):
     for_everyone: bool = True

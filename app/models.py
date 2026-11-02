@@ -37,6 +37,16 @@ class User(Base):
         nullable=False
     )
 
+    full_name = Column(
+        String(80),
+        nullable=True
+    )
+
+    bio = Column(
+        Text,
+        nullable=True
+    )
+
     email = Column(
         String(254),
         unique=True,
@@ -59,6 +69,10 @@ class User(Base):
         DateTime,
         nullable=True
     )
+
+    # Personal AI memory is opt-in and private to this account.
+    ai_memory_enabled = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    ai_memory_processed_through_message_id = Column(Integer, nullable=True)
 
     chats_as_user1 = relationship(
         "Chat",
@@ -223,6 +237,11 @@ class Message(Base):
         Boolean,
         default=False,
         nullable=False
+    )
+
+    read_at = Column(
+        DateTime,
+        nullable=True
     )
 
     # ========================================

@@ -338,7 +338,7 @@ def analyze_death_zone(
 
 def is_death_zone(
     result: Dict[str, Any],
-    threshold: float = 65.0,
+    threshold: float = 60.0,
 ) -> bool:
     """
     Convenience helper for downstream workflow routing.
