@@ -35,7 +35,7 @@
   --success: #A0B09A;
   --danger: #C77C79;
   --warning: #D4B58B;
-  --online-status: #A0B09A;
+  --online-status: #22C55E;
   --message-sent: #583640;
   --message-sent-text: #F5F0E9;
   --message-received: #39252B;
@@ -139,7 +139,7 @@
   --success: #527347;
   --danger: #A84F52;
   --warning: #82634F;
-  --online-status: #63775D;
+  --online-status: #22C55E;
   --message-sent: #583640;
   --message-sent-text: #FFFFFF;
   --message-received: #EFE8E1;
@@ -423,7 +423,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .nav-btn:focu
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--online);
+  background: #22C55E;
   border: 2px solid var(--card);
 }
 
@@ -1444,8 +1444,42 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .nav-btn:focu
   display: none !important;
 }
 
+.ai-suggestions-title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ai-suggestions-header .ai-regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  border: 1px solid var(--ai-border);
+  border-radius: 50%;
+  background: var(--surface-2, var(--card));
+  color: var(--ai-accent);
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform .2s ease, background .2s ease;
+}
+
+.ai-suggestions-header .ai-regenerate-btn:hover {
+  background: var(--ai-border);
+  transform: rotate(45deg);
+}
+
+.ai-suggestions-header .ai-regenerate-btn:disabled {
+  opacity: .55;
+  cursor: wait;
+  transform: none;
+}
+
 .ai-suggestions-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -1483,6 +1517,36 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .nav-btn:focu
   margin-bottom: 8px;
 }
 
+.ai-suggestion-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0 9px;
+}
+
+.ai-suggestion-feedback button {
+  border: 1px solid var(--walnut-border);
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: var(--surface-2, var(--card));
+  color: var(--text-secondary, var(--muted));
+  font: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: background-color .16s ease, border-color .16s ease, transform .16s ease;
+}
+
+.ai-suggestion-feedback button:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--card));
+  transform: translateY(-1px);
+}
+
+.ai-suggestion-feedback button:disabled {
+  cursor: default;
+  opacity: .75;
+}
+
 .ai-use-reply {
   padding: 6px 14px;
   border: 0;
@@ -1504,6 +1568,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .nav-btn:focu
   line-height: 1.5;
   padding: 6px 2px;
 }
+
+.ai-feature-retry {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 13px;
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: .76rem;
+  cursor: pointer;
+}
+.ai-feature-retry:hover { border-color: var(--secondary); background: var(--surface); }
 
 /* ═══════════ MODALS & SHEETS ═══════════ */
 .modal-overlay {
@@ -2293,7 +2370,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .nav-btn:focu
 .conv-preview, .conv-time, .matches-top-sub, .nm-pct { color: var(--text-secondary); }
 .conv-unread-badge, .bell-count { background: var(--primary); color: var(--primary-button-text); }
 .av, .msg-av-sm, .profile-avatar { border-color: color-mix(in srgb, var(--secondary) 60%, var(--border)); color: #fff; }
-.av-online::after, .nm-online-dot, .ch-online-dot, .conn-dot, .profile-presence-dot.online { background: var(--online-status); border-color: var(--surface); }
+.av-online::after, .nm-online-dot, .ch-online-dot, .conn-dot, .profile-presence-dot.online { background: #22C55E; border-color: var(--surface); }
 .chat-hdr { background: var(--surface-elevated); border-color: var(--border); backdrop-filter: blur(16px); padding-left: 22px; padding-right: 22px; }
 .ch-back, .ch-action, .profile-toggle { color: var(--text-primary); background: var(--surface); border: 1px solid var(--border); }
 .ch-back:hover, .ch-action:hover, .profile-toggle:hover { background: var(--surface-elevated); border-color: var(--secondary); }
@@ -2619,7 +2696,13 @@ input:disabled, textarea:disabled, button:disabled { opacity: .55; cursor: not-a
     <!-- AI Suggestions Panel -->
     <div id="aiSuggestionsPanel" class="ai-suggestions-panel" hidden>
       <div class="ai-suggestions-header">
-        <span>✦ AI Suggestions</span>
+        <div class="ai-suggestions-title-group">
+          <span>✦ AI Assistant</span>
+          <button type="button" class="ai-regenerate-btn" onclick="regenerateAISuggestions()" aria-label="Regenerate suggestions" title="Generate fresh suggestions">↻</button>
+        </div>
+        <button type="button" class="ai-panel-tab" onclick="openAISuggestions()" aria-label="Show previous AI suggestions">Suggestions</button>
+        <button type="button" onclick="openConversationInsights()" aria-label="Conversation insights">Insights</button>
+        <button type="button" onclick="openConversationCoach()" aria-label="Private conversation coach">Coach</button>
         <button type="button" onclick="closeAISuggestions()" aria-label="Close AI suggestions">✕</button>
       </div>
       <div id="aiSuggestionsContent"></div>
@@ -2749,7 +2832,7 @@ input:disabled, textarea:disabled, button:disabled { opacity: .55; cursor: not-a
     <div class="srow">
       <div class="srow-icon">🟢</div>
       <div class="srow-info"><div class="srow-title">Activity Status</div><div class="srow-sub">Show online indicator</div></div>
-      <div class="toggle-sw on" onclick="this.classList.toggle('on')"></div>
+      <div class="toggle-sw on" id="activityStatusToggle" role="switch" tabindex="0" aria-checked="true" aria-label="Show online status" onclick="toggleActivityStatus()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleActivityStatus()}"></div>
     </div>
   </div>
 
@@ -2972,6 +3055,9 @@ if (localStorage.getItem('raahi_api') !== API_BASE){
   localStorage.setItem('raahi_api', API_BASE);
 }
 const AUTH = { token: localStorage.getItem('raahi_token') || '', me: null };
+let AI_SELECTED_SUGGESTION = null;
+const AI_SUGGESTIONS_BY_CHAT = new Map();
+const AI_REQUESTS_IN_FLIGHT = new Set();
 let authMode = 'login';
 let profileSaveInProgress = false;
 
@@ -2992,15 +3078,24 @@ async function api(path, opts = {}){
   const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
   if (res.status === 401 && AUTH.token){
     logout(true);
-    throw new Error('Session expired — please login again');
+    const error = new Error('Session expired — please login again');
+    error.apiStatus = 401;
+    throw error;
   }
   if (!res.ok){
     let detail = 'Request failed (' + res.status + ')';
+    let apiDetail = null;
     try {
       const d = await res.json();
-      if (d.detail) detail = typeof d.detail === 'string' ? d.detail : JSON.stringify(d.detail);
+      if (d.detail) {
+        apiDetail = d.detail;
+        detail = typeof d.detail === 'string' ? d.detail : (d.detail.message || JSON.stringify(d.detail));
+      }
     } catch(_){}
-    throw new Error(detail);
+    const error = new Error(detail);
+    error.apiStatus = res.status;
+    error.apiDetail = apiDetail;
+    throw error;
   }
   return res.json();
 }
@@ -3017,10 +3112,10 @@ const APP = {
   voiceChunks: []
 };
 
-// The indicator represents a successful, death-zone-triggered suggestion
-// run for this chat. Keep it per-chat while this page session is open.
+// Notification state is keyed by chat and restored from the backend on boot.
 const DEATH_ZONE_SUGGESTION_STATE = new Map();
 const CHAT_MESSAGE_REVISIONS = new Map();
+let aiNotificationPollTimer = null;
 
 function getChatMessageRevision(chatId) {
   return CHAT_MESSAGE_REVISIONS.get(String(chatId)) || 0;
@@ -3030,7 +3125,6 @@ function noteChatMessageChange(chatId) {
   if (chatId == null) return;
   const key = String(chatId);
   CHAT_MESSAGE_REVISIONS.set(key, getChatMessageRevision(key) + 1);
-  setDeathZoneSuggestionState(key, false);
 }
 
 // Restore saved avatar if present
@@ -3046,6 +3140,7 @@ let USERS = [];
 let ONLINE_USER_IDS = null;
 const MSG_CACHE = new Map();
 const MSG_ELS = new Map();
+const PENDING_OUTGOING_MESSAGES = new Map();
 const MESSAGE_REACTION_EMOJIS = Object.freeze(['❤️','😂','👍','🔥','😮','😢']);
 const REACTION_OVERRIDES = new Map();
 const REACTION_VERSIONS = new Map();
@@ -3441,119 +3536,286 @@ function closeOverlay(e, el){
    DEATH ZONE & AI SUGGESTIONS
 ═══════════════════════════════════════════════════ */
 
+function activeAINotifications(chatId) {
+  const entries = DEATH_ZONE_SUGGESTION_STATE.get(String(chatId)) || [];
+  const now = Date.now();
+  return entries.filter(item => item.active !== false &&
+    (!item.expires_at || Date.parse(item.expires_at) > now));
+}
+
 function updateDeathZoneDot(chatId) {
   const dot = document.getElementById('aiSuggestionsDot');
   if (!dot) return;
-  dot.hidden = !chatId || DEATH_ZONE_SUGGESTION_STATE.get(String(chatId)) !== true;
+  dot.hidden = !chatId || activeAINotifications(chatId).length === 0;
 }
 
-function setDeathZoneSuggestionState(chatId, triggered) {
-  if (chatId == null) return;
-  DEATH_ZONE_SUGGESTION_STATE.set(String(chatId), triggered === true);
-  if (String(APP.currentChatId) === String(chatId)) {
-    updateDeathZoneDot(chatId);
+function storeAINotification(notification) {
+  if (!notification || notification.chat_id == null || notification.id == null) return;
+  const key = String(notification.chat_id);
+  const entries = DEATH_ZONE_SUGGESTION_STATE.get(key) || [];
+  const index = entries.findIndex(item => Number(item.id) === Number(notification.id));
+  if (index >= 0) entries[index] = notification;
+  else entries.unshift(notification);
+  DEATH_ZONE_SUGGESTION_STATE.set(key, entries.slice(0, 20));
+  if (Number(APP.currentChatId) === Number(notification.chat_id)) updateDeathZoneDot(notification.chat_id);
+}
+
+async function refreshAINotifications() {
+  if (!AUTH.token) return;
+  try {
+    const response = await api('/ai-notifications');
+    const next = new Map();
+    (Array.isArray(response.notifications) ? response.notifications : []).forEach(item => {
+      if (!item?.active) return;
+      const key = String(item.chat_id);
+      if (!next.has(key)) next.set(key, []);
+      next.get(key).push(item);
+    });
+    DEATH_ZONE_SUGGESTION_STATE.clear();
+    next.forEach((items, key) => DEATH_ZONE_SUGGESTION_STATE.set(key, items));
+    updateDeathZoneDot(APP.currentChatId);
+  } catch (error) {
+    console.warn('AI notification refresh failed:', error);
+  }
+}
+
+async function trackAISuggestionEvent(suggestionId, eventType, details = {}) {
+  if (!suggestionId) return;
+  try {
+    await api(`/ai-suggestions/${encodeURIComponent(suggestionId)}/events`, {
+      method: 'POST',
+      body: JSON.stringify({ event_type: eventType, event_key: `${eventType}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, details })
+    });
+  } catch (error) { console.warn('AI suggestion event tracking failed:', error); }
+}
+
+function renderAISuggestionCards(content, suggestions, chatId = APP.currentChatId, notificationViewed = false) {
+  const usable = (Array.isArray(suggestions) ? suggestions : []).map(item => ({
+    item,
+    reply: typeof item === 'string' ? item : item?.text || item?.message || item?.content || item?.reply || item?.suggestion || '',
+    suggestionId: typeof item === 'object' ? item?.suggestion_id : null
+  })).filter(row => typeof row.reply === 'string' && row.reply.trim());
+  if (!usable.length) {
+    content.className = 'ai-suggestions-message';
+    content.textContent = 'No eligible suggestions are available for this conversation right now.';
+    return;
+  }
+  AI_SUGGESTIONS_BY_CHAT.set(String(chatId), usable.map(row => row.item));
+  if (!notificationViewed) usable.forEach(row => trackAISuggestionEvent(row.suggestionId, 'viewed').catch(() => {}));
+  content.className = '';
+  content.innerHTML = usable.map((row, index) => `
+    <div class="ai-suggestion-card">
+      <div class="ai-suggestion-text">${escapeHTML(row.reply)}</div>
+      <div class="ai-suggestion-feedback"><button type="button" data-ai-feedback="helpful" data-ai-index="${index}">Helpful</button><button type="button" data-ai-feedback="not_helpful" data-ai-index="${index}">Not helpful</button></div>
+      <button type="button" class="ai-use-reply" data-ai-index="${index}">Use reply</button>
+    </div>`).join('');
+  content.querySelectorAll('.ai-use-reply').forEach(button => button.addEventListener('click', async () => {
+    if (String(APP.currentChatId) !== String(chatId)) return toast('Open the same chat to use this suggestion.');
+    const row = usable[Number(button.dataset.aiIndex)];
+    const textarea = document.getElementById('chatTA');
+    AI_SELECTED_SUGGESTION = { id: row.suggestionId, original: row.reply, chatId: String(chatId), editedTracked: false };
+    await trackAISuggestionEvent(row.suggestionId, 'selected');
+    textarea.value = row.reply;
+    onChatInput(textarea);
+    textarea.focus();
+    closeAISuggestions();
+    toast('Suggestion added to this chat. Review it, then press Send.');
+  }));
+  content.querySelectorAll('[data-ai-feedback]').forEach(button => button.addEventListener('click', () => {
+    const row = usable[Number(button.dataset.aiIndex)];
+    trackAISuggestionEvent(row.suggestionId, 'user_feedback', { rating: button.dataset.aiFeedback }).catch(() => {});
+    button.textContent = button.dataset.aiFeedback === 'helpful' ? 'Thanks' : 'Noted';
+    button.disabled = true;
+  }));
+}
+
+function aiFeatureErrorMessage(error, featureName){
+  const status = Number(error?.apiStatus || 0);
+  if (status === 401) return 'Your session expired. Please sign in again.';
+  if (status === 403) return 'You do not have access to this conversation.';
+  if (status === 404) return 'This conversation or AI endpoint was not found. Update/restart the Bugzyme backend, then retry.';
+  if (status === 503 || status === 502){
+    const message = error?.apiDetail?.message;
+    return typeof message === 'string' ? message : `${featureName} service is temporarily unavailable. Please retry.`;
+  }
+  if (status >= 500) return `${featureName} ran into a server error. Please retry.`;
+  if (error instanceof SyntaxError) return `The backend returned an invalid ${featureName.toLowerCase()} response. Please retry.`;
+  if (error instanceof TypeError || !status) return `Can't reach the Bugzyme backend at ${API_BASE}. Check that it is running, then retry.`;
+  return error?.message || `${featureName} could not be loaded. Please retry.`;
+}
+
+function renderAIFeatureError(content, featureName, retryFunction, error){
+  content.className = 'ai-suggestions-message';
+  content.innerHTML = `<div>${escapeHTML(aiFeatureErrorMessage(error, featureName))}</div><button type="button" class="ai-feature-retry" onclick="${retryFunction}()">Retry ${escapeHTML(featureName)}</button>`;
+}
+
+async function openConversationCoach() {
+  const chatId = APP.currentChatId;
+  const panel = document.getElementById('aiSuggestionsPanel');
+  const content = document.getElementById('aiSuggestionsContent');
+  if (!chatId || !content) return toast('Open a conversation first.');
+  if (panel) panel.hidden = false;
+  content.className = 'ai-suggestions-message';
+  content.textContent = 'Loading your private coach…';
+  try {
+    const result = await api(`/chats/${encodeURIComponent(chatId)}/coach`);
+    if (String(APP.currentChatId) !== String(chatId)) return;
+    if (result.available === false){
+      content.className = 'ai-suggestions-message';
+      content.textContent = result.reason === 'no_context'
+        ? 'There are no conversation messages to coach from yet. Exchange a few messages, then try again.'
+        : 'There is not enough of your own conversation profile yet. Send a few messages, then try again.';
+      return;
+    }
+    const insights = Array.isArray(result.insights) ? result.insights : [];
+    if (!insights.length) throw new Error('The backend returned no coaching advice.');
+    content.className = '';
+    content.innerHTML = `<div class="ai-suggestions-message">Private advice based on your messages and communication profile.</div>` + insights.map(item => `<div class="ai-suggestion-card"><strong>${escapeHTML(item.category || 'Conversation Coach')}</strong><div class="ai-suggestion-text">${escapeHTML(item.message || '')}</div></div>`).join('');
+  } catch (error) {
+    if (String(APP.currentChatId) === String(chatId)) renderAIFeatureError(content, 'Coach', 'openConversationCoach', error);
+  }
+}
+
+async function openConversationInsights() {
+  const chatId = APP.currentChatId;
+  const panel = document.getElementById('aiSuggestionsPanel');
+  const content = document.getElementById('aiSuggestionsContent');
+  if (!chatId || !content) return toast('Open a conversation first.');
+  if (panel) panel.hidden = false;
+  content.className = 'ai-suggestions-message';
+  content.textContent = 'Loading conversation insights…';
+  try {
+    const result = await api(`/chats/${encodeURIComponent(chatId)}/insights`);
+    if (String(APP.currentChatId) !== String(chatId)) return;
+    if (result.available === false){
+      content.className = 'ai-suggestions-message';
+      content.textContent = 'There are no conversation messages to analyze yet.';
+      return;
+    }
+    if (!result.mood || !Array.isArray(result.patterns) || !Array.isArray(result.shared_topics)) throw new Error('The backend returned an incomplete insights response.');
+    content.className = '';
+    const trend = result.engagement_trend
+      ? `<div class="ai-suggestion-card"><strong>Engagement trend · ${escapeHTML(result.engagement_trend.state)}</strong><div class="ai-suggestion-text">${escapeHTML(result.engagement_trend.explanation)}</div></div>`
+      : '<div class="ai-suggestion-card"><strong>Engagement trend</strong><div class="ai-suggestion-text">There is not enough recent conversation to compare trends yet.</div></div>';
+    const mood = result.mood.state === 'uncertain'
+      ? 'Not enough language cues to infer a conversation mood.'
+      : `${result.mood.state} cues (${Math.round(Number(result.mood.confidence || 0) * 100)}% heuristic confidence across ${Number(result.mood.evidence_messages || 0)} messages).`;
+    const topics = result.shared_topics.length ? result.shared_topics.map(escapeHTML).join(', ') : 'No shared topics were detected in this sample.';
+    const patternCards = result.patterns.map(item => `<div class="ai-suggestion-card"><strong>Conversation pattern</strong><div class="ai-suggestion-text">${escapeHTML(item)}</div></div>`).join('');
+    content.innerHTML = `${trend}<div class="ai-suggestion-card"><strong>Conversation mood</strong><div class="ai-suggestion-text">${escapeHTML(mood)}</div></div><div class="ai-suggestion-card"><strong>Shared interests and topics</strong><div class="ai-suggestion-text">${topics}</div></div>${patternCards}<div class="ai-suggestions-message">${escapeHTML(result.caveat || '')}</div>`;
+  } catch (error) {
+    if (String(APP.currentChatId) === String(chatId)) renderAIFeatureError(content, 'Insights', 'openConversationInsights', error);
   }
 }
 
 async function openAISuggestions() {
   const chatId = APP.currentChatId;
-  if (!chatId) {
-    toast('Please open a conversation first');
-    return;
-  }
-
+  if (!chatId) return toast('Please open a conversation first');
+  const requestKey = String(chatId);
+  if (AI_REQUESTS_IN_FLIGHT.has(requestKey)) return;
   const panel = document.getElementById('aiSuggestionsPanel');
   const content = document.getElementById('aiSuggestionsContent');
   const button = document.getElementById('aiSuggestionsBtn');
   const icon = document.getElementById('aiSuggestionsIcon');
   if (!panel || !content || !button) return;
 
-  panel.hidden = false;
-  content.innerHTML = '<div class="ai-suggestions-message">✦ AI is analyzing conversation...</div>';
+  // Reuse existing suggestions when returning from Coach or Insights.
+  // Fresh suggestions are generated only by the Regenerate button.
+  const cachedSuggestions = AI_SUGGESTIONS_BY_CHAT.get(requestKey);
+  if (Array.isArray(cachedSuggestions) && cachedSuggestions.length) {
+    panel.hidden = false;
+    renderAISuggestionCards(content, cachedSuggestions, chatId, true);
+    updateDeathZoneDot(chatId);
+    return;
+  }
 
+  AI_REQUESTS_IN_FLIGHT.add(requestKey);
+  panel.hidden = false;
   button.disabled = true;
   if (icon) icon.textContent = '…';
-  setDeathZoneSuggestionState(chatId, false);
-  const messageRevisionAtStart = getChatMessageRevision(chatId);
+  content.className = 'ai-suggestions-message';
+  content.textContent = '✦ Loading suggestions…';
 
   try {
-    const result = await api(
-      `/chats/${encodeURIComponent(chatId)}/suggestions`,
-      { method: 'POST' }
-    );
-
-    const suggestions = Array.isArray(result.suggestions) ? result.suggestions : [];
-    const usableSuggestions = suggestions.filter(item => {
-      const reply = typeof item === 'string'
-        ? item
-        : item?.text || item?.message || item?.content || item?.reply || item?.suggestion || '';
-      return typeof reply === 'string' && !!reply.trim();
-    });
-    const responseMatchesChat = String(result.chat_id) === String(chatId);
-    const conversationUnchanged = getChatMessageRevision(chatId) === messageRevisionAtStart;
-    const deathZoneRunSucceeded = responseMatchesChat &&
-      conversationUnchanged && result.should_generate === true && usableSuggestions.length === 3;
-    setDeathZoneSuggestionState(chatId, deathZoneRunSucceeded);
-
-    if (String(APP.currentChatId) !== String(chatId)) return;
-
-    if (!suggestions.length) {
-      const message = result.should_generate === false
-        ? 'This conversation looks healthy right now. No suggestions needed.'
-        : 'No suggestions available right now. Please try again later.';
-
-      content.textContent = message;
-      content.className = 'ai-suggestions-message';
-      return;
+    let notification = activeAINotifications(chatId)[0];
+    if (!notification) {
+      await refreshAINotifications();
+      notification = activeAINotifications(chatId)[0];
     }
-
-    content.className = '';
-    content.innerHTML = suggestions.map((item, index) => {
-      const reply = typeof item === 'string'
-        ? item
-        : item?.text || item?.message || item?.content || item?.reply || item?.suggestion || '';
-
-      if (!reply.trim()) return '';
-
-      return `
-        <div class="ai-suggestion-card">
-          <div class="ai-suggestion-text">${escapeHTML(reply)}</div>
-          <button type="button" class="ai-use-reply" data-ai-index="${index}">Use reply</button>
-        </div>
-      `;
-    }).join('');
-
-    content.querySelectorAll('.ai-use-reply').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const item = suggestions[Number(btn.dataset.aiIndex)];
-        const reply = typeof item === 'string'
-          ? item
-          : item?.text || item?.message || item?.content || item?.reply || item?.suggestion || '';
-
-        if (!reply) return;
-
-        const textarea = document.getElementById('chatTA');
-        textarea.value = reply;
-        onChatInput(textarea);
-        textarea.focus();
-        closeAISuggestions();
-      });
-    });
-
-    if (!content.innerHTML.trim()) {
-      content.textContent = 'No usable suggestions returned.';
-      content.className = 'ai-suggestions-message';
+    if (notification) {
+      renderAISuggestionCards(content, notification.suggestions, chatId, true);
+      if (notification.viewed_at == null) {
+        const updated = await api(`/ai-notifications/${encodeURIComponent(notification.id)}/view`, { method: 'POST' });
+        storeAINotification(updated);
+        setTimeout(() => updateDeathZoneDot(chatId), 30100);
+      }
+    } else {
+      const result = await api(`/chats/${encodeURIComponent(chatId)}/suggestions`, { method: 'POST' });
+      if (String(APP.currentChatId) === String(chatId)) {
+        renderAISuggestionCards(content, result.suggestions, chatId, false);
+      }
     }
-  } catch (err) {
-    console.error('AI SUGGESTIONS ERROR:', err);
-    setDeathZoneSuggestionState(chatId, false);
+  } catch (error) {
+    console.error('AI SUGGESTIONS ERROR:', error);
     if (String(APP.currentChatId) === String(chatId)) {
       content.className = 'ai-suggestions-message';
-      content.textContent = 'Could not load suggestions: ' + (err.message || 'Please try again.');
+      content.textContent = 'Could not load suggestions: ' + (error.message || 'Please try again.');
     }
   } finally {
+    AI_REQUESTS_IN_FLIGHT.delete(requestKey);
     button.disabled = false;
     if (icon) icon.textContent = '✦';
+  }
+}
+
+async function regenerateAISuggestions() {
+  const chatId = APP.currentChatId;
+  const content = document.getElementById('aiSuggestionsContent');
+  const button = document.querySelector('.ai-suggestions-header button[aria-label="Regenerate suggestions"]');
+  if (!chatId || !content) return toast('Open a conversation first.');
+  const requestKey = String(chatId);
+  if (AI_REQUESTS_IN_FLIGHT.has(requestKey)) return;
+  AI_REQUESTS_IN_FLIGHT.add(requestKey);
+  if (button) {
+    button.disabled = true;
+    button.classList.add('is-loading');
+    button.setAttribute('aria-label', 'Generating suggestions');
+  }
+  const previous = AI_SUGGESTIONS_BY_CHAT.get(requestKey) || [];
+  const previousReplies = previous.map(item => typeof item === 'string' ? item : item?.message || item?.text || '').filter(Boolean);
+  if (!previous.length) {
+    content.className = 'ai-suggestions-message';
+    content.textContent = 'Generating contextual suggestions…';
+  }
+  try {
+    const result = await api(`/chats/${encodeURIComponent(chatId)}/suggestions`, {
+      method: 'POST',
+      body: JSON.stringify({ avoid_suggestions: previousReplies })
+    });
+    if (String(APP.currentChatId) !== requestKey) return;
+    if (Array.isArray(result.suggestions) && result.suggestions.length > 0) {
+      renderAISuggestionCards(content, result.suggestions, chatId, false);
+      toast('Fresh suggestions are ready.');
+    } else if (previous.length) {
+      renderAISuggestionCards(content, previous, chatId, true);
+      toast('No new suggestions are available right now. Previous suggestions are still here.');
+    } else {
+      content.className = 'ai-suggestions-message';
+      content.textContent = 'No suggestions are available for this conversation right now.';
+    }
+  } catch (error) {
+    if (String(APP.currentChatId) === requestKey) {
+      if (previous.length) renderAISuggestionCards(content, previous, chatId, true);
+      else { content.className = 'ai-suggestions-message'; content.textContent = 'Could not regenerate suggestions. Please try again.'; }
+      toast('Suggestion regeneration failed.');
+    }
+  } finally {
+    AI_REQUESTS_IN_FLIGHT.delete(requestKey);
+    if (button) {
+      button.disabled = false;
+      button.classList.remove('is-loading');
+      button.setAttribute('aria-label', 'Regenerate suggestions');
+    }
   }
 }
 
@@ -3644,12 +3906,16 @@ async function boot(){
   chatLoadSessionGeneration++;
   DELETED_CHAT_IDS.clear();
   AUTH.me = await api('/me');
+  syncActivityStatusToggle();
   const av = avatarFor(AUTH.me.username);
   if (!APP.avatar.initials || APP.avatar.initials === 'ME') {
     APP.avatar.initials = av.initials;
   }
   updateAvatarUI();
   connectWS();
+  await refreshAINotifications();
+  clearInterval(aiNotificationPollTimer);
+  aiNotificationPollTimer = setInterval(refreshAINotifications, 15000);
   showTab('sMatches', 'navMatches');
   renderMatchesScreen();
   await Promise.all([loadUsers(), loadChats()]);
@@ -3665,11 +3931,14 @@ function logout(silent){
   try { if (WS) WS.close(); } catch(_){}
   WS = null;
   clearInterval(wsPing);
+  clearInterval(aiNotificationPollTimer);
+  aiNotificationPollTimer = null;
   CHATS.length = 0;
   USERS = [];
   ONLINE_USER_IDS = null;
   MSG_CACHE.clear();
   MSG_ELS.clear();
+  PENDING_OUTGOING_MESSAGES.clear();
   PROCESSED_INCOMING_MESSAGE_IDS.clear();
   UNREAD_CHANGE_VERSIONS.clear();
   REACTION_OVERRIDES.clear();
@@ -3700,6 +3969,7 @@ function connectWS(){
     wsPing = setInterval(() => wsSend({ type: 'ping' }), 30000);
     setConnDot(true);
     loadChats().catch(err => console.warn('Notification refresh failed:', err));
+    refreshAINotifications();
     markVisibleConversationRead();
   };
   WS.onmessage = (e) => {
@@ -3718,7 +3988,9 @@ function connectWS(){
 }
 
 function wsSend(obj){
-  if (WS && WS.readyState === 1) WS.send(JSON.stringify(obj));
+  if (!WS || WS.readyState !== 1) return false;
+  try { WS.send(JSON.stringify(obj)); return true; }
+  catch (_) { return false; }
 }
 
 function setConnDot(on){
@@ -3732,6 +4004,10 @@ function handleWSEvent(d){
     case 'ready':
       markOnline(d.online_user_ids || []);
       reconcileVisibleMessageReactions().catch(err => console.warn('Reaction refresh failed:', err));
+      if (curScreen === 'sChat' && APP.currentChatId &&
+          Array.from(PENDING_OUTGOING_MESSAGES.values()).some(item => Number(item.message.chat_id) === Number(APP.currentChatId))){
+        openChat(APP.currentChatId);
+      }
       break;
     case 'message':
     case 'voice_message':
@@ -3745,6 +4021,10 @@ function handleWSEvent(d){
       break;
     case 'message_sent':
       confirmSent(d);
+      break;
+    case 'message_failed':
+      rollbackOutgoingMessage(d);
+      toast('⚠️ ' + (d.detail || 'Message could not be sent'));
       break;
     case 'message_delivered': {
       const chatId = Number(d.chat_id), messageId = Number(d.message_id);
@@ -3771,6 +4051,9 @@ function handleWSEvent(d){
       }
       break;
     }
+    case 'death_zone_notification':
+      storeAINotification(d.notification);
+      break;
     case 'typing':
       showPartnerTyping(d);
       break;
@@ -3826,6 +4109,25 @@ async function loadChats(){
   if (ONLINE_USER_IDS !== null){
     chatsToApply.forEach(c => c.user.is_online = ONLINE_USER_IDS.has(String(c.user.id)));
   }
+
+  // Preserve a message that arrived while this chat-list request was in flight.
+  chatsToApply.forEach(chat => {
+    const cached = MSG_CACHE.get(Number(chat.chat_id)) || MSG_CACHE.get(chat.chat_id) || [];
+    if (!cached.length) return;
+    const latestCached = cached.reduce((latest, message) => {
+      if (!latest) return message;
+      const latestId = Number(latest.id) || 0;
+      const messageId = Number(message.id) || 0;
+      if (messageId && messageId !== latestId) return messageId > latestId ? message : latest;
+      return Date.parse(message.created_at || 0) > Date.parse(latest.created_at || 0) ? message : latest;
+    }, null);
+    const serverId = Number(chat.last_message?.id) || 0;
+    const cachedId = Number(latestCached.id) || 0;
+    if (!chat.last_message || (cachedId && cachedId > serverId) ||
+        (!cachedId && Date.parse(latestCached.created_at || 0) > Date.parse(chat.last_message.created_at || 0))){
+      chat.last_message = latestCached;
+    }
+  });
 
   appliedChatsLoadRequestId = requestId;
   CHATS.length = 0;
@@ -3976,18 +4278,55 @@ async function openChat(chatId){
   updateDeathZoneDot(chatId);
 
   const ms = document.getElementById('msgsScroll');
+  const pendingAtOpen = (MSG_CACHE.get(Number(chatId)) || MSG_CACHE.get(chatId) || [])
+    .filter(message => message.client_id && !message.id);
+  clearChatMessageElements(chatId);
   ms.innerHTML = '';
   renderMatchIntro(chat);
 
   try {
     const msgs = await api(`/messages/${chatId}?limit=200`);
     if (Number(APP.currentChatId) !== Number(chatId) || curScreen !== 'sChat') return;
-    msgs.forEach(message => {
-      const cachedMessage = (MSG_CACHE.get(chatId) || []).find(item => Number(item.id) === Number(message.id));
+    const liveMessages = MSG_CACHE.get(Number(chatId)) || MSG_CACHE.get(chatId) || [];
+    const pendingMessages = new Map(pendingAtOpen.map(message => [message.client_id, message]));
+    liveMessages.forEach(message => {
+      if (message.client_id && !message.id) pendingMessages.set(message.client_id, message);
+    });
+    const byId = new Map(msgs.map(message => [String(message.id), message]));
+    liveMessages.forEach(message => {
+      if (message.id != null && !byId.has(String(message.id))) byId.set(String(message.id), message);
+    });
+    const merged = Array.from(byId.values());
+    const confirmedPending = [];
+    const matchedHistoryIds = new Set();
+    pendingMessages.forEach(pending => {
+      const match = merged.find(message =>
+        !matchedHistoryIds.has(String(message.id)) &&
+        Number(message.sender_id) === Number(pending.sender_id) &&
+        message.content === pending.content &&
+        Math.abs(Date.parse(message.created_at || 0) - Date.parse(pending.created_at || 0)) < 60000
+      );
+      if (match){
+        matchedHistoryIds.add(String(match.id));
+        match.client_id = pending.client_id;
+        confirmedPending.push({ client_id: pending.client_id, message_id: match.id, created_at: match.created_at });
+      }
+      else if (!merged.some(message => message.client_id === pending.client_id)) merged.push(pending);
+    });
+    merged.sort((a, b) => {
+      const timeDelta = Date.parse(a.created_at || 0) - Date.parse(b.created_at || 0);
+      return timeDelta || (Number(a.id) || 0) - (Number(b.id) || 0);
+    });
+    merged.forEach(message => {
+      const cachedMessage = liveMessages.find(item => Number(item.id) === Number(message.id));
       reconcileHistoryReactionState(message, cachedMessage, reactionSequenceAtStart);
     });
-    MSG_CACHE.set(chatId, msgs);
-    msgs.forEach(m => appendBubble(m, true));
+    MSG_CACHE.set(Number(chatId), merged);
+    ms.innerHTML = '';
+    renderMatchIntro(chat);
+    merged.forEach(message => appendBubble(message, false));
+    if (merged.length) chat.last_message = merged[merged.length - 1];
+    confirmedPending.forEach(message => confirmSent({ chat_id: Number(chatId), ...message }));
     syncSeenReceipt(chatId);
 
     markVisibleConversationRead(chatId);
@@ -3997,6 +4336,12 @@ async function openChat(chatId){
 
   renderConvList();
   setTimeout(() => { ms.scrollTop = ms.scrollHeight; }, 60);
+}
+
+function clearChatMessageElements(chatId){
+  for (const [key, entry] of MSG_ELS){
+    if (Number(entry?.msg?.chat_id) === Number(chatId)) MSG_ELS.delete(key);
+  }
 }
 
 function renderChatHeader(chat){
@@ -4242,7 +4587,11 @@ function appendBubble(msg, scroll){
 const READ_RECEIPT_TIMES = new Map();
 
 function isConversationVisible(chatId){
-  return Number(APP.currentChatId) === Number(chatId) && curScreen === 'sChat' && !document.hidden && !!document.querySelector('#sChat.active');
+  return isConversationActive(chatId) && !document.hidden;
+}
+
+function isConversationActive(chatId){
+  return Number(APP.currentChatId) === Number(chatId) && curScreen === 'sChat' && !!document.querySelector('#sChat.active');
 }
 
 function markVisibleConversationRead(chatId = APP.currentChatId){
@@ -4729,6 +5078,11 @@ function onChatInput(ta){
   document.getElementById('micBtn')?.classList.toggle('hide', has);
 
   const now = Date.now();
+  if (AI_SELECTED_SUGGESTION && String(APP.currentChatId) === AI_SELECTED_SUGGESTION.chatId &&
+      ta.value.trim() !== AI_SELECTED_SUGGESTION.original && !AI_SELECTED_SUGGESTION.editedTracked) {
+    AI_SELECTED_SUGGESTION.editedTracked = true;
+    AI_SELECTED_SUGGESTION.editedPromise = trackAISuggestionEvent(AI_SELECTED_SUGGESTION.id, 'edited', { changed: true });
+  }
   if (has && APP.currentChatId && now - lastTypingSent > 2500){
     lastTypingSent = now;
     wsSend({ type: 'typing', chat_id: APP.currentChatId });
@@ -4746,14 +5100,23 @@ function doSend(){
   const ta = document.getElementById('chatTA');
   const txt = ta.value.trim();
   if (!txt || !APP.currentChatId) return;
+  if (!WS || WS.readyState !== 1){
+    toast('⚠️ Reconnecting to chat. Your message is still in the composer.');
+    return;
+  }
 
   const client_id = 'c' + Date.now() + Math.random().toString(36).slice(2, 7);
   const replyToId = APP.replyingTo ? APP.replyingTo.id : null;
+  const chatId = Number(APP.currentChatId);
+  const chat = getChat(chatId);
+  const previousLastMessage = chat ? chat.last_message : null;
+  const selectedSuggestion = AI_SELECTED_SUGGESTION && AI_SELECTED_SUGGESTION.chatId === String(chatId)
+    ? AI_SELECTED_SUGGESTION : null;
 
   const msg = {
     id: null,
     client_id,
-    chat_id: APP.currentChatId,
+    chat_id: chatId,
     sender_id: AUTH.me.id,
     content: txt,
     created_at: new Date().toISOString(),
@@ -4766,35 +5129,51 @@ function doSend(){
   // A new message makes the previous engagement result stale.
   noteChatMessageChange(APP.currentChatId);
 
-  const arr = MSG_CACHE.get(APP.currentChatId) || [];
+  PENDING_OUTGOING_MESSAGES.set(client_id, { message: msg, previousLastMessage, text: txt, aiSuggestionId: selectedSuggestion?.id || null, aiSuggestionEdited: !!selectedSuggestion && txt !== selectedSuggestion.original, aiSuggestionEditedPromise: selectedSuggestion?.editedPromise || Promise.resolve() });
+  const arr = MSG_CACHE.get(chatId) || [];
   arr.push(msg);
-  MSG_CACHE.set(APP.currentChatId, arr);
+  MSG_CACHE.set(chatId, arr);
   appendBubble(msg, true);
+  if (chat){
+    chat.last_message = msg;
+    renderConvList();
+  }
 
-  wsSend({
+  const acceptedBySocket = wsSend({
     type: 'message',
-    chat_id: APP.currentChatId,
+    chat_id: chatId,
     content: txt,
     client_id,
     reply_to_id: replyToId
   });
+  if (!acceptedBySocket){
+    rollbackOutgoingMessage({ chat_id: chatId, client_id, detail: 'Connection was lost before sending.' });
+    return;
+  }
 
   ta.value = '';
   ta.style.height = 'auto';
   cancelReply();
+  if (selectedSuggestion) AI_SELECTED_SUGGESTION = null;
   onChatInput(ta);
 }
 
 function confirmSent(d){
-  const e = MSG_ELS.get(String(d.client_id));
+  let e = MSG_ELS.get(String(d.client_id));
   const arr = MSG_CACHE.get(d.chat_id) || [];
   const m = arr.find(x => x.client_id === d.client_id);
+  if (!e && m?.id != null) e = MSG_ELS.get(String(m.id));
 
   if (m){
     m.id = d.message_id;
     m.reactions = Array.isArray(m.reactions) ? m.reactions : [];
     if (d.created_at) m.created_at = d.created_at;
   }
+  const pending = PENDING_OUTGOING_MESSAGES.get(String(d.client_id));
+  PENDING_OUTGOING_MESSAGES.delete(String(d.client_id));
+  if (pending?.aiSuggestionId) Promise.resolve(pending.aiSuggestionEditedPromise).then(() => trackAISuggestionEvent(pending.aiSuggestionId, 'sent', { edited: pending.aiSuggestionEdited, message_id: Number(d.message_id) })).catch(() => {});
+  const chat = getChat(d.chat_id);
+  if (chat && pending && chat.last_message === pending.message) chat.last_message = m || pending.message;
 
   if (e){
     if (d.created_at){
@@ -4818,6 +5197,33 @@ function confirmSent(d){
     MSG_ELS.set(String(d.message_id), e);
     MSG_ELS.delete(String(d.client_id));
     if (m) ensureMessageReactionUI(m, e.row);
+  }
+}
+
+function rollbackOutgoingMessage(data){
+  const clientId = String(data?.client_id || '');
+  const pending = PENDING_OUTGOING_MESSAGES.get(clientId);
+  if (!pending) return;
+  PENDING_OUTGOING_MESSAGES.delete(clientId);
+  const chatId = Number(data.chat_id || pending.message.chat_id);
+  const messages = MSG_CACHE.get(chatId) || [];
+  const index = messages.findIndex(message => message.client_id === clientId);
+  if (index >= 0) messages.splice(index, 1);
+  MSG_CACHE.set(chatId, messages);
+  const entry = MSG_ELS.get(clientId);
+  if (entry?.row) entry.row.remove();
+  MSG_ELS.delete(clientId);
+  const chat = getChat(chatId);
+  if (chat && chat.last_message === pending.message){
+    chat.last_message = messages.length ? messages[messages.length - 1] : (pending.previousLastMessage || null);
+    renderConvList();
+  }
+  if (Number(APP.currentChatId) === chatId){
+    const textarea = document.getElementById('chatTA');
+    if (textarea && !textarea.value.trim()){
+      textarea.value = pending.text;
+      onChatInput(textarea);
+    }
   }
 }
 
@@ -4857,19 +5263,24 @@ function onIncomingMessage(d){
   arr.push(msg);
   MSG_CACHE.set(chatId, arr);
 
+  // The sidebar can be replacing its chat list while an event arrives. Render
+  // for the active conversation even when its sidebar record is not ready.
+  const openHere = isConversationActive(chatId);
+  if (openHere) appendBubble(msg, true);
+
   if (!chat){
     if (messageNotificationsEnabled && isChatNotificationEnabled(chatId)){
       toast(`💬 ${d.sender_name || 'New message'}: ${notificationPreview(msg).slice(0, 50)}`);
     }
-    loadChats().catch(err => console.warn('Unread refresh failed:', err));
+    loadChats().then(() => {
+      if (isConversationVisible(chatId)) markVisibleConversationRead(chatId);
+    }).catch(err => console.warn('Unread refresh failed:', err));
     return;
   }
 
   chat.last_message = msg;
-  const openHere = isConversationVisible(chatId);
 
-  if (openHere){
-    appendBubble(msg, true);
+  if (isConversationVisible(chatId)){
     markVisibleConversationRead(chatId);
   } else {
     chat.unread_count = (Number(chat.unread_count) || 0) + 1;
@@ -4912,6 +5323,10 @@ function clearTyping(){
 function updatePresence(d){
   const online = d.status === 'online';
   const userId = String(d.user_id);
+  if (AUTH.me && String(AUTH.me.id) === userId && typeof d.activity_status_enabled === 'boolean'){
+    AUTH.me.activity_status_enabled = d.activity_status_enabled;
+    syncActivityStatusToggle();
+  }
   if (ONLINE_USER_IDS === null) ONLINE_USER_IDS = new Set();
   if (online) ONLINE_USER_IDS.add(userId);
   else ONLINE_USER_IDS.delete(userId);
@@ -4940,6 +5355,45 @@ function updatePresence(d){
   if (selectedProfileUserId && String(selectedProfileUserId) === userId){
     const profileUser = CHATS.find(c => String(c.user.id) === userId)?.user || USERS.find(u => String(u.id) === userId);
     if (profileUser) renderUserProfile(profileUser);
+  }
+}
+
+function syncActivityStatusToggle(busy = false){
+  const toggle = document.getElementById('activityStatusToggle');
+  if (!toggle) return;
+  const enabled = AUTH.me?.activity_status_enabled !== false;
+  toggle.classList.toggle('on', enabled);
+  toggle.setAttribute('aria-checked', String(enabled));
+  toggle.setAttribute('aria-busy', String(busy));
+  toggle.style.pointerEvents = busy ? 'none' : '';
+  toggle.style.opacity = busy ? '.65' : '';
+}
+
+let activityStatusToggleInFlight = false;
+async function toggleActivityStatus(){
+  if (!AUTH.me || activityStatusToggleInFlight) return;
+  const previous = AUTH.me.activity_status_enabled !== false;
+  const enabled = !previous;
+  activityStatusToggleInFlight = true;
+  syncActivityStatusToggle(true);
+  try {
+    const result = await api('/me/presence', {
+      method: 'PATCH',
+      body: JSON.stringify({ activity_status_enabled: enabled })
+    });
+    AUTH.me.activity_status_enabled = result.activity_status_enabled;
+    AUTH.me.is_online = result.is_online;
+    if (!result.is_online) ONLINE_USER_IDS?.delete(String(AUTH.me.id));
+    else ONLINE_USER_IDS?.add(String(AUTH.me.id));
+    syncActivityStatusToggle();
+    toast(enabled ? 'Online status is visible' : 'Online status hidden');
+  } catch (error) {
+    AUTH.me.activity_status_enabled = previous;
+    syncActivityStatusToggle();
+    toast('Could not update online status. Please try again.');
+  } finally {
+    activityStatusToggleInFlight = false;
+    syncActivityStatusToggle();
   }
 }
 

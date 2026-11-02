@@ -37,6 +37,7 @@ class UserPublic(_FromOrm):
 class UserResponse(UserPublic):
     email: str
     ai_memory_enabled: bool = False
+    activity_status_enabled: bool = True
 
 
 class UserProfileUpdate(BaseModel):
@@ -55,6 +56,16 @@ class UserMemoryResponse(_FromOrm):
 
 class UserMemoryUpdate(BaseModel):
     memory_text: str = Field(min_length=3, max_length=500)
+
+
+class PresencePreferenceUpdate(BaseModel):
+    activity_status_enabled: bool
+
+
+class PresencePreferenceResponse(BaseModel):
+    activity_status_enabled: bool
+    is_online: bool
+    last_seen: datetime | None = None
 
 
 class Token(BaseModel):

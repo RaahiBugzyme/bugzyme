@@ -65,6 +65,13 @@ class User(Base):
         nullable=False
     )
 
+    activity_status_enabled = Column(
+        Boolean,
+        default=True,
+        nullable=False,
+        server_default=text("true"),
+    )
+
     last_seen = Column(
         DateTime,
         nullable=True
@@ -147,6 +154,7 @@ class Chat(Base):
         default=False,
         nullable=False
     )
+
 
     # ========================================
     # Relationships
@@ -431,3 +439,93 @@ class UserMemory(Base):
         default=datetime.utcnow,
         nullable=False,
     )
+
+
+class DeathZoneConversationState(Base):
+    """Current conversation episode state used to deduplicate notifications."""
+
+    __tablename__ = "death_zone_conversation_states"
+
+    chat_id = Column(Integer, ForeignKey("chats.id", ondelete="CASCADE"), primary_key=True)
+    active = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    target_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    last_message_id = Column(Integer, nullable=True)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class DeathZoneNotification(Base):
+    """A chat-specific, target-user-only AI suggestion notification."""
+
+    __tablename__ = "death_zone_notifications"
+    __table_args__ = (
+        UniqueConstraint("chat_id", "user_id", "event_key", name="uq_death_zone_user_event"),
+        Index("ix_death_zone_user_state", "user_id", "status", "expires_at"),
+        Index("ix_death_zone_chat_event", "chat_id", "event_key"),
+    )
+
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(Integer, ForeignKey("chats.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    event_key = Column(String(100), nullable=False)
+    trigger_message_id = Column(Integer, ForeignKey("messages.id", ondelete="SET NULL"), nullable=True)
+    status = Column(String(20), nullable=False, default="generating", server_default="generating")
+    suggestions_json = Column(Text, nullable=True)
+    death_zone_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    viewed_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+
+
+class AIRecoveryIntervention(Base):
+    """One bounded recovery episode owned by its target user and chat."""
+    __tablename__ = "ai_recovery_interventions"
+    __table_args__ = (
+        UniqueConstraint("chat_id", "user_id", "trigger_message_id", name="uq_ai_recovery_trigger"),
+        Index("ix_ai_recovery_chat_user", "chat_id", "user_id", "created_at"),
+    )
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(Integer, ForeignKey("chats.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    trigger_message_id = Column(Integer, ForeignKey("messages.id", ondelete="SET NULL"), nullable=True)
+    recovery_reason = Column(String(80), nullable=False)
+    strategy = Column(String(60), nullable=False)
+    prompt_version = Column(String(40), nullable=False)
+    status = Column(String(20), nullable=False, default="generated", server_default="generated")
+    outcome_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    evaluated_at = Column(DateTime, nullable=True)
+
+
+class AISuggestionRecord(Base):
+    """Private suggestion metadata; text stays in existing notification/API flow."""
+    __tablename__ = "ai_suggestion_records"
+    __table_args__ = (
+        Index("ix_ai_suggestion_chat_user", "chat_id", "user_id", "created_at"),
+    )
+    id = Column(Integer, primary_key=True)
+    intervention_id = Column(Integer, ForeignKey("ai_recovery_interventions.id", ondelete="SET NULL"), nullable=True)
+    chat_id = Column(Integer, ForeignKey("chats.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    suggestion_hash = Column(String(64), nullable=False)
+    strategy = Column(String(60), nullable=False)
+    prompt_version = Column(String(40), nullable=False)
+    model_id = Column(String(100), nullable=False)
+    validation_passed = Column(Boolean, nullable=False, default=True, server_default=text("true"))
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class AISuggestionEvent(Base):
+    """Append-only lifecycle events, scoped to the owning user and chat."""
+    __tablename__ = "ai_suggestion_events"
+    __table_args__ = (
+        UniqueConstraint("suggestion_id", "event_key", name="uq_ai_suggestion_event_key"),
+        Index("ix_ai_suggestion_event_chat_user", "chat_id", "user_id", "event_type"),
+    )
+    id = Column(Integer, primary_key=True)
+    suggestion_id = Column(Integer, ForeignKey("ai_suggestion_records.id", ondelete="CASCADE"), nullable=False)
+    chat_id = Column(Integer, ForeignKey("chats.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    event_key = Column(String(100), nullable=False)
+    event_type = Column(String(32), nullable=False)
+    details_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)

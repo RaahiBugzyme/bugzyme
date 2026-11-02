@@ -2,6 +2,8 @@
 
 import asyncio
 import contextlib
+import hashlib
+import json
 import logging
 import os
 import uuid
@@ -11,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 from fastapi import (
+    Body,
     Depends,
     FastAPI,
     HTTPException,
@@ -33,6 +36,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 from starlette.concurrency import run_in_threadpool
 from app.ai.graph import run_conversation_workflow
+from app.ai.death_zone import analyze_death_zone, is_death_zone
+from app.ai.targeting import analyze_participant_effort
+from app.ai.recovery_strategy import PROMPT_VERSION
+from app.ai.ai_evaluation import CLIENT_EVENTS, VALID_EVENTS, meaningful_response
 from . import models, schemas
 from . import storage as attachment_storage
 from .connection_manager import ConnectionManager
@@ -180,6 +187,7 @@ def ensure_user_profile_columns(connection):
         "bio": "ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT NULL",
         "ai_memory_enabled": "ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_memory_enabled BOOLEAN NOT NULL DEFAULT FALSE",
         "ai_memory_processed_through_message_id": "ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_memory_processed_through_message_id INTEGER NULL",
+        "activity_status_enabled": "ALTER TABLE users ADD COLUMN IF NOT EXISTS activity_status_enabled BOOLEAN NOT NULL DEFAULT TRUE",
     }
     existing = {column["name"] for column in inspect(connection).get_columns("users")}
     missing = [name for name in statements if name not in existing]
@@ -800,14 +808,30 @@ def set_online(
     if not user:
         return None
 
+    online = bool(online and user.activity_status_enabled)
+    was_online = bool(user.is_online)
     user.is_online = online
 
-    if not online:
+    if not online and was_online:
         user.last_seen = utcnow()
 
     db.commit()
 
-    return iso(user.last_seen)
+    return {
+        "is_online": online,
+        "activity_status_enabled": bool(user.activity_status_enabled),
+        "last_seen": iso(user.last_seen),
+    }
+
+
+def visible_online_ids(db: Session):
+    connected_ids = manager.online_ids()
+    if not connected_ids:
+        return []
+    return [row[0] for row in db.query(models.User.id).filter(
+        models.User.id.in_(connected_ids),
+        models.User.activity_status_enabled.is_(True),
+    ).all()]
 
 
 def load_context(
@@ -835,6 +859,7 @@ def load_context(
             "username": user.username,
             "partners": partners,
             "delivered": [],
+            "activity_status_enabled": user.activity_status_enabled,
         }
 
     query = db.query(models.Message).filter(
@@ -859,6 +884,7 @@ def load_context(
     return {
         "username": user.username,
         "partners": partners,
+        "activity_status_enabled": user.activity_status_enabled,
         "delivered": [
             (
                 message.sender_id,
@@ -897,7 +923,8 @@ async def safe_send(
 async def broadcast_presence(
     user_id: int,
     status: str,
-    last_seen=None
+    last_seen=None,
+    activity_status_enabled=None,
 ):
     payload = {
         "type": "presence",
@@ -905,10 +932,12 @@ async def broadcast_presence(
         "status": status,
         "last_seen": last_seen
     }
+    if activity_status_enabled is not None:
+        payload["activity_status_enabled"] = bool(activity_status_enabled)
 
     # Presence belongs to the user, not a chat. Send it to every connected
     # account so soft-deleted chats and chat-bound sockets cannot miss it.
-    for recipient_id in manager.online_ids() - {user_id}:
+    for recipient_id in manager.online_ids():
         await manager.send_to_user(
             recipient_id,
             payload
@@ -937,24 +966,26 @@ async def go_offline(user_id: int):
         if manager.is_online(user_id):
             return
 
-        last_seen = await db_call(
+        presence = await db_call(
             set_online,
             user_id,
             False
         )
 
         if manager.is_online(user_id):
-            await db_call(
+            presence = await db_call(
                 set_online,
                 user_id,
                 True
             )
-            return
+            if presence["is_online"]:
+                return
 
         await broadcast_presence(
             user_id,
             "offline",
-            last_seen
+            presence["last_seen"],
+            presence["activity_status_enabled"],
         )
 
     except Exception:
@@ -977,13 +1008,24 @@ async def process_message(
     origin=None,
     reply_to_id=None
 ):
-    message = await db_call(
-        save_message,
-        sender_id,
-        chat_id,
-        content,
-        reply_to_id
-    )
+    try:
+        message = await db_call(
+            save_message,
+            sender_id,
+            chat_id,
+            content,
+            reply_to_id
+        )
+    except Exception:
+        logger.exception("Message persistence failed for chat_id=%s", chat_id)
+        if origin is not None:
+            await safe_send(origin, {
+                "type": "message_failed",
+                "chat_id": chat_id,
+                "client_id": client_id,
+                "detail": "Message could not be saved. Please try again.",
+            })
+        return {"failed": True}
 
     if message is None:
         return None
@@ -1049,7 +1091,343 @@ async def process_message(
                 chat_id
             )
 
+    # Detection and suggestion preparation run after persistence/delivery so
+    # the normal send acknowledgement is never held up by the AI provider.
+    spawn(evaluate_ai_response(chat_id, sender_id, message["id"]))
+    spawn(prepare_death_zone_notification(chat_id, message["id"]))
+
     return message
+
+
+def _chat_ai_context(db: Session, chat_id: int):
+    rows = (
+        db.query(models.Message)
+        .filter(
+            models.Message.chat_id == chat_id,
+            models.Message.is_deleted.is_(False),
+            models.Message.message_type == "text",
+        )
+        .order_by(models.Message.id.desc())
+        .limit(60)
+        .all()
+    )
+    rows.reverse()
+    sender_ids = {row.sender_id for row in rows}
+    users = db.query(models.User).filter(models.User.id.in_(sender_ids)).all() if sender_ids else []
+    usernames = {user.id: user.username for user in users}
+    messages = [
+        {
+            "sender_name": usernames.get(row.sender_id, "Unknown"),
+            "sender_id": row.sender_id,
+            "message_id": row.id,
+            "content": row.content or "",
+            "created_at": row.created_at,
+        }
+        for row in rows if row.content and row.content.strip()
+    ]
+    return rows, messages, {user.id: user for user in users}
+
+
+def _notification_payload(notification: models.DeathZoneNotification) -> dict:
+    return {
+        "id": notification.id,
+        "chat_id": notification.chat_id,
+        "user_id": notification.user_id,
+        "event_key": notification.event_key,
+        "status": notification.status,
+        "suggestions": json.loads(notification.suggestions_json or "[]"),
+        "death_zone": json.loads(notification.death_zone_json or "{}"),
+        "created_at": iso(notification.created_at),
+        "viewed_at": iso(notification.viewed_at),
+        "expires_at": iso(notification.expires_at),
+        "active": notification.status == "ready" and (
+            notification.viewed_at is None or
+            (notification.expires_at is not None and notification.expires_at > utcnow())
+        ),
+    }
+
+
+def _persist_ai_suggestions(db: Session, chat_id: int, user_id: int,
+                            trigger_message_id: int | None, suggestions: list,
+                            recovery: dict | None = None) -> list:
+    """Best-effort lifecycle metadata; never persist suggestion text here."""
+    from app.ai.extraction import MODEL_NAME
+    recovery = recovery or {"strategy": "natural_continuation", "reason": "conversation_context"}
+    try:
+        intervention = db.query(models.AIRecoveryIntervention).filter_by(
+            chat_id=chat_id, user_id=user_id, trigger_message_id=trigger_message_id,
+        ).first()
+        if intervention is None:
+            intervention = models.AIRecoveryIntervention(
+                chat_id=chat_id, user_id=user_id, trigger_message_id=trigger_message_id,
+                recovery_reason=str(recovery.get("reason", "conversation_context"))[:80],
+                strategy=str(recovery.get("strategy", "natural_continuation"))[:60],
+                prompt_version=PROMPT_VERSION,
+            )
+            db.add(intervention)
+            db.flush()
+        result = []
+        for item in suggestions:
+            text = str(item.get("message", ""))
+            strategy = str(item.get("strategy") or (recovery.get("strategy") if item.get("style") == "natural" else item.get("style")))[:60]
+            record = models.AISuggestionRecord(
+                intervention_id=intervention.id, chat_id=chat_id, user_id=user_id,
+                suggestion_hash=hashlib.sha256(text.encode("utf-8")).hexdigest(),
+                strategy=strategy, prompt_version=PROMPT_VERSION,
+                model_id=MODEL_NAME, validation_passed=True,
+            )
+            db.add(record)
+            db.flush()
+            db.add(models.AISuggestionEvent(
+                suggestion_id=record.id, chat_id=chat_id, user_id=user_id,
+                event_key=f"generated-{record.id}", event_type="generated",
+            ))
+            result.append({**item, "suggestion_id": record.id, "strategy": strategy,
+                           "prompt_version": PROMPT_VERSION})
+        db.commit()
+        return result
+    except Exception:
+        db.rollback()
+        logger.exception("Could not persist AI suggestion lifecycle metadata for chat_id=%s", chat_id)
+        return suggestions
+
+
+def _record_suggestion_event(db: Session, suggestion_id: int, user_id: int,
+                             event_type: str, event_key: str, details: dict | None = None):
+    record = db.query(models.AISuggestionRecord).filter_by(
+        id=suggestion_id, user_id=user_id
+    ).first()
+    if record is None:
+        raise HTTPException(status_code=404, detail="AI suggestion not found")
+    if event_type not in VALID_EVENTS:
+        raise HTTPException(status_code=422, detail="Unsupported suggestion event")
+    # Unique event key makes retries idempotent while permitting repeated
+    # views/selections when the caller supplies a fresh event key.
+    event = models.AISuggestionEvent(
+        suggestion_id=record.id, chat_id=record.chat_id, user_id=user_id,
+        event_key=event_key[:100], event_type=event_type,
+        details_json=json.dumps(details or {}, ensure_ascii=False),
+    )
+    db.add(event)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+    if event_type == "user_feedback":
+        intervention = db.get(models.AIRecoveryIntervention, record.intervention_id) if record.intervention_id else None
+        if intervention:
+            rating = (details or {}).get("rating")
+            intervention.status = "unsuccessful" if rating == "not_helpful" else "user_endorsed" if rating == "helpful" else intervention.status
+            intervention.evaluated_at = utcnow()
+            intervention.outcome_json = json.dumps({"user_feedback": rating})
+            db.commit()
+            if rating == "not_helpful":
+                state = db.get(models.DeathZoneConversationState, record.chat_id)
+                if state:
+                    state.active = False
+                    state.target_user_id = None
+                    db.commit()
+    return {"ok": True}
+
+
+def _evaluate_ai_response(db: Session, chat_id: int, sender_id: int, message_id: int):
+    """Record observable outcomes only after the non-target participant replies."""
+    from app.ai.ai_evaluation import meaningful_response
+    intervention = db.query(models.AIRecoveryIntervention).filter(
+        models.AIRecoveryIntervention.chat_id == chat_id,
+        models.AIRecoveryIntervention.user_id != sender_id,
+        models.AIRecoveryIntervention.status == "generated",
+    ).order_by(models.AIRecoveryIntervention.created_at.desc()).first()
+    if intervention is None:
+        return
+    suggestion_rows = db.query(models.AISuggestionRecord).filter_by(
+        intervention_id=intervention.id,
+    ).all()
+    sent_ids = {
+        event.suggestion_id for event in db.query(models.AISuggestionEvent).filter(
+            models.AISuggestionEvent.event_type == "sent",
+            models.AISuggestionEvent.suggestion_id.in_([row.id for row in suggestion_rows] or [-1]),
+        ).all()
+    }
+    if not sent_ids:
+        return
+    message = db.get(models.Message, message_id)
+    if message is None or message.sender_id == intervention.user_id:
+        return
+    key = f"reply-{message_id}"
+    response_ok = meaningful_response(message.content)
+    rows = db.query(models.Message).filter(
+        models.Message.chat_id == chat_id,
+        models.Message.is_deleted.is_(False),
+        models.Message.message_type == "text",
+        models.Message.id <= message_id,
+    ).order_by(models.Message.id.desc()).limit(24).all()
+    rows.reverse()
+    baseline_rows = [row for row in rows if row.id <= (intervention.trigger_message_id or 0)][-24:]
+    from app.ai.user_engagement import analyze_engagement
+    before_score = analyze_engagement(baseline_rows)["scores"].get(str(intervention.user_id))
+    after_score = analyze_engagement(rows)["scores"].get(str(intervention.user_id))
+    improved = before_score is not None and after_score is not None and after_score >= before_score + 5
+    for row in suggestion_rows:
+        if row.id not in sent_ids:
+            continue
+        event_types = ["continued"]
+        if response_ok:
+            event_types.append("meaningful_response")
+        if improved:
+            event_types.append("engagement_improved")
+        for event_type in event_types:
+            event_key = f"{event_type}-{key}"
+            already_recorded = db.query(models.AISuggestionEvent).filter_by(
+                suggestion_id=row.id, event_key=event_key,
+            ).first()
+            if already_recorded:
+                continue
+            db.add(models.AISuggestionEvent(
+                suggestion_id=row.id, chat_id=chat_id, user_id=intervention.user_id,
+                event_key=event_key, event_type=event_type,
+                details_json=json.dumps({"reply_message_id": message_id,
+                                         "meaningful": response_ok,
+                                         "engagement_delta": round(after_score - before_score, 1) if improved else None}),
+            ))
+    intervention.status = "observed_improvement" if improved else "responded" if response_ok else "awaiting_more_context"
+    intervention.outcome_json = json.dumps({"reply_message_id": message_id, "meaningful_response": response_ok,
+                                             "engagement_before": before_score, "engagement_after": after_score,
+                                             "engagement_improved": improved})
+    intervention.evaluated_at = utcnow()
+    db.commit()
+
+
+async def evaluate_ai_response(chat_id: int, sender_id: int, message_id: int):
+    try:
+        await db_call(_evaluate_ai_response, chat_id, sender_id, message_id)
+    except Exception:
+        logger.exception("AI suggestion outcome evaluation failed for chat_id=%s", chat_id)
+
+
+def _prepare_death_zone_notification(db: Session, chat_id: int, trigger_message_id: int):
+    chat = db.get(models.Chat, chat_id)
+    if chat is None:
+        return None
+    state = db.get(models.DeathZoneConversationState, chat_id)
+    if state is None:
+        state = models.DeathZoneConversationState(chat_id=chat_id)
+        db.add(state)
+        db.flush()
+    rows, messages, users = _chat_ai_context(db, chat_id)
+    if not messages or not rows or rows[-1].id != trigger_message_id:
+        return None
+
+    analysis = analyze_death_zone(messages)
+    effort = analyze_participant_effort(messages)
+    target_id = effort.get("target_user_id")
+    qualifies = (
+        is_death_zone(analysis)
+        and effort.get("eligible") is True
+        and target_id in (chat.user1_id, chat.user2_id)
+    )
+    if not qualifies:
+        state.active = False
+        state.target_user_id = None
+        state.last_message_id = trigger_message_id
+        db.commit()
+        return None
+
+    if state.active and state.target_user_id == target_id:
+        state.last_message_id = trigger_message_id
+        db.commit()
+        return None
+
+    event_key = f"message-{trigger_message_id}"
+    existing = db.query(models.DeathZoneNotification).filter_by(
+        chat_id=chat_id, user_id=target_id, event_key=event_key
+    ).first()
+    if existing:
+        return None
+
+    # Claim this unique event before calling the model. A concurrent task will
+    # see the claim and skip, preventing duplicate suggestion generation.
+    notification = models.DeathZoneNotification(
+        chat_id=chat_id,
+        user_id=target_id,
+        event_key=event_key,
+        trigger_message_id=trigger_message_id,
+        status="generating",
+        death_zone_json=json.dumps({**analysis, "participant_effort": effort}, ensure_ascii=False),
+    )
+    db.add(notification)
+    state.active = True
+    state.target_user_id = target_id
+    state.last_message_id = trigger_message_id
+    try:
+        db.commit()
+        db.refresh(notification)
+    except IntegrityError:
+        db.rollback()
+        return None
+
+    target = users.get(target_id)
+    if target is None:
+        notification.status = "failed"
+        db.commit()
+        return None
+
+    try:
+        if target.ai_memory_enabled:
+            try:
+                from app.ai.memory import extract_and_save_opt_in_memories
+                extract_and_save_opt_in_memories(db, target, messages)
+            except Exception:
+                db.rollback()
+                logger.exception("Opt-in AI memory extraction failed for user_id=%s", target_id)
+        result = run_conversation_workflow(
+            db=db,
+            requesting_user_id=target_id,
+            requesting_user=target.username,
+            messages=messages,
+            chat_id=chat_id,
+        )
+        suggestions = (result.get("suggestion_result") or {}).get("suggestions", [])
+        if result.get("should_generate") is not True or len(suggestions) != 3:
+            notification.status = "failed"
+            state.active = False
+            state.target_user_id = None
+            db.commit()
+            return None
+        suggestions = _persist_ai_suggestions(
+            db, chat_id, target_id, trigger_message_id, suggestions,
+            result.get("recovery"),
+        )
+        notification.suggestions_json = json.dumps(suggestions, ensure_ascii=False)
+        notification.status = "ready"
+        db.commit()
+        db.refresh(notification)
+        return _notification_payload(notification)
+    except Exception:
+        db.rollback()
+        logger.exception("Automatic AI notification failed for chat_id=%s", chat_id)
+        failed = db.get(models.DeathZoneNotification, notification.id)
+        if failed:
+            failed.status = "failed"
+            failed_state = db.get(models.DeathZoneConversationState, chat_id)
+            if failed_state:
+                failed_state.active = False
+                failed_state.target_user_id = None
+            db.commit()
+        return None
+
+
+async def prepare_death_zone_notification(chat_id: int, trigger_message_id: int):
+    try:
+        payload = await db_call(_prepare_death_zone_notification, chat_id, trigger_message_id)
+        if payload and payload.get("active"):
+            await manager.send_to_user(
+                payload["user_id"],
+                {"type": "death_zone_notification", "notification": payload},
+                chat_id,
+            )
+    except Exception:
+        logger.exception("Death-zone notification preparation failed for chat_id=%s", chat_id)
 
 
 # ============================================================
@@ -1476,6 +1854,39 @@ def update_me_profile(
     return current_user
 
 
+@app.patch("/me/presence", response_model=schemas.PresencePreferenceResponse)
+async def update_presence_preference(
+    changes: schemas.PresencePreferenceUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    enabled = bool(changes.activity_status_enabled)
+    changed = current_user.activity_status_enabled != enabled
+    was_online = bool(current_user.is_online)
+    visible_online = enabled and manager.is_online(current_user.id)
+    current_user.activity_status_enabled = enabled
+    current_user.is_online = visible_online
+    if was_online and not visible_online:
+        current_user.last_seen = utcnow()
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+
+    last_seen = iso(current_user.last_seen)
+    if changed or was_online != visible_online:
+        await broadcast_presence(
+            current_user.id,
+            "online" if visible_online else "offline",
+            last_seen,
+            enabled,
+        )
+    return {
+        "activity_status_enabled": enabled,
+        "is_online": visible_online,
+        "last_seen": current_user.last_seen,
+    }
+
+
 @app.get("/me/ai-memories", response_model=list[schemas.UserMemoryResponse])
 def list_my_ai_memories(
     current_user: models.User = Depends(get_current_user),
@@ -1575,7 +1986,7 @@ def get_users(
             username=user.username,
             full_name=user.full_name,
             bio=user.bio,
-            is_online=manager.is_online(user.id),
+            is_online=manager.is_online(user.id) and user.activity_status_enabled,
             last_seen=user.last_seen,
         )
         for user in users
@@ -1792,7 +2203,7 @@ def list_chats(
                     username=partner.username,
                     full_name=partner.full_name,
                     bio=partner.bio,
-                    is_online=manager.is_online(partner.id),
+                    is_online=manager.is_online(partner.id) and partner.activity_status_enabled,
                     last_seen=partner.last_seen
                 ),
                 last_message=(
@@ -1969,9 +2380,173 @@ def get_messages(
 # AI CONVERSATION SUGGESTIONS
 # ============================================================
 
+@app.get("/ai-notifications")
+def list_ai_notifications(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    rows = db.query(models.DeathZoneNotification).filter(
+        models.DeathZoneNotification.user_id == current_user.id,
+        models.DeathZoneNotification.status == "ready",
+        or_(
+            models.DeathZoneNotification.viewed_at.is_(None),
+            models.DeathZoneNotification.expires_at > utcnow(),
+        ),
+    ).order_by(models.DeathZoneNotification.created_at.desc()).limit(100).all()
+    return {"notifications": [_notification_payload(row) for row in rows]}
+
+
+@app.post("/ai-notifications/{notification_id}/view")
+def view_ai_notification(
+    notification_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    notification = db.query(models.DeathZoneNotification).filter(
+        models.DeathZoneNotification.id == notification_id,
+        models.DeathZoneNotification.user_id == current_user.id,
+        models.DeathZoneNotification.status == "ready",
+    ).first()
+    if notification is None:
+        raise HTTPException(status_code=404, detail="AI notification not found")
+    now = utcnow()
+    if notification.viewed_at is None:
+        notification.viewed_at = now
+        notification.expires_at = now + timedelta(seconds=30)
+        db.commit()
+        db.refresh(notification)
+        for suggestion in json.loads(notification.suggestions_json or "[]"):
+            suggestion_id = suggestion.get("suggestion_id") if isinstance(suggestion, dict) else None
+            if suggestion_id:
+                try:
+                    _record_suggestion_event(
+                        db, suggestion_id, current_user.id, "viewed",
+                        f"notification-{notification.id}-view",
+                    )
+                except HTTPException:
+                    logger.info("Suggestion lifecycle row missing for notification=%s", notification.id)
+    payload = _notification_payload(notification)
+    return payload
+
+
+@app.post("/ai-suggestions/{suggestion_id}/events")
+def track_ai_suggestion_event(
+    suggestion_id: int,
+    payload: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    event_type = payload.get("event_type")
+    event_key = payload.get("event_key")
+    if not isinstance(event_key, str) or not event_key.strip():
+        raise HTTPException(status_code=422, detail="event_key is required")
+    details = payload.get("details") if isinstance(payload.get("details"), dict) else {}
+    if event_type not in CLIENT_EVENTS:
+        raise HTTPException(status_code=422, detail="Unsupported suggestion event")
+    if event_type == "user_feedback" and details.get("rating") not in {"helpful", "not_helpful"}:
+        raise HTTPException(status_code=422, detail="Feedback rating is invalid")
+    if event_type == "sent":
+        message_id = details.get("message_id")
+        record = db.query(models.AISuggestionRecord).filter_by(id=suggestion_id, user_id=current_user.id).first()
+        message = db.get(models.Message, message_id) if isinstance(message_id, int) else None
+        if record is None or message is None or message.chat_id != record.chat_id or message.sender_id != current_user.id:
+            raise HTTPException(status_code=422, detail="Sent event must reference your persisted chat message")
+        selected = db.query(models.AISuggestionEvent).filter_by(suggestion_id=suggestion_id, user_id=current_user.id, event_type="selected").first()
+        edited = db.query(models.AISuggestionEvent).filter_by(suggestion_id=suggestion_id, user_id=current_user.id, event_type="edited").first()
+        digest = hashlib.sha256((message.content or "").encode("utf-8")).hexdigest()
+        if selected is None or (digest != record.suggestion_hash and edited is None):
+            raise HTTPException(status_code=422, detail="Suggestion must be selected before it can be recorded as sent")
+    if event_type == "user_feedback":
+        details = {"rating": details["rating"]}
+    elif event_type == "viewed":
+        details = {}
+    elif event_type == "edited":
+        details = {"changed": bool(details.get("changed", True))}
+    elif event_type == "sent":
+        details = {"message_id": int(details["message_id"]), "edited": bool(details.get("edited", False))}
+    else:
+        details = {}
+    response = _record_suggestion_event(db, suggestion_id, current_user.id, event_type, event_key, details)
+    if event_type == "sent":
+        next_reply = db.query(models.Message).filter(
+            models.Message.chat_id == record.chat_id,
+            models.Message.id > message_id,
+            models.Message.sender_id != current_user.id,
+            models.Message.is_deleted.is_(False),
+        ).order_by(models.Message.id.asc()).first()
+        if next_reply:
+            _evaluate_ai_response(db, record.chat_id, next_reply.sender_id, next_reply.id)
+    return response
+
+
+@app.get("/chats/{chat_id}/coach")
+def get_private_conversation_coach(
+    chat_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    chat = db.get(models.Chat, chat_id)
+    if chat is None:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    if current_user.id not in (chat.user1_id, chat.user2_id):
+        raise HTTPException(status_code=403, detail="You are not a member of this chat")
+    _, messages, _ = _chat_ai_context(db, chat_id)
+    from app.ai.conversation_intelligence import build_conversation_intelligence
+    from app.ai.conversation_coach import CoachServiceError, generate_private_coaching
+    from app.ai.conversation_insights import build_conversation_insights
+    if not messages:
+        return {"chat_id": chat_id, "user_id": current_user.id,
+                "available": False, "reason": "no_context", "insights": []}
+    intelligence = build_conversation_intelligence(messages)
+    own = intelligence.get("participant_views", {}).get(str(current_user.id), {})
+    if not own:
+        return {"chat_id": chat_id, "user_id": current_user.id,
+                "available": False, "reason": "missing_profile", "insights": []}
+    shared = build_conversation_insights(messages)
+    try:
+        coaching = generate_private_coaching(messages, current_user.id, own, {
+            "mood": (shared.get("mood") or {}).get("state", "uncertain"),
+            "shared_topics": shared.get("shared_topics", []),
+            "engagement_trend": (shared.get("engagement_trend") or {}).get("state", "unknown"),
+        })
+    except CoachServiceError as exc:
+        logger.exception("Private coach generation failed for chat_id=%s user_id=%s code=%s",
+                         chat_id, current_user.id, exc.code)
+        if exc.code == "provider_not_configured":
+            raise HTTPException(status_code=503, detail={"code": exc.code, "message": "The AI coach is not configured on the server."}) from exc
+        if exc.code == "invalid_provider_response":
+            raise HTTPException(status_code=502, detail={"code": exc.code, "message": "The AI coach returned an invalid response. Please retry."}) from exc
+        raise HTTPException(status_code=503, detail={"code": exc.code, "message": "The AI coach service is temporarily unavailable. Please retry."}) from exc
+    except Exception as exc:
+        logger.exception("Unexpected private coach error for chat_id=%s user_id=%s", chat_id, current_user.id)
+        raise HTTPException(status_code=500, detail={"code": "coach_internal_error", "message": "Private coaching could not be prepared. Please retry."}) from exc
+    return {"chat_id": chat_id, "user_id": current_user.id, **coaching}
+
+
+@app.get("/chats/{chat_id}/insights")
+def get_private_conversation_insights(
+    chat_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    chat = db.get(models.Chat, chat_id)
+    if chat is None:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    if current_user.id not in (chat.user1_id, chat.user2_id):
+        raise HTTPException(status_code=403, detail="You are not a member of this chat")
+    _, messages, _ = _chat_ai_context(db, chat_id)
+    from app.ai.conversation_insights import build_conversation_insights
+    try:
+        report = build_conversation_insights(messages)
+    except Exception as exc:
+        logger.exception("Conversation insights failed for chat_id=%s user_id=%s", chat_id, current_user.id)
+        raise HTTPException(status_code=500, detail={"code": "insights_internal_error", "message": "Conversation insights could not be prepared. Please retry."}) from exc
+    return {"chat_id": chat_id, "user_id": current_user.id, **report}
+
 @app.post("/chats/{chat_id}/suggestions")
 def get_chat_suggestions(
     chat_id: int,
+    payload: dict = Body(default={}),
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -2030,6 +2605,7 @@ def get_chat_suggestions(
             "sender_id": message.sender_id,
             "message_id": message.id,
             "content": message.content or "",
+            "created_at": message.created_at,
         }
         for message in db_messages
         if message.content and message.content.strip()
@@ -2040,6 +2616,16 @@ def get_chat_suggestions(
             status_code=400,
             detail="No usable text messages available for AI analysis",
         )
+
+    avoid_suggestions = payload.get("avoid_suggestions", []) if isinstance(payload, dict) else []
+    if not isinstance(avoid_suggestions, list):
+        avoid_suggestions = []
+    avoid_suggestions = [item[:300] for item in avoid_suggestions if isinstance(item, str) and item.strip()][:3]
+
+    effort = analyze_participant_effort(messages)
+    death_zone = analyze_death_zone(messages)
+    # Manual suggestions are available to either chat participant.
+    # Automatic death-zone targeting remains unchanged.
 
     if current_user.ai_memory_enabled:
         try:
@@ -2056,6 +2642,9 @@ def get_chat_suggestions(
             requesting_user_id=current_user.id,
             requesting_user=current_user.username,
             messages=messages,
+            chat_id=chat_id,
+            avoid_suggestions=avoid_suggestions,
+            manual_request=True,
         )
     except Exception:
         logger.exception(
@@ -2070,16 +2659,21 @@ def get_chat_suggestions(
     # 7. Return death-zone analysis and suggestions
     death_zone = result.get("death_zone", {})
     suggestion_result = result.get("suggestion_result")
+    suggestions = (suggestion_result or {}).get("suggestions", [])
+    if suggestions:
+        suggestions = _persist_ai_suggestions(
+            db, chat_id, current_user.id, db_messages[-1].id,
+            suggestions, result.get("recovery"),
+        )
 
     return {
         "chat_id": chat_id,
         "death_zone": death_zone,
         "should_generate": result.get("should_generate", False),
-        "suggestions": (
-            suggestion_result.get("suggestions", [])
-            if suggestion_result
-            else []
-        ),
+        "target_user_id": current_user.id if result.get("should_generate") else result.get("participant_effort", {}).get("target_user_id"),
+        "eligible": result.get("should_generate", False),
+        "recovery": result.get("recovery", {}),
+        "suggestions": suggestions,
         "analysis": (
             suggestion_result.get("analysis")
             if suggestion_result
@@ -2140,15 +2734,12 @@ async def handle_socket(
 
     try:
         if first:
-            await db_call(
-                set_online,
-                user_id,
-                True
-            )
-
+            presence = await db_call(set_online, user_id, True)
             await broadcast_presence(
                 user_id,
-                "online"
+                "online" if presence["is_online"] else "offline",
+                presence["last_seen"],
+                presence["activity_status_enabled"],
             )
 
         await safe_send(
@@ -2157,10 +2748,9 @@ async def handle_socket(
                 "type": "ready",
                 "user_id": user_id,
                 "online_user_ids": [
-                    online_id
-                    for online_id in manager.online_ids()
+                    online_id for online_id in await db_call(visible_online_ids)
                     if online_id != user_id
-                ]
+                ],
             }
         )
 
@@ -2276,7 +2866,9 @@ async def handle_socket(
                     await safe_send(
                         websocket,
                         {
-                            "type": "error",
+                            "type": "message_failed",
+                            "chat_id": chat_id,
+                            "client_id": data.get("client_id"),
                             "detail": "Message too long"
                         }
                     )
@@ -2298,7 +2890,9 @@ async def handle_socket(
                     await safe_send(
                         websocket,
                         {
-                            "type": "error",
+                            "type": "message_failed",
+                            "chat_id": chat_id,
+                            "client_id": data.get("client_id"),
                             "detail":
                             "Not a member of this chat or invalid reply"
                         }

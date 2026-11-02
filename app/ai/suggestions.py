@@ -568,6 +568,9 @@ def _build_generation_prompts(
     requesting_user: str,
     feedback: Optional[str] = None,
     writing_style: Optional[Dict[str, Any]] = None,
+    intelligence_context: Optional[Dict[str, Any]] = None,
+    recovery_context: Optional[Dict[str, Any]] = None,
+    avoid_suggestions: Optional[List[str]] = None,
 ) -> List[Dict[str, str]]:
     """Build prompts for concise, context-aware replies."""
     language = _detect_language(transcript)
@@ -584,6 +587,14 @@ def _build_generation_prompts(
         else "No relevant saved memories were retrieved."
     )
 
+    intelligence_context = intelligence_context or {}
+    # Only the requesting participant's observable profile and conversation-
+    # shared evidence enter this prompt. Never serialize the other profile.
+    own_profile = intelligence_context.get("own_profile", {})
+    shared_topics = intelligence_context.get("shared_topics", [])
+    shared_mood = intelligence_context.get("shared_mood", {})
+    recovery_context = recovery_context or {}
+
     system_prompt = f"""
 You are Bugzyme's conversation suggestion engine for a dating and
 relationship-focused chat application.
@@ -597,6 +608,12 @@ Detected language: {language['language']}
 
 - Match the recent conversation's language, script and writing style.
 - Hinglish must use natural Roman-script Hindi-English code-switching.
+- IMPORTANT: For every Hinglish suggestion, include at least one naturally
+  fitting Roman Hindi word or phrase, such as "yaar", "haan", "hai",
+  "toh", "kya", "mujhe", "acha", "nahi" or "kaafi".
+- Do not write English sentences with only a Hindi greeting added.
+- Mix Hindi and English naturally, like a real Indian chat conversation.
+- Never force Hindi words where they do not fit the actual reply.
 - Hindi must use Devanagari.
 - English must use natural conversational English.
 - Do not translate the conversation into another language.
@@ -662,6 +679,21 @@ Relevant saved memories:
 Observed writing pattern from this user's own recent messages (light style
 hint only; do not infer personality):
 {json.dumps(writing_style or {}, ensure_ascii=False)}
+
+Additional observable communication cues for this user:
+{json.dumps(own_profile, ensure_ascii=False)}
+
+Conversation-supported shared topics (do not claim a topic is shared unless listed):
+{json.dumps(shared_topics, ensure_ascii=False)}
+
+Uncertain shared tone cues (use only as a light hint):
+{json.dumps(shared_mood, ensure_ascii=False)}
+
+Recovery approach selected from the actual conversation:
+{json.dumps(recovery_context, ensure_ascii=False)}
+Use this approach for the natural suggestion. The other two may offer
+distinct alternatives. Never encourage repeated messaging, pressure,
+manipulation, or sending a message automatically.
 """
 
     if feedback:
@@ -673,6 +705,10 @@ QUALITY ISSUES TO FIX:
 Regenerate all three replies. Correct the listed issues and follow
 the actual latest message. Do not invent plans or personal details.
 """
+
+    previous = [item.strip() for item in (avoid_suggestions or []) if isinstance(item, str) and item.strip()][:3]
+    if previous:
+        user_prompt += "\n\nDO NOT REPEAT THESE PREVIOUS SUGGESTIONS (create different wording and angle):\n" + "\n".join(f"- {item[:300]}" for item in previous)
 
     return [
         {"role": "system", "content": system_prompt},
@@ -743,6 +779,7 @@ def _validate_suggestions(
     suggestions: List[Dict[str, str]],
     transcript: str,
     analysis: Dict[str, str],
+    avoid_suggestions: Optional[List[str]] = None,
 ) -> Tuple[List[Dict[str, str]], List[str]]:
     """Validate structure, style, language, length and factual grounding."""
     issues: List[str] = []
@@ -808,6 +845,13 @@ def _validate_suggestions(
                     "Suggestions are repetitive. Make the three replies "
                     "meaningfully different."
                 )
+                break
+
+    previous = [_normalize_for_comparison(item) for item in (avoid_suggestions or []) if isinstance(item, str)]
+    for item in normalized:
+        for prior in previous:
+            if item and prior and (item == prior or item in prior or prior in item):
+                issues.append("A suggestion repeats a previously shown reply. Use a new conversational angle.")
                 break
 
     language = _detect_language(transcript)
@@ -1034,6 +1078,9 @@ def _generate_suggestions(
     memories: List[Dict[str, Any]],
     requesting_user: str,
     writing_style: Optional[Dict[str, Any]] = None,
+    intelligence_context: Optional[Dict[str, Any]] = None,
+    recovery_context: Optional[Dict[str, Any]] = None,
+    avoid_suggestions: Optional[List[str]] = None,
 ) -> List[Dict[str, str]]:
     """Generate exactly three validated, context-aware suggestions."""
     feedback: Optional[str] = None
@@ -1051,6 +1098,9 @@ def _generate_suggestions(
                 requesting_user=requesting_user,
                 feedback=feedback,
                 writing_style=writing_style,
+                intelligence_context=intelligence_context,
+                recovery_context=recovery_context,
+                avoid_suggestions=avoid_suggestions,
             )
 
             # Add explicit language requirements to the system prompt.
@@ -1117,6 +1167,7 @@ def _generate_suggestions(
                 suggestions=parsed,
                 transcript=transcript,
                 analysis=analysis,
+                avoid_suggestions=avoid_suggestions,
             )
 
             if not issues and len(valid) == 3:
@@ -1132,6 +1183,19 @@ def _generate_suggestions(
                 issues.extend(relevance_issues)
 
             feedback = "\n".join(f"- {issue}" for issue in issues)
+            if detected_language == "hinglish":
+                feedback += (
+                    "\n- IMPORTANT: Your previous Hinglish output was rejected "
+                    "because it sounded English-only."
+                    "\n- Rewrite ALL THREE suggestions in natural Roman-script "
+                    "Hindi-English code-switching."
+                    "\n- Each suggestion must contain at least one naturally "
+                    "fitting Roman Hindi expression, not just English."
+                    "\n- Use context-appropriate expressions such as yaar, "
+                    "haan, hai, toh, kya, mujhe, acha or kaafi."
+                    "\n- Never use Devanagari script."
+                )
+
             feedback += (
                 "\n- Respond to the literal latest message first."
                 "\n- Match the conversation's language and script."
@@ -1185,6 +1249,9 @@ def suggest_next_messages(
     requesting_user_id: int,
     requesting_user: str,
     messages: List[Any],
+    intelligence: Optional[Dict[str, Any]] = None,
+    recovery: Optional[Dict[str, Any]] = None,
+    avoid_suggestions: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """
     Analyze a conversation and generate three context-aware replies.
@@ -1239,6 +1306,13 @@ def suggest_next_messages(
         memories=memories,
         requesting_user=user_name,
         writing_style=writing_style,
+        intelligence_context={
+            "own_profile": (intelligence or {}).get("participant_views", {}).get(str(requesting_user_id), {}),
+            "shared_topics": (intelligence or {}).get("shared", {}).get("topics", {}).get("supported_shared_topics", []),
+            "shared_mood": (intelligence or {}).get("shared", {}).get("mood", {}),
+        },
+        recovery_context=recovery,
+        avoid_suggestions=avoid_suggestions,
     )
 
     if len(suggestions) != 3:
