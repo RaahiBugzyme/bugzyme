@@ -333,6 +333,10 @@ html[data-theme="light"] .tick{color:rgba(0,0,0,.35)}
 html[data-theme="light"] .tick.sent{color:rgba(0,0,0,.35)}
 html[data-theme="light"] .tick.delivered{color:rgba(0,0,0,.45)}
 html[data-theme="light"] .tick.seen{color:#0095F6}
+.message-link{color:#c4b5fd;text-decoration:underline;text-underline-offset:2px;word-break:break-all}
+.message-link:hover{color:#e9d5ff}
+html[data-theme="light"] .message-link{color:#7c3aed}
+html[data-theme="light"] .message-link:hover{color:#6d28d9}
 .msg-actions{
   display:flex;
   gap:5px;
@@ -1130,12 +1134,15 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
         <div class="toggle-sw" id="aiMemoryToggle" role="switch" aria-checked="false" onclick="event.stopPropagation();toggleAIMemory()"></div>
       </div>
       <div id="aiMemoryList" style="padding:8px 12px 12px"></div>
+      <div style="padding:0 12px 12px;display:flex;justify-content:flex-end">
+        <button type="button" onclick="clearAIMemories()" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.35);color:#fca5a5;font-size:.72rem;font-weight:700;padding:6px 12px;border-radius:16px;cursor:pointer;font-family:inherit">Clear all</button>
+      </div>
     </div>
     <!-- privacy -->
     <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px" class="fiu">Privacy & Safety <span class="e e-wiggle" style="display:inline-block;font-size:.9rem">🔒</span></div>
     <div class="settings-sec fiu">
       <div class="srow"><div class="srow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-wiggle">🔔</span></div><div class="srow-info"><div class="srow-title">Notifications</div><div class="srow-sub">In-app message alerts</div></div><div class="toggle-sw on" id="messageNotificationsToggle" role="switch" tabindex="0" aria-checked="true" aria-label="In-app message alerts" onclick="toggleMessageNotifications()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleMessageNotifications()}"></div></div>
-      <div class="srow"><div class="srow-icon" style="background:rgba(59,130,246,.2)"><span class="e e-float">✓✓</span></div><div class="srow-info"><div class="srow-title">Read Receipts</div><div class="srow-sub">Instagram-style Sent · Delivered · Seen</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="srow"><div class="srow-icon" style="background:rgba(59,130,246,.2)"><span class="e e-float">✓✓</span></div><div class="srow-info"><div class="srow-title">Read Receipts</div><div class="srow-sub">Instagram-style Sent · Delivered · Seen</div></div><div class="toggle-sw on" id="readReceiptsToggle" role="switch" aria-checked="true" onclick="toggleReadReceipts()"></div></div>
       <div class="srow" onclick="toggleActivityStatus()"><div class="srow-icon" style="background:rgba(245,158,11,.2)"><span class="e e-pulse">🟢</span></div><div class="srow-info"><div class="srow-title">Activity Status</div><div class="srow-sub">Show when you are online</div></div><div class="toggle-sw on" id="activityStatusToggle" role="switch" aria-checked="true" onclick="event.stopPropagation();toggleActivityStatus()"></div></div>
     </div>
     
@@ -1437,6 +1444,7 @@ let reactionEventSequence = 0;
 const ATTACHMENT_OBJECT_URLS = new Map();
 let attachmentUploadInProgress = false;
 let messageNotificationsEnabled = localStorage.getItem('raahi_message_notifications') !== 'false';
+let readReceiptsEnabled = localStorage.getItem('raahi_read_receipts') !== 'false';
 let CHAT_NOTIFICATION_PREFS = {};
 try{
   const savedChatNotificationPrefs = JSON.parse(localStorage.getItem('raahi_chat_notifications') || '{}');
@@ -1750,6 +1758,11 @@ function syncNotificationToggleUI(){
     chatToggle.classList.toggle('on', enabled);
     chatToggle.setAttribute('aria-checked', String(enabled));
   }
+  const rrToggle = document.getElementById('readReceiptsToggle');
+  if (rrToggle){
+    rrToggle.classList.toggle('on', readReceiptsEnabled);
+    rrToggle.setAttribute('aria-checked', String(readReceiptsEnabled));
+  }
 }
 
 function toggleMessageNotifications(){
@@ -1757,6 +1770,17 @@ function toggleMessageNotifications(){
   localStorage.setItem('raahi_message_notifications', String(messageNotificationsEnabled));
   syncNotificationToggleUI();
   toast(messageNotificationsEnabled ? '🔔 In-app alerts enabled' : '🔕 In-app alerts muted');
+}
+
+function toggleReadReceipts(){
+  readReceiptsEnabled = !readReceiptsEnabled;
+  localStorage.setItem('raahi_read_receipts', String(readReceiptsEnabled));
+  const el = document.getElementById('readReceiptsToggle');
+  if (el){
+    el.classList.toggle('on', readReceiptsEnabled);
+    el.setAttribute('aria-checked', readReceiptsEnabled ? 'true' : 'false');
+  }
+  toast(readReceiptsEnabled ? '✓✓ Read receipts on (Instagram style)' : 'Read receipts off');
 }
 
 function toggleChatNotifications(){
@@ -2061,7 +2085,45 @@ function filterConvs(q){
 }
 function escapeHTML(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
+function linkifyMessageText(value){
+  const text = typeof value === 'string' ? value : '';
+  const urlPattern = /https?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi;
+  let html = '';
+  let cursor = 0;
+  for (const match of text.matchAll(urlPattern)){
+    const rawUrl = match[0];
+    const index = match.index ?? 0;
+    html += escapeHTML(text.slice(cursor, index));
 
+    let candidate = rawUrl;
+    let punctuation = '';
+    while (/[.,!?;:]$/.test(candidate)){
+      punctuation = candidate.slice(-1) + punctuation;
+      candidate = candidate.slice(0, -1);
+    }
+    for (const [open, close] of [['(', ')'], ['[', ']'], ['{', '}']]){
+      while (candidate.endsWith(close) && candidate.split(close).length - 1 > candidate.split(open).length - 1){
+        punctuation = close + punctuation;
+        candidate = candidate.slice(0, -1);
+      }
+    }
+
+    const href = /^www\./i.test(candidate) ? `https://${candidate}` : candidate;
+    try {
+      const parsed = new URL(href);
+      if ((parsed.protocol === 'https:' || parsed.protocol === 'http:') && parsed.hostname){
+        html += `<a class="message-link" href="${escapeHTML(parsed.href)}" target="_blank" rel="noopener noreferrer nofollow">${escapeHTML(candidate)}</a>`;
+      } else {
+        html += escapeHTML(candidate);
+      }
+    } catch(_){
+      html += escapeHTML(candidate);
+    }
+    html += escapeHTML(punctuation);
+    cursor = index + rawUrl.length;
+  }
+  return html + escapeHTML(text.slice(cursor));
+}
 
 
 /* ═══════════════════════════════════════════════════
@@ -2230,6 +2292,17 @@ async function deleteAIMemory(id){
     await loadAIMemories();
     toast('Memory deleted');
   } catch (err) { toast('❌ ' + err.message); }
+}
+
+async function clearAIMemories(){
+  if (!confirm('Clear all saved AI memories? Old messages will not be reprocessed automatically.')) return;
+  try {
+    await api('/me/ai-memories', { method: 'DELETE' });
+    await loadAIMemories();
+    toast('All saved memories cleared');
+  } catch (err) {
+    toast('❌ ' + err.message);
+  }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2863,7 +2936,7 @@ else if (msg.message_type === 'image' || msg.message_type === 'file') {
     <div class="bubble">
       ${replyHTML}
       ${attachmentContent}
-      ${msg.content ? `<div style="margin-top:6px;white-space:pre-wrap">${escapeHTML(msg.content)}</div>` : ''}
+      ${msg.content ? `<div style="margin-top:6px;white-space:pre-wrap">${linkifyMessageText(msg.content)}</div>` : ''}
       <div class="bubble-time">${fmtTime(msg.created_at)} ${tick}</div>
     </div>
     ${actions}
@@ -2903,8 +2976,8 @@ else {
 
       ${replyHTML}
 
-      <div>
-        ${escapeHTML(msg.content || '')}
+      <div style="white-space:pre-wrap">
+        ${linkifyMessageText(msg.content || '')}
       </div>
 
       <div class="bubble-time">
