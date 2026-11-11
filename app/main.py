@@ -221,6 +221,9 @@ async def lifespan(_: FastAPI):
         )
         db.commit()
 
+    from app.ai.memory_diagnostics import log_memory_snapshot
+    log_memory_snapshot("Startup Complete")
+
     yield
 
 
@@ -2636,6 +2639,8 @@ def get_chat_suggestions(
             logger.exception("Opt-in AI memory extraction failed for user_id=%s", current_user.id)
 
     # 6. Run the LangGraph workflow
+    from app.ai.memory_diagnostics import get_process_rss_mb
+    rss_before = get_process_rss_mb()
     try:
         result = run_conversation_workflow(
             db=db,
@@ -2648,8 +2653,9 @@ def get_chat_suggestions(
         )
     except Exception:
         logger.exception(
-            "AI suggestion workflow failed for chat_id=%s",
+            "AI suggestion workflow failed for chat_id=%s (RSS: %.2f MB)",
             chat_id,
+            get_process_rss_mb(),
         )
         raise HTTPException(
             status_code=500,
@@ -2657,6 +2663,14 @@ def get_chat_suggestions(
         )
 
     # 7. Return death-zone analysis and suggestions
+    rss_after = get_process_rss_mb()
+    logger.info(
+        "AI suggestions prepared for chat_id=%s (RSS: %.2f MB -> %.2f MB, delta: %+.2f MB)",
+        chat_id,
+        rss_before,
+        rss_after,
+        rss_after - rss_before,
+    )
     death_zone = result.get("death_zone", {})
     suggestion_result = result.get("suggestion_result")
     suggestions = (suggestion_result or {}).get("suggestions", [])
