@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+<script>
+try {
+  const savedTheme = localStorage.getItem('raahi_theme');
+  document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
+} catch (_) {
+  document.documentElement.dataset.theme = 'dark';
+}
+</script>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
@@ -317,8 +325,14 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .bubble-time{font-size:.62rem;opacity:.55;margin-top:4px;display:flex;
   align-items:center;gap:3px}
 .me .bubble-time{justify-content:flex-end}
-.tick{transition:color .3s}
-.tick.seen{color:#4ade80}
+.tick{transition:color .25s,opacity .25s;font-size:.78rem;letter-spacing:-.04em;opacity:.75;color:rgba(255,255,255,.45)}
+.tick.sent{color:rgba(255,255,255,.45);opacity:.8}
+.tick.delivered{color:rgba(255,255,255,.55);opacity:.9}
+.tick.seen{color:#0095F6;opacity:1}
+html[data-theme="light"] .tick{color:rgba(0,0,0,.35)}
+html[data-theme="light"] .tick.sent{color:rgba(0,0,0,.35)}
+html[data-theme="light"] .tick.delivered{color:rgba(0,0,0,.45)}
+html[data-theme="light"] .tick.seen{color:#0095F6}
 .msg-actions{
   display:flex;
   gap:5px;
@@ -1084,27 +1098,45 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
       </div>
       <button onclick="openModal('mAvatar')" style="padding:8px 15px;border-radius:20px;background:linear-gradient(135deg,var(--ep),var(--es));border:none;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer"><span class="e e-wiggle" style="display:inline-block">✏️</span> Edit</button>
     </div>
-    <!-- era select -->
-    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px" class="fiu">Your Era <span class="e e-orbit" style="display:inline-block">🌀</span></div>
-    <div class="era-grid-s fiu" id="eraGridS"></div>
-    <!-- gemini -->
-    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px;margin-top:4px" class="fiu">Gemini AI <span class="e e-spin" style="display:inline-block">🤖</span></div>
+    <!-- profile editor -->
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px" class="fiu">Profile <span class="e e-float" style="display:inline-block">👤</span></div>
+    <div class="settings-sec fiu" id="profileEditor" style="padding:14px">
+      <div class="profile-field">
+        <label for="profileFullName">Display name</label>
+        <input id="profileFullName" maxlength="80" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="profile-field">
+        <label for="profileBioEditor">Bio</label>
+        <textarea id="profileBioEditor" maxlength="500" placeholder="A short bio…"></textarea>
+      </div>
+      <button class="btn-pill btn-grad" id="saveProfileBtn" type="button" style="width:100%;animation:none" onclick="saveMyProfile()">Save profile</button>
+      <div class="profile-save-status" id="profileSaveStatus"></div>
+    </div>
+    <!-- appearance -->
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px;margin-top:4px" class="fiu">Appearance</div>
     <div class="settings-sec fiu">
-      <div class="gem-key-row">
-        <input type="password" class="gem-key-inp" id="gemKeyInp" placeholder="Enter Gemini API key…" oninput="APP.gemKey=this.value">
-        <button class="gem-test-btn" onclick="testGemini()"><span class="e e-bounce" style="display:inline-block">⚡</span> Test</button>
+      <div class="srow" onclick="toggleTheme()">
+        <div class="srow-icon" style="background:rgba(168,85,247,.2)"><span id="themeModeIcon">☾</span></div>
+        <div class="srow-info"><div class="srow-title" id="themeModeTitle">Dark mode</div><div class="srow-sub" id="themeModeDescription">Purple night is active · tap to switch</div></div>
+        <div class="toggle-sw on" id="themeModeToggle" role="switch" aria-checked="true" onclick="event.stopPropagation();toggleTheme()"></div>
       </div>
-      <div id="keyStatusEl" style="padding:0 12px 10px;font-size:.73rem;color:var(--muted)">
-        <span class="gem-badge"><span class="e e-wiggle" style="display:inline-block">🤖</span> Free · Gemini 1.5 Flash</span>
+    </div>
+    <!-- AI memory -->
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px;margin-top:4px" class="fiu">AI Memory</div>
+    <div class="settings-sec fiu">
+      <div class="srow" onclick="toggleAIMemory()">
+        <div class="srow-icon" style="background:rgba(168,85,247,.2)">✦</div>
+        <div class="srow-info"><div class="srow-title">Personal AI memory</div><div class="srow-sub">Let AI remember useful chat context</div></div>
+        <div class="toggle-sw" id="aiMemoryToggle" role="switch" aria-checked="false" onclick="event.stopPropagation();toggleAIMemory()"></div>
       </div>
+      <div id="aiMemoryList" style="padding:8px 12px 12px"></div>
     </div>
     <!-- privacy -->
     <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:8px" class="fiu">Privacy & Safety <span class="e e-wiggle" style="display:inline-block;font-size:.9rem">🔒</span></div>
     <div class="settings-sec fiu">
-      <div class="srow"><div class="srow-icon" style="background:rgba(34,197,94,.2)"><span class="e e-float">📍</span></div><div class="srow-info"><div class="srow-title">Location Sharing</div><div class="srow-sub">Share city with matches</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
       <div class="srow"><div class="srow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-wiggle">🔔</span></div><div class="srow-info"><div class="srow-title">Notifications</div><div class="srow-sub">In-app message alerts</div></div><div class="toggle-sw on" id="messageNotificationsToggle" role="switch" tabindex="0" aria-checked="true" aria-label="In-app message alerts" onclick="toggleMessageNotifications()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleMessageNotifications()}"></div></div>
-      <div class="srow"><div class="srow-icon" style="background:rgba(59,130,246,.2)"><span class="e e-float">✓✓</span></div><div class="srow-info"><div class="srow-title">Read Receipts</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
-      <div class="srow"><div class="srow-icon" style="background:rgba(245,158,11,.2)"><span class="e e-pulse">🟢</span></div><div class="srow-info"><div class="srow-title">Activity Status</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="srow"><div class="srow-icon" style="background:rgba(59,130,246,.2)"><span class="e e-float">✓✓</span></div><div class="srow-info"><div class="srow-title">Read Receipts</div><div class="srow-sub">Instagram-style Sent · Delivered · Seen</div></div><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="srow" onclick="toggleActivityStatus()"><div class="srow-icon" style="background:rgba(245,158,11,.2)"><span class="e e-pulse">🟢</span></div><div class="srow-info"><div class="srow-title">Activity Status</div><div class="srow-sub">Show when you are online</div></div><div class="toggle-sw on" id="activityStatusToggle" role="switch" aria-checked="true" onclick="event.stopPropagation();toggleActivityStatus()"></div></div>
     </div>
     
     <div class="srow" onclick="promptServerUrl()"><div class="srow-icon" style="background:rgba(6,182,212,.2)"><span class="e e-spin">🌐</span></div><div class="srow-info"><div class="srow-title">Backend Server<div class="srow-sub" id="srvUrlLbl">https://bugzyme-backend-51xq.onrender.com</div>></div></div></div>
@@ -1161,8 +1193,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 <div class="modal-overlay" id="mChatSettings" onclick="closeOverlay(event,this)">
   <div class="modal-sheet"><div class="modal-drag"></div>
     <div class="modal-hdr"><div class="modal-title"><span class="e e-spin" style="display:inline-block">⚙️</span> Chat Settings</div><button class="modal-close" onclick="closeModal('mChatSettings')">✕</button></div>
-    <div class="modal-body">
-      <div class="mrow" onclick="openGame()"><div class="mrow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-wiggle">🎮</span></div><div><div class="mrow-text">Play a Game</div><div class="mrow-sub">Would You Rather · Truth · Dare</div></div></div>
+    <div class="modal-body"></div>
       <div class="mrow" onclick="closeModal('mChatSettings');openAISuggestions()"><div class="mrow-icon" style="background:rgba(168,85,247,.2)"><span class="e e-spin">✦</span></div><div><div class="mrow-text">AI Suggestions</div><div class="mrow-sub">Reply ideas, coach & insights</div></div></div>
       <div class="mrow" onclick="toast('📋 Viewing profile…');closeModal('mChatSettings')"><div class="mrow-icon" style="background:rgba(34,197,94,.2)"><span class="e e-float">📋</span></div><div class="mrow-text">View Profile</div></div>
       <div class="mrow" onclick="toast('🔇 Muted');closeModal('mChatSettings')"><div class="mrow-icon" style="background:rgba(255,255,255,.08)"><span class="e e-pulse">🔇</span></div><div class="mrow-text">Mute Conversation</div></div>
@@ -1259,26 +1290,10 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   </div>
 </div>
 
-<!-- Gemini AI -->
-<div class="modal-overlay" id="mGemini" onclick="closeOverlay(event,this)">
-  <div class="modal-sheet"><div class="modal-drag"></div>
-    <div class="modal-hdr"><div class="modal-title"><span class="e e-spin" style="display:inline-block">🤖</span> Gemini AI</div><button class="modal-close" onclick="closeModal('mGemini')">✕</button></div>
-    <div class="modal-body">
-      <div class="gem-badge" style="margin-bottom:10px"><span class="e e-wiggle" style="display:inline-block">🤖</span> Free · Gemini 1.5 Flash</div>
-      <div class="gem-tabs"><button class="gem-tab act" id="gTabDraft" onclick="switchGemTab('draft')">✍️ Draft Reply</button><button class="gem-tab" id="gTabExplain" onclick="switchGemTab('explain')">💭 Explain</button></div>
-      <div id="gemContent"></div>
-    </div>
-  </div>
+
 </div>
 
-<!-- Game -->
-<div class="modal-overlay" id="mGame" onclick="closeOverlay(event,this)">
-  <div class="modal-sheet"><div class="modal-drag"></div>
-    <div class="modal-hdr"><div class="modal-title"><span class="e e-wiggle" style="display:inline-block">🎮</span> Play a Game</div><button class="modal-close" onclick="closeModal('mGame')">✕</button></div>
-    <div class="modal-body" id="gameBody">
-    </div>
-  </div>
-</div>
+
 
 <!-- Notifications -->
 <div class="modal-overlay" id="mNotifications" role="dialog" aria-modal="true" aria-labelledby="notificationsTitle" onclick="closeOverlay(event,this)">
@@ -1598,6 +1613,11 @@ function showScreen(id){
 }
 
 function showTab(screenId, navId){
+  if (screenId === 'sSettings') {
+    syncProfileFields();
+    if (AUTH.me && AUTH.me.ai_memory_enabled) loadAIMemories().catch(()=>{});
+  }
+
 
   showScreen(screenId);
 
@@ -1772,9 +1792,9 @@ function openModal(id){
   document.getElementById(id).classList.add('open');
   if (id==='mEmoji')  initEmojiPicker();
   if (id==='mAvatar') initAvatarCreator();
-  if (id==='mGemini'){ closeModal('mGemini'); openAISuggestions(); }
+  
   if (id==='mVoice')  startVoice();
-  if (id==='mGame')   buildGameMenu();
+  
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function closeOverlay(e, el){ if (e.target === el) closeModal(el.id); }
@@ -1830,7 +1850,10 @@ async function boot(){
   showTab('sMatches','navMatches');
   renderMatchesScreen();
   await Promise.all([loadUsers(), loadChats()]);
+  applyTheme(document.documentElement.dataset.theme || 'dark', false);
+  syncProfileFields();
   refreshAINotifications().catch(()=>{});
+  if (AUTH.me && AUTH.me.ai_memory_enabled) loadAIMemories().catch(()=>{});
 }
 function logout(silent){
   chatLoadSessionGeneration++;
@@ -1943,6 +1966,8 @@ async function loadUsers(){
   renderNewMatchRow();
 }
 function renderMatchesScreen(){
+  // Era picker removed from product UI; keep purple defaults.
+
   const e = ERA[APP.era];
   const hdrE = document.getElementById('hdrEmojiEl');
   hdrE.textContent = e.emoji; hdrE.className = `e ${e.emojiCls}`;
@@ -2037,6 +2062,175 @@ function filterConvs(q){
 function escapeHTML(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 
+
+
+/* ═══════════════════════════════════════════════════
+   THEME · PROFILE · ACTIVITY · AI MEMORY
+═══════════════════════════════════════════════════ */
+let profileSaveInProgress = false;
+let activityStatusToggleInFlight = false;
+
+function applyTheme(theme, persist = true){
+  const selected = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = selected;
+  if (persist){
+    try { localStorage.setItem('raahi_theme', selected); } catch(_){}
+  }
+  const isDark = selected === 'dark';
+  const toggle = document.getElementById('themeModeToggle');
+  const title = document.getElementById('themeModeTitle');
+  const description = document.getElementById('themeModeDescription');
+  const icon = document.getElementById('themeModeIcon');
+  if (toggle){
+    toggle.classList.toggle('on', isDark);
+    toggle.setAttribute('aria-checked', String(isDark));
+  }
+  if (title) title.textContent = 'Dark mode';
+  if (description) description.textContent = isDark ? 'Purple night is active · tap for light' : 'Light mode is active · tap for dark';
+  if (icon) icon.textContent = isDark ? '☾' : '☀';
+}
+function toggleTheme(){
+  const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  applyTheme(next);
+  toast(next === 'dark' ? 'Dark mode on' : 'Light mode on');
+}
+function syncProfileFields(){
+  if (!AUTH.me) return;
+  const nameEl = document.getElementById('settingsName');
+  if (nameEl) nameEl.textContent = AUTH.me.full_name || AUTH.me.username || 'Your Profile';
+  const fullNameInput = document.getElementById('profileFullName');
+  const bioInput = document.getElementById('profileBioEditor');
+  if (fullNameInput && document.activeElement !== fullNameInput) fullNameInput.value = AUTH.me.full_name || '';
+  if (bioInput && document.activeElement !== bioInput) bioInput.value = AUTH.me.bio || '';
+  const memoryToggle = document.getElementById('aiMemoryToggle');
+  if (memoryToggle){
+    memoryToggle.classList.toggle('on', !!AUTH.me.ai_memory_enabled);
+    memoryToggle.setAttribute('aria-checked', String(!!AUTH.me.ai_memory_enabled));
+  }
+  syncActivityStatusToggle();
+}
+function setProfileSaveStatus(message, kind = ''){
+  const status = document.getElementById('profileSaveStatus');
+  if (!status) return;
+  status.textContent = message || '';
+  status.className = `profile-save-status${kind ? ` is-${kind}` : ''}`;
+}
+async function saveMyProfile(){
+  if (profileSaveInProgress || !AUTH.me) return;
+  const full_name = (document.getElementById('profileFullName')?.value || '').trim();
+  const bio = (document.getElementById('profileBioEditor')?.value || '').trim();
+  if (full_name.length > 80){ setProfileSaveStatus('Name must be 80 characters or fewer.', 'error'); return; }
+  if (bio.length > 500){ setProfileSaveStatus('Bio must be 500 characters or fewer.', 'error'); return; }
+  const button = document.getElementById('saveProfileBtn');
+  profileSaveInProgress = true;
+  if (button){ button.disabled = true; }
+  setProfileSaveStatus('Saving…', 'saving');
+  try {
+    const saved = await api('/me', { method:'PATCH', body: JSON.stringify({ full_name, bio }) });
+    AUTH.me = saved;
+    syncProfileFields();
+    setProfileSaveStatus('Profile saved.', 'success');
+    toast('Profile saved');
+  } catch (err) {
+    setProfileSaveStatus(err.message || 'Could not save profile.', 'error');
+    toast('❌ ' + err.message);
+  } finally {
+    profileSaveInProgress = false;
+    if (button) button.disabled = false;
+  }
+}
+function syncActivityStatusToggle(busy = false){
+  const toggle = document.getElementById('activityStatusToggle');
+  if (!toggle) return;
+  const enabled = !AUTH.me || AUTH.me.activity_status_enabled !== false;
+  toggle.classList.toggle('on', enabled);
+  toggle.setAttribute('aria-checked', String(enabled));
+  toggle.style.pointerEvents = busy ? 'none' : '';
+  toggle.style.opacity = busy ? '.65' : '';
+}
+async function toggleActivityStatus(){
+  if (!AUTH.me || activityStatusToggleInFlight) return;
+  const previous = AUTH.me.activity_status_enabled !== false;
+  const enabled = !previous;
+  activityStatusToggleInFlight = true;
+  syncActivityStatusToggle(true);
+  try {
+    const result = await api('/me/presence', {
+      method: 'PATCH',
+      body: JSON.stringify({ activity_status_enabled: enabled })
+    });
+    AUTH.me.activity_status_enabled = result.activity_status_enabled;
+    AUTH.me.is_online = result.is_online;
+    if (ONLINE_USER_IDS){
+      if (!result.is_online) ONLINE_USER_IDS.delete(String(AUTH.me.id));
+      else ONLINE_USER_IDS.add(String(AUTH.me.id));
+    }
+    syncActivityStatusToggle();
+    toast(enabled ? 'Online status visible' : 'Online status hidden');
+  } catch (error) {
+    AUTH.me.activity_status_enabled = previous;
+    syncActivityStatusToggle();
+    toast('Could not update online status');
+  } finally {
+    activityStatusToggleInFlight = false;
+    syncActivityStatusToggle();
+  }
+}
+async function toggleAIMemory(){
+  if (!AUTH.me) return;
+  const enabled = !AUTH.me.ai_memory_enabled;
+  try {
+    AUTH.me = await api('/me', { method:'PATCH', body: JSON.stringify({ ai_memory_enabled: enabled }) });
+    syncProfileFields();
+    if (enabled) await loadAIMemories();
+    else {
+      const list = document.getElementById('aiMemoryList');
+      if (list) list.innerHTML = '';
+    }
+    toast(enabled ? 'AI memory enabled' : 'AI memory paused');
+  } catch (err) {
+    toast('❌ ' + err.message);
+  }
+}
+async function loadAIMemories(){
+  const list = document.getElementById('aiMemoryList');
+  if (!list) return;
+  list.innerHTML = '<div class="srow-sub">Loading memories…</div>';
+  try {
+    const memories = await api('/me/ai-memories');
+    if (!Array.isArray(memories) || !memories.length){
+      list.innerHTML = '<div class="srow-sub">No saved memories yet.</div>';
+      return;
+    }
+    list.innerHTML = memories.map(memory => `
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div style="flex:1;min-width:0;font-size:.82rem;color:var(--text)">${escapeHTML(memory.memory_text || '')}
+          <div class="srow-sub">${escapeHTML(memory.memory_type || '')}</div>
+        </div>
+        <button class="btn-pill btn-ghost" type="button" style="padding:6px 10px;font-size:.72rem" onclick="editAIMemory(${Number(memory.id)})">Edit</button>
+        <button class="btn-pill btn-ghost" type="button" style="padding:6px 10px;font-size:.72rem" onclick="deleteAIMemory(${Number(memory.id)})">Delete</button>
+      </div>`).join('');
+  } catch (err) {
+    list.innerHTML = `<div class="srow-sub">${escapeHTML(err.message || 'Failed to load')}</div>`;
+  }
+}
+async function editAIMemory(id){
+  const value = prompt('Update this memory:');
+  if (value === null) return;
+  try {
+    await api('/me/ai-memories/' + id, { method:'PATCH', body: JSON.stringify({ memory_text: value }) });
+    await loadAIMemories();
+    toast('Memory updated');
+  } catch (err) { toast('❌ ' + err.message); }
+}
+async function deleteAIMemory(id){
+  if (!confirm('Delete this memory?')) return;
+  try {
+    await api('/me/ai-memories/' + id, { method:'DELETE' });
+    await loadAIMemories();
+    toast('Memory deleted');
+  } catch (err) { toast('❌ ' + err.message); }
+}
 
 /* ═══════════════════════════════════════════════════
    AI SUGGESTIONS / COACH / INSIGHTS / NOTIFICATIONS
@@ -2421,18 +2615,14 @@ const tickState = msg.is_read
     );
 
 
+const tickClass = tickState === 'read'
+  ? 'tick seen'
+  : (tickState === 'delivered' ? 'tick delivered' : (tickState === 'sent' ? 'tick sent' : 'tick'));
+const tickGlyph = tickState === 'pending'
+  ? '○'
+  : (tickState === 'sent' ? '✓' : '✓✓');
 const tick = isMine
-  ? `
-    <span class="tick${tickState === 'read' ? ' seen' : ''}">
-      ${
-        tickState === 'pending'
-          ? '⏳'
-          : tickState === 'sent'
-            ? '✓'
-            : '✓✓'
-      }
-    </span>
-  `
+  ? `<span class="${tickClass}" title="${tickState === 'read' ? 'Seen' : (tickState === 'delivered' ? 'Delivered' : (tickState === 'sent' ? 'Sent' : 'Sending…'))}">${tickGlyph}</span>`
   : '';
 
 
@@ -3133,8 +3323,14 @@ setTimeout(() => {
 
   if (!e || !e.tick) return;
 
-  e.tick.textContent = '✓✓';
-  e.tick.classList.toggle('seen', state === 'read');
+  const normalized = state === 'read' ? 'read' : (state === 'delivered' ? 'delivered' : (state === 'sent' ? 'sent' : state));
+  e.tick.className = 'tick' + (
+    normalized === 'read' ? ' seen' :
+    normalized === 'delivered' ? ' delivered' :
+    normalized === 'sent' ? ' sent' : ''
+  );
+  e.tick.textContent = (normalized === 'sent' || normalized === 'pending') ? (normalized === 'pending' ? '○' : '✓') : '✓✓';
+  e.tick.title = normalized === 'read' ? 'Seen' : (normalized === 'delivered' ? 'Delivered' : (normalized === 'sent' ? 'Sent' : 'Sending…'));
 }
 function startReply(messageId){
   const arr = MSG_CACHE.get(APP.currentChatId) || [];
@@ -3518,8 +3714,7 @@ function confirmSent(d){
       }
     }
     if (e.tick){
-      e.tick.textContent = '✓';
-      e.tick.classList.remove('seen');
+      setTick(d.client_id, 'sent');
     }
 
     const t = e.row.querySelector('.bubble-time');
