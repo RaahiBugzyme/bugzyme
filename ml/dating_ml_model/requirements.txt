@@ -1,0 +1,13 @@
+pandas>=2.0
+numpy>=1.24
+# Optional: backend example
+fastapi>=0.100
+uvicorn>=0.23
+# Optional: behavioral model layer (only if behavior_model.joblib is shipped)
+scikit-learn>=1.3   # behavior_model.joblib was pickled with 1.6.1: pin ==1.6.1 to load it without a version warning
+joblib>=1.3
+# Tests
+pytest>=7.0
+httpx>=0.24
+# Optional backend preference interpretation
+google-genai>=1.0

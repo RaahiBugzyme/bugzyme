@@ -1,0 +1,379 @@
+{
+  "schema_version": "2.2.0",
+  "status_legend": {
+    "required": "needed for eligibility",
+    "optional": "improves scoring when present; unknown is never a penalty",
+    "derived": "computed by the package",
+    "behavioral": "comes from interaction events",
+    "future": "accepted/stored, not used yet"
+  },
+  "profile_features": [
+    {
+      "name": "id",
+      "type": "string",
+      "status": "required",
+      "description": "stable user id (repository)"
+    },
+    {
+      "name": "age",
+      "type": "number",
+      "status": "required",
+      "description": "adult check (>=18) and demographics"
+    },
+    {
+      "name": "sex",
+      "type": "string m|f",
+      "status": "required",
+      "description": "eligibility"
+    },
+    {
+      "name": "orientation",
+      "type": "string straight|gay|bisexual",
+      "status": "required",
+      "description": "eligibility"
+    },
+    {
+      "name": "education",
+      "type": "string",
+      "status": "optional",
+      "description": "ordinal rank"
+    },
+    {
+      "name": "job",
+      "type": "string",
+      "status": "optional",
+      "description": "exact + broad profession group"
+    },
+    {
+      "name": "religion",
+      "type": "string",
+      "status": "optional",
+      "description": "base religion"
+    },
+    {
+      "name": "ethnicity",
+      "type": "string (comma separated)",
+      "status": "optional",
+      "description": "Jaccard overlap; can be disabled"
+    },
+    {
+      "name": "drinks",
+      "type": "string",
+      "status": "optional",
+      "description": "ordinal"
+    },
+    {
+      "name": "drugs",
+      "type": "string",
+      "status": "optional",
+      "description": "ordinal"
+    },
+    {
+      "name": "smokes",
+      "type": "string",
+      "status": "optional",
+      "description": "ordinal"
+    },
+    {
+      "name": "diet",
+      "type": "string",
+      "status": "optional",
+      "description": "base diet"
+    },
+    {
+      "name": "offspring",
+      "type": "string",
+      "status": "optional",
+      "description": "children stance yes/maybe/no"
+    },
+    {
+      "name": "pets",
+      "type": "string",
+      "status": "optional",
+      "description": "dog/cat attitudes"
+    },
+    {
+      "name": "height",
+      "type": "number inches",
+      "status": "optional",
+      "description": "attraction (80%)"
+    },
+    {
+      "name": "body_type",
+      "type": "string",
+      "status": "optional",
+      "description": "attraction (20%)"
+    },
+    {
+      "name": "relationship_intention",
+      "type": "string long_term|serious|marriage|casual|friendship|unsure",
+      "status": "optional",
+      "description": "stated intention alignment"
+    },
+    {
+      "name": "birth_year / derived_generation",
+      "type": "number / string",
+      "status": "optional",
+      "description": "overrides age-derived generation"
+    },
+    {
+      "name": "income, speaks, sign, status",
+      "type": "-",
+      "status": "future",
+      "description": "deliberately not scored"
+    }
+  ],
+  "preference_features": [
+    {
+      "name": "preferred_distance_km",
+      "type": "number>0",
+      "status": "optional",
+      "description": "SOFT distance preference (scales the location curve)"
+    },
+    {
+      "name": "max_distance_km",
+      "type": "number>0",
+      "status": "optional",
+      "description": "HARD limit; applied only when set; unknown location never excluded"
+    },
+    {
+      "name": "criteria.<age|height|education|profession|profession_group|religion|ethnicity|drinks|drugs|smokes|diet|children|pets|body_type|body_type_group|relationship_intention>",
+      "type": "object {min,max|min_rank|values, hard}",
+      "status": "optional",
+      "description": "hard=true can exclude; hard=false only re-ranks; missing = no preference"
+    }
+  ],
+  "location_features": [
+    {
+      "name": "latitude, longitude",
+      "type": "number",
+      "status": "optional",
+      "description": "both required and valid; otherwise ignored with a warning"
+    },
+    {
+      "name": "city, state|region, country, location(free text)",
+      "type": "string",
+      "status": "optional",
+      "description": "resolved ONLY via the gazetteer; unresolved => no score"
+    }
+  ],
+  "behavior_features": [
+    {
+      "name": "interaction.user_id, candidate_id, action, timestamp, session_id, source, metadata",
+      "type": "event",
+      "status": "behavioral",
+      "description": "VIEW/SEARCH informational; LIKE/SUPER_LIKE/SAVE positive intent; PASS negative intent; MATCH/UNMATCH relationship state; MESSAGE conversation"
+    }
+  ],
+  "derived_features": [
+    {
+      "name": "derived_generation",
+      "type": "string",
+      "status": "derived",
+      "description": "from reference_year - age"
+    },
+    {
+      "name": "education_rank, profession_group, religion_base, diet_base, children_stance, pets_liked, body_type_group",
+      "type": "mixed",
+      "status": "derived",
+      "description": "normalized attributes"
+    },
+    {
+      "name": "component similarities (14)",
+      "type": "number 0..1|null",
+      "status": "derived",
+      "description": "null = unknown"
+    },
+    {
+      "name": "behavior tokens (profession_group, education_level, religion, ethnicity, drinks, drugs, smokes, diet, children, body_type_group, generation, relationship_intention, age/height difference bins, distance bin)",
+      "type": "categorical",
+      "status": "derived",
+      "description": "learned preferences are keyed by these, never by candidate id"
+    }
+  ],
+  "model_outputs": [
+    {
+      "name": "compatibility.score|confidence|adjusted_score|categories|components",
+      "type": "numbers 0..100",
+      "status": "derived",
+      "description": "profile alignment; NOT a relationship-success probability"
+    },
+    {
+      "name": "location.distance_km|location_score|location_confidence|location_status|within_*",
+      "type": "number|null",
+      "status": "derived",
+      "description": "status known|partial_unknown|unknown|unresolved|coarse|disabled"
+    },
+    {
+      "name": "preferences.score|confidence|status",
+      "type": "number|null",
+      "status": "derived",
+      "description": "status known|no_preferences|unknown"
+    },
+    {
+      "name": "relationship_intention.score|status",
+      "type": "number|null",
+      "status": "derived",
+      "description": "alignment of STATED intentions"
+    },
+    {
+      "name": "behavior.score|confidence|status|evidence_count",
+      "type": "number|null",
+      "status": "behavioral",
+      "description": "status cold_start|insufficient_data|sufficient_data|no_applicable_evidence|disabled"
+    },
+    {
+      "name": "mutual_interest.probability|confidence|status",
+      "type": "number|null",
+      "status": "behavioral",
+      "description": "only with a model trained on genuine interaction logs"
+    },
+    {
+      "name": "ranking.final_score|components",
+      "type": "number|null",
+      "status": "derived",
+      "description": "weights are configurable placeholders, not validated"
+    },
+    {
+      "name": "explanation",
+      "type": "list[string]",
+      "status": "derived",
+      "description": "deterministic, derived from the signals above"
+    }
+  ],
+  "dataset_audit": [
+    {
+      "feature": "age",
+      "dtype": "int64",
+      "non_null_pct": 100.0,
+      "n_unique": 56,
+      "role": "scoring (demographics) + eligibility (adult check)"
+    },
+    {
+      "feature": "body_type",
+      "dtype": "object",
+      "non_null_pct": 91.17,
+      "n_unique": 12,
+      "role": "scoring (attraction)"
+    },
+    {
+      "feature": "diet",
+      "dtype": "object",
+      "non_null_pct": 59.31,
+      "n_unique": 18,
+      "role": "scoring (lifestyle)"
+    },
+    {
+      "feature": "drinks",
+      "dtype": "object",
+      "non_null_pct": 95.02,
+      "n_unique": 6,
+      "role": "scoring (lifestyle)"
+    },
+    {
+      "feature": "drugs",
+      "dtype": "object",
+      "non_null_pct": 76.51,
+      "n_unique": 3,
+      "role": "scoring (lifestyle)"
+    },
+    {
+      "feature": "education",
+      "dtype": "object",
+      "non_null_pct": 88.94,
+      "n_unique": 32,
+      "role": "scoring (career_education)"
+    },
+    {
+      "feature": "ethnicity",
+      "dtype": "object",
+      "non_null_pct": 90.52,
+      "n_unique": 217,
+      "role": "scoring (values_culture)"
+    },
+    {
+      "feature": "height",
+      "dtype": "float64",
+      "non_null_pct": 99.99,
+      "n_unique": 60,
+      "role": "scoring (attraction)"
+    },
+    {
+      "feature": "income",
+      "dtype": "int64",
+      "non_null_pct": 100.0,
+      "n_unique": 13,
+      "role": "EXCLUDED by design (socioeconomic proxy)"
+    },
+    {
+      "feature": "job",
+      "dtype": "object",
+      "non_null_pct": 86.32,
+      "n_unique": 21,
+      "role": "scoring (career_education, profession groups)"
+    },
+    {
+      "feature": "offspring",
+      "dtype": "object",
+      "non_null_pct": 40.68,
+      "n_unique": 15,
+      "role": "scoring (family)"
+    },
+    {
+      "feature": "orientation",
+      "dtype": "object",
+      "non_null_pct": 100.0,
+      "n_unique": 3,
+      "role": "eligibility"
+    },
+    {
+      "feature": "pets",
+      "dtype": "object",
+      "non_null_pct": 66.77,
+      "n_unique": 15,
+      "role": "scoring (family)"
+    },
+    {
+      "feature": "religion",
+      "dtype": "object",
+      "non_null_pct": 66.26,
+      "n_unique": 45,
+      "role": "scoring (values_culture)"
+    },
+    {
+      "feature": "sex",
+      "dtype": "object",
+      "non_null_pct": 100.0,
+      "n_unique": 2,
+      "role": "eligibility"
+    },
+    {
+      "feature": "sign",
+      "dtype": "object",
+      "non_null_pct": 81.56,
+      "n_unique": 48,
+      "role": "EXCLUDED by design (no evidence of relevance)"
+    },
+    {
+      "feature": "smokes",
+      "dtype": "object",
+      "non_null_pct": 90.81,
+      "n_unique": 5,
+      "role": "scoring (lifestyle)"
+    },
+    {
+      "feature": "speaks",
+      "dtype": "object",
+      "non_null_pct": 99.92,
+      "n_unique": 7647,
+      "role": "EXCLUDED by design (language)"
+    },
+    {
+      "feature": "status",
+      "dtype": "object",
+      "non_null_pct": 100.0,
+      "n_unique": 5,
+      "role": "not used (relationship status is not scored)"
+    }
+  ]
+}

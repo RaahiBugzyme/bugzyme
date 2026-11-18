@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InteractionEvent",
+  "type": "object",
+  "required": ["user_id", "timestamp"],
+  "anyOf": [{"required": ["action"]}, {"required": ["event_type"]}],
+  "allOf": [
+    {"if": {"properties": {"action": {"const": "SEARCH"}}}, "then": {"properties": {"candidate_id": {"type": ["null"]}}}},
+    {"if": {"properties": {"event_type": {"const": "SEARCH"}}}, "then": {"properties": {"candidate_id": {"type": ["null"]}}}},
+    {"if": {"properties": {"action": {"not": {"const": "SEARCH"}}}, "required": ["action"]},
+     "then": {"required": ["candidate_id"]}},
+    {"if": {"properties": {"event_type": {"not": {"const": "SEARCH"}}}, "required": ["event_type"]},
+     "then": {"required": ["candidate_id"]}}
+  ],
+  "properties": {
+    "user_id": {"type": "string"},
+    "candidate_id": {"type": ["string", "null"], "description": "Required for every action except SEARCH."},
+    "action": {"enum": ["VIEW", "SEARCH", "LIKE", "PASS", "MATCH", "SUPER_LIKE", "SAVE", "UNMATCH", "MESSAGE", "DATE", "DATE_FEEDBACK"]},
+    "event_type": {"enum": ["VIEW", "SEARCH", "LIKE", "PASS", "MATCH", "SUPER_LIKE", "SAVE", "UNMATCH", "MESSAGE", "DATE", "DATE_FEEDBACK"]},
+    "timestamp": {"type": "string", "format": "date-time", "description": "UTC. Events dated after the prediction time are ignored (no future leakage)."},
+    "session_id": {"type": ["string", "null"]},
+    "source": {"type": ["string", "null"]},
+    "metadata": {"type": ["object", "null"]},
+    "search_criteria": {"type": ["object", "null"], "description": "Optional structured criteria for SEARCH events."}
+  }
+}
