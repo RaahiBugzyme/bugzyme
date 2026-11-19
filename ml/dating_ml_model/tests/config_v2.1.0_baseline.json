@@ -1,0 +1,45 @@
+{
+  "model_name": "Dating ML V2.1 (long-term rebuild)",
+  "model_version": "2.1.0",
+  "neutral_baseline": 50,
+  "reference_year": 2026,
+  "min_age": 18,
+  "weight_profile": "long_term",
+  "category_weights": {
+    "long_term": {
+      "demographics": 0.20,
+      "career_education": 0.10,
+      "values_culture": 0.20,
+      "lifestyle": 0.15,
+      "family": 0.25,
+      "attraction": 0.10
+    },
+    "equal": {
+      "demographics": 0.1666666667,
+      "career_education": 0.1666666667,
+      "values_culture": 0.1666666667,
+      "lifestyle": 0.1666666667,
+      "family": 0.1666666667,
+      "attraction": 0.1666666667
+    }
+  },
+  "component_weights": {
+    "demographics": {"age": 0.6, "generation": 0.4},
+    "career_education": {"education": 0.5, "profession": 0.5},
+    "values_culture": {"religion": 0.6, "ethnicity": 0.4},
+    "lifestyle": {"drinks": 0.25, "drugs": 0.25, "smokes": 0.25, "diet": 0.25},
+    "family": {"offspring": 0.7, "pets": 0.3},
+    "attraction": {"height": 0.8, "body_type": 0.2}
+  },
+  "disabled_components": [],
+  "age_max_gap_years": 20,
+  "education_max_gap_levels": 3,
+  "height_max_gap_inches": 12,
+  "height_valid_range_inches": [48, 96],
+  "secular_partial_credit": 0.5,
+  "explanation_thresholds": {"high": 0.75, "low": 0.25, "low_confidence_pct": 50},
+  "income_excluded": true,
+  "language_excluded": true,
+  "astrological_sign_excluded": true,
+  "null_handling": "unknown-aware with evidence shrinkage"
+}

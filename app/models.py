@@ -3,11 +3,13 @@ from datetime import datetime
 from sqlalchemy import (
     Boolean,
     Column,
+    CheckConstraint,
     DateTime,
     ForeignKey,
     Index,
     Integer,
     String,
+    text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
@@ -292,6 +294,13 @@ class Message(Base):
         nullable=True
     )
 
+    reaction_revision = Column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default=text("0"),
+    )
+
     # ========================================
     # Relationships
     # ========================================
@@ -313,3 +322,42 @@ class Message(Base):
         foreign_keys=[reply_to_id],
         backref="replies"
     )
+
+    reactions = relationship(
+        "MessageReaction",
+        back_populates="message",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class MessageReaction(Base):
+    __tablename__ = "message_reactions"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "message_id",
+            "user_id",
+            name="uq_message_reaction_user",
+        ),
+        CheckConstraint(
+            "reaction IN ('❤️', '😂', '👍', '🔥', '😮', '😢')",
+            name="ck_message_reaction_allowed",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True)
+    message_id = Column(
+        Integer,
+        ForeignKey("messages.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    reaction = Column(String(16), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    message = relationship("Message", back_populates="reactions")

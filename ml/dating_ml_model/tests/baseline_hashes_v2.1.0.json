@@ -1,0 +1,32 @@
+{
+ "append_only_files": {
+  "behavior.py": {
+   "prefix_bytes": 1071,
+   "sha256": "38247ef6f87ce1b5d107c7e687c6222e7e1dec839aa673671d0ee60a5abd63a0"
+  },
+  "feature_engineering.py": {
+   "prefix_bytes": 11704,
+   "sha256": "765f42ec6b35c74564a4630172e554f52d845bcbf299eedd98349debd9f54f4c"
+  },
+  "model.py": {
+   "prefix_bytes": 1357,
+   "sha256": "48083f57c5878224737efb81f5f8398b0b139e4cf675c22858713782a5b6d6b6"
+  },
+  "repository.py": {
+   "prefix_bytes": 1407,
+   "sha256": "48f309b33883fe719f47b85dc7dc7d9e80c647f04349a942037b6cdffa211cee"
+  },
+  "service.py": {
+   "prefix_bytes": 864,
+   "sha256": "723bcf62b39003625c0a96520084f368be0e415e137bdc157f2d2bbf70e2839c"
+  }
+ },
+ "modified_behavior_preserving": {
+  "__init__.py": "exports + __version__ bumped to 2.2.0",
+  "backend_integration_example.py": "create_app extended with new endpoints; /compatibility/pair and /matches/{user_id} unchanged and covered by test_parity.py"
+ },
+ "unchanged_files": {
+  "compatibility_engine.py": "6b21e2de7d6f63ff04927613ba40e5cd2972b1d65af1af192cde79fa4fbab584",
+  "eligibility.py": "55ad74204436a2a12ad2c82e8a143072331d2de4190756a7fc359156c8494e32"
+ }
+}

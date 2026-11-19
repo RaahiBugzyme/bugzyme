@@ -1,0 +1,4306 @@
+{
+ "u1": [
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "m03",
+   "compatibility": {
+    "adjusted_score": 94.9167,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 100.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 1.0,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.6667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Candidate is approximately 0 km away.",
+    "Candidate is within your preferred distance.",
+    "Candidate matches your preferred profession group.",
+    "Stated relationship intentions are aligned.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": 0.0,
+    "location_available": true,
+    "location_confidence": 0.7,
+    "location_score": 100.0,
+    "location_status": "known",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": true,
+    "same_region": true,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": true
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.9167,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.105,
+      "score": 100.0,
+      "signal": "location",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 96.8427,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  },
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "m09",
+   "compatibility": {
+    "adjusted_score": 94.3392,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.0667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Candidate is approximately 0 km away.",
+    "Candidate is within your preferred distance.",
+    "Candidate matches your preferred profession group.",
+    "Stated relationship intentions are aligned.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": 0.0,
+    "location_available": true,
+    "location_confidence": 0.7,
+    "location_score": 100.0,
+    "location_status": "known",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": true,
+    "same_region": true,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": true
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.3392,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.105,
+      "score": 100.0,
+      "signal": "location",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 96.484,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  },
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "m17",
+   "compatibility": {
+    "adjusted_score": 94.9167,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 100.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 1.0,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.6667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Candidate matches your preferred profession group.",
+    "Stated relationship intentions are aligned.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.9167,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 96.3691,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  },
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "m15",
+   "compatibility": {
+    "adjusted_score": 93.7617,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 94.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.9,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 95.4667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Candidate is approximately 0 km away.",
+    "Candidate is within your preferred distance.",
+    "Candidate matches your preferred profession group.",
+    "Stated relationship intentions are aligned.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": 0.0,
+    "location_available": true,
+    "location_confidence": 0.7,
+    "location_score": 100.0,
+    "location_status": "known",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": true,
+    "same_region": true,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": true
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 93.7617,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.105,
+      "score": 100.0,
+      "signal": "location",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 96.1253,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  },
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "e_coords_near",
+   "compatibility": {
+    "adjusted_score": 86.6392,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 57.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 88.0667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Candidate is approximately 1.12 km away.",
+    "Candidate is within your preferred distance.",
+    "Candidate matches your preferred profession group.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": 1.12,
+    "location_available": true,
+    "location_confidence": 0.7,
+    "location_score": 97.19,
+    "location_status": "known",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": true
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 86.6392,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.105,
+      "score": 97.19,
+      "signal": "location",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 90.761,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": null,
+    "score": null,
+    "status": "unknown",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  },
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "m11",
+   "compatibility": {
+    "adjusted_score": 86.6392,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 57.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 88.0667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Candidate matches your preferred profession group.",
+    "Stated relationship intentions are aligned.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 86.6392,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 90.4566,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  },
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "m05",
+   "compatibility": {
+    "adjusted_score": 86.0617,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 54.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.9,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 87.4667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Candidate matches your preferred profession group.",
+    "Stated relationship intentions are aligned.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 86.0617,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 90.0441,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  },
+  {
+   "behavior": {
+    "baseline_score": null,
+    "confidence": 0.0,
+    "evidence_count": 0,
+    "score": null,
+    "status": "cold_start",
+    "supporting_features": []
+   },
+   "candidate_id": "e_no_location",
+   "compatibility": {
+    "adjusted_score": 86.6392,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 100.0,
+     "demographics": 57.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 88.0667
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Candidate matches your preferred profession group.",
+    "No interaction history yet, so behavioral personalization is not used."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "user",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 100.0,
+    "criteria": {
+     "profession_group": 1.0
+    },
+    "score": 100.0,
+    "status": "known",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 86.6392,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.15,
+      "score": 100.0,
+      "signal": "preferences",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 89.7225,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": null,
+    "score": null,
+    "status": "unknown",
+    "user": "long_term"
+   },
+   "user_id": "u1"
+  }
+ ],
+ "u2": [
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 53.6041,
+    "evidence_count": 14,
+    "score": 70.0127,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.7721,
+      "value": "technology_science"
+     },
+     {
+      "feature": "relationship_intention",
+      "preference": 0.5934,
+      "value": "long_term"
+     },
+     {
+      "feature": "distance",
+      "preference": 0.5491,
+      "value": "[-inf,5) km"
+     }
+    ]
+   },
+   "candidate_id": "m19",
+   "compatibility": {
+    "adjusted_score": 94.275,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 100.0,
+     "demographics": 100.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 1.0,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.0
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Candidate is approximately 0 km away.",
+    "Candidate is within your preferred distance.",
+    "Stated relationship intentions are aligned.",
+    "Your interactions suggest profiles like this are liked more often than your average."
+   ],
+   "location": {
+    "distance_km": 0.0,
+    "location_available": true,
+    "location_confidence": 0.7,
+    "location_score": 100.0,
+    "location_status": "known",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": true,
+    "same_region": true,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": true
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.275,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.105,
+      "score": 100.0,
+      "signal": "location",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.053604,
+      "score": 70.0127,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 93.6919,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  },
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 53.6041,
+    "evidence_count": 14,
+    "score": 76.0216,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.7721,
+      "value": "technology_science"
+     },
+     {
+      "feature": "generation",
+      "preference": 0.4963,
+      "value": "zillennial"
+     },
+     {
+      "feature": "age_difference",
+      "preference": 0.5028,
+      "value": "[-2,2) years"
+     }
+    ]
+   },
+   "candidate_id": "e_no_location",
+   "compatibility": {
+    "adjusted_score": 93.6975,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 100.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 95.4
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Your interactions suggest profiles like this are liked more often than your average."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 93.6975,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.053604,
+      "score": 76.0216,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 91.986,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": null,
+    "score": null,
+    "status": "unknown",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  },
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 53.6041,
+    "evidence_count": 14,
+    "score": 76.0216,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.7721,
+      "value": "technology_science"
+     },
+     {
+      "feature": "generation",
+      "preference": 0.4963,
+      "value": "zillennial"
+     },
+     {
+      "feature": "age_difference",
+      "preference": 0.5028,
+      "value": "[-2,2) years"
+     }
+    ]
+   },
+   "candidate_id": "e_unresolved",
+   "compatibility": {
+    "adjusted_score": 93.6975,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 100.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 95.4
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location could not be resolved reliably, so no location signal was used and no penalty was applied.",
+    "Your interactions suggest profiles like this are liked more often than your average."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "unresolved",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": false,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 93.6975,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.053604,
+      "score": 76.0216,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 91.986,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": null,
+    "score": null,
+    "status": "unknown",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  },
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 53.6041,
+    "evidence_count": 14,
+    "score": 71.5044,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.7721,
+      "value": "technology_science"
+     },
+     {
+      "feature": "relationship_intention",
+      "preference": 0.5934,
+      "value": "long_term"
+     },
+     {
+      "feature": "generation",
+      "preference": 0.5137,
+      "value": "gen z"
+     }
+    ]
+   },
+   "candidate_id": "m17",
+   "compatibility": {
+    "adjusted_score": 85.42,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 100.0,
+     "demographics": 54.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.9,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 86.8
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Stated relationship intentions are aligned.",
+    "Your interactions suggest profiles like this are liked more often than your average."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 85.42,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.053604,
+      "score": 71.5044,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 85.3919,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  },
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 53.6041,
+    "evidence_count": 14,
+    "score": 75.7194,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.7721,
+      "value": "technology_science"
+     },
+     {
+      "feature": "generation",
+      "preference": 0.4963,
+      "value": "zillennial"
+     },
+     {
+      "feature": "distance",
+      "preference": 0.5104,
+      "value": "[100,+inf) km"
+     }
+    ]
+   },
+   "candidate_id": "e_coords_near",
+   "compatibility": {
+    "adjusted_score": 93.6975,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 100.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 95.4
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Candidate is approximately 119.9 km away.",
+    "Candidate is farther than your preferred distance (soft preference; still eligible).",
+    "Your interactions suggest profiles like this are liked more often than your average."
+   ],
+   "location": {
+    "distance_km": 119.9,
+    "location_available": true,
+    "location_confidence": 0.7,
+    "location_score": 18.01,
+    "location_status": "known",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": false
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 93.6975,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.105,
+      "score": 18.01,
+      "signal": "location",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.053604,
+      "score": 75.7194,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 80.1675,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": null,
+    "score": null,
+    "status": "unknown",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  },
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 53.6041,
+    "evidence_count": 14,
+    "score": 27.2009,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.2361,
+      "value": "health_education"
+     },
+     {
+      "feature": "relationship_intention",
+      "preference": 0.3397,
+      "value": "casual"
+     },
+     {
+      "feature": "generation",
+      "preference": 0.4963,
+      "value": "zillennial"
+     }
+    ]
+   },
+   "candidate_id": "m20",
+   "compatibility": {
+    "adjusted_score": 88.885,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 50.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 0.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Different professions",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 90.4
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Different professions",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Stated relationship intentions differ.",
+    "Your interactions suggest profiles like this are liked less often than your average."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 88.885,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 0.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.053604,
+      "score": 27.2009,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 76.0442,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "casual",
+    "score": 0.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  },
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 45.3573,
+    "evidence_count": 14,
+    "score": 77.1789,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.7721,
+      "value": "technology_science"
+     },
+     {
+      "feature": "body_type_group",
+      "preference": 0.5058,
+      "value": "athletic"
+     },
+     {
+      "feature": "children",
+      "preference": 0.5058,
+      "value": "yes"
+     }
+    ]
+   },
+   "candidate_id": "e_old",
+   "compatibility": {
+    "adjusted_score": 75.025,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 100.0,
+     "demographics": 0.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.0,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Large age gap",
+     "Different generations",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 76.0
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on career and education, values and culture, lifestyle, family.",
+    "Large age gap",
+    "Different generations",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Your interactions suggest profiles like this are liked more often than your average.",
+    "Behavioral evidence is limited."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 75.025,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.045357,
+      "score": 77.1789,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 75.2041,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": null,
+    "score": null,
+    "status": "unknown",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  },
+  {
+   "behavior": {
+    "baseline_score": 50.5776,
+    "confidence": 53.6041,
+    "evidence_count": 14,
+    "score": 34.3537,
+    "status": "sufficient_data",
+    "supporting_features": [
+     {
+      "feature": "profession_group",
+      "preference": 0.2361,
+      "value": "health_education"
+     },
+     {
+      "feature": "relationship_intention",
+      "preference": 0.5934,
+      "value": "long_term"
+     },
+     {
+      "feature": "generation",
+      "preference": 0.4963,
+      "value": "zillennial"
+     }
+    ]
+   },
+   "candidate_id": "m18",
+   "compatibility": {
+    "adjusted_score": 88.885,
+    "categories": {
+     "attraction": 60.0,
+     "career_education": 50.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 0.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Different professions",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 90.4
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Different professions",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Candidate is approximately 120.15 km away.",
+    "Candidate is farther than your preferred distance (soft preference; still eligible).",
+    "Stated relationship intentions are aligned.",
+    "Your interactions suggest profiles like this are liked less often than your average."
+   ],
+   "location": {
+    "distance_km": 120.15,
+    "location_available": true,
+    "location_confidence": 0.7,
+    "location_score": 17.98,
+    "location_status": "known",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": true,
+    "same_region": true,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": false
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 88.885,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.105,
+      "score": 17.98,
+      "signal": "location",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.05,
+      "score": 100.0,
+      "signal": "relationship_intention",
+      "used": true
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.053604,
+      "score": 34.3537,
+      "signal": "behavior",
+      "used": true
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 75.0375,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": 100.0,
+    "status": "known",
+    "user": "long_term"
+   },
+   "user_id": "u2"
+  }
+ ],
+ "u3": [
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m09",
+   "compatibility": {
+    "adjusted_score": 95.5583,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 100.0,
+     "demographics": 100.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 1.0,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 97.3333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 95.5583,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 95.5583,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  },
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m03",
+   "compatibility": {
+    "adjusted_score": 94.9808,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 100.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.7333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.9808,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 94.9808,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  },
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m15",
+   "compatibility": {
+    "adjusted_score": 94.9808,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 100.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.7333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.9808,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 94.9808,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  },
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m17",
+   "compatibility": {
+    "adjusted_score": 94.9808,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 100.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.7333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.9808,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 94.9808,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  },
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m07",
+   "compatibility": {
+    "adjusted_score": 94.4033,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 100.0,
+     "demographics": 94.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 1.0
+     },
+     "demographics": {
+      "age": 0.9,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Same profession",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 96.1333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, career and education, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Same profession",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 94.4033,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 94.4033,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  },
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m16",
+   "compatibility": {
+    "adjusted_score": 90.7458,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 50.0,
+     "demographics": 100.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 0.0
+     },
+     "demographics": {
+      "age": 1.0,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Different professions",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 92.3333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Different professions",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 90.7458,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 90.7458,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "casual",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  },
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m08",
+   "compatibility": {
+    "adjusted_score": 90.1683,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 50.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 0.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Different professions",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 91.7333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Different professions",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 90.1683,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 90.1683,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "casual",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  },
+  {
+   "behavior": {
+    "baseline_score": 49.4224,
+    "confidence": 16.1918,
+    "evidence_count": 2,
+    "score": null,
+    "status": "insufficient_data",
+    "supporting_features": []
+   },
+   "candidate_id": "m10",
+   "compatibility": {
+    "adjusted_score": 90.1683,
+    "categories": {
+     "attraction": 73.3333,
+     "career_education": 50.0,
+     "demographics": 97.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.6667
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 0.0
+     },
+     "demographics": {
+      "age": 0.95,
+      "generation": 1.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence": 96.25,
+    "explanation": [
+     "Similar age",
+     "Same generation",
+     "Similar education level",
+     "Different professions",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "score": 91.7333
+   },
+   "eligibility": {
+    "eligible": true,
+    "reasons": []
+   },
+   "explanation": [
+    "Strong profile alignment on age and generation, values and culture, lifestyle, family.",
+    "Similar age",
+    "Same generation",
+    "Similar education level",
+    "Different professions",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type",
+    "Location information is unavailable, so no location penalty was applied.",
+    "Behavioral evidence is limited (2 decisions), so personalization is not used yet."
+   ],
+   "location": {
+    "distance_km": null,
+    "location_available": false,
+    "location_confidence": 0.0,
+    "location_score": null,
+    "location_status": "partial_unknown",
+    "max_distance_km": null,
+    "preferred_distance_km": 25.0,
+    "preferred_distance_source": "default",
+    "same_country": null,
+    "same_region": null,
+    "warnings": [],
+    "within_max_distance": null,
+    "within_preferred_distance": null
+   },
+   "mutual_interest": {
+    "confidence": 0.0,
+    "model_version": null,
+    "probability": null,
+    "status": "insufficient_behavioral_data"
+   },
+   "package_version": "2.2.0",
+   "preferences": {
+    "confidence": 0.0,
+    "criteria": {},
+    "score": null,
+    "status": "no_preferences",
+    "warnings": []
+   },
+   "ranking": {
+    "components": [
+     {
+      "base_weight": 0.5,
+      "effective_weight": 0.5,
+      "score": 90.1683,
+      "signal": "compatibility",
+      "used": true
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "location",
+      "used": false
+     },
+     {
+      "base_weight": 0.15,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "preferences",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "relationship_intention",
+      "used": false
+     },
+     {
+      "base_weight": 0.1,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "behavior",
+      "used": false
+     },
+     {
+      "base_weight": 0.05,
+      "effective_weight": 0.0,
+      "score": null,
+      "signal": "mutual_interest",
+      "used": false
+     }
+    ],
+    "final_score": 90.1683,
+    "weights_are_validated": false,
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence."
+   },
+   "relationship_intention": {
+    "candidate": "long_term",
+    "score": null,
+    "status": "unknown",
+    "user": null
+   },
+   "user_id": "u3"
+  }
+ ]
+}

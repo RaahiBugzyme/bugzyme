@@ -66,6 +66,11 @@ class MessageCreate(BaseModel):
         return v
 
 
+class MessageReactionResponse(_FromOrm):
+    user_id: int
+    reaction: str
+
+
 class MessageResponse(_FromOrm):
     id: int
     chat_id: int
@@ -87,6 +92,8 @@ class MessageResponse(_FromOrm):
     attachment_name: str | None = None
     attachment_mime_type: str | None = None
     attachment_size_bytes: int | None = None
+    reactions: list[MessageReactionResponse] = Field(default_factory=list)
+    reaction_revision: int = 0
 
     _fix_delivered = field_validator(
         "is_delivered",

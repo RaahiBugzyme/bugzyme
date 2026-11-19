@@ -1,0 +1,195 @@
+{
+  "model_name": "Dating ML V2.1 (long-term rebuild)",
+  "model_version": "2.1.0",
+  "neutral_baseline": 50,
+  "reference_year": 2026,
+  "min_age": 18,
+  "weight_profile": "long_term",
+  "category_weights": {
+    "long_term": {
+      "demographics": 0.2,
+      "career_education": 0.1,
+      "values_culture": 0.2,
+      "lifestyle": 0.15,
+      "family": 0.25,
+      "attraction": 0.1
+    },
+    "equal": {
+      "demographics": 0.1666666667,
+      "career_education": 0.1666666667,
+      "values_culture": 0.1666666667,
+      "lifestyle": 0.1666666667,
+      "family": 0.1666666667,
+      "attraction": 0.1666666667
+    }
+  },
+  "component_weights": {
+    "demographics": {
+      "age": 0.6,
+      "generation": 0.4
+    },
+    "career_education": {
+      "education": 0.5,
+      "profession": 0.5
+    },
+    "values_culture": {
+      "religion": 0.6,
+      "ethnicity": 0.4
+    },
+    "lifestyle": {
+      "drinks": 0.25,
+      "drugs": 0.25,
+      "smokes": 0.25,
+      "diet": 0.25
+    },
+    "family": {
+      "offspring": 0.7,
+      "pets": 0.3
+    },
+    "attraction": {
+      "height": 0.8,
+      "body_type": 0.2
+    }
+  },
+  "disabled_components": [],
+  "age_max_gap_years": 20,
+  "education_max_gap_levels": 3,
+  "height_max_gap_inches": 12,
+  "height_valid_range_inches": [
+    48,
+    96
+  ],
+  "secular_partial_credit": 0.5,
+  "explanation_thresholds": {
+    "high": 0.75,
+    "low": 0.25,
+    "low_confidence_pct": 50
+  },
+  "income_excluded": true,
+  "language_excluded": true,
+  "astrological_sign_excluded": true,
+  "null_handling": "unknown-aware with evidence shrinkage",
+  "package_version": "2.2.0",
+  "compatibility_engine_version": "2.1.0",
+  "location_enabled": true,
+  "default_preferred_distance_km": 25,
+  "max_distance_enabled": true,
+  "location": {
+    "distance_curve_km_score": [
+      [
+        0,
+        100
+      ],
+      [
+        2,
+        95
+      ],
+      [
+        8,
+        85
+      ],
+      [
+        20,
+        70
+      ],
+      [
+        50,
+        45
+      ],
+      [
+        100,
+        20
+      ],
+      [
+        250,
+        5
+      ],
+      [
+        1000,
+        0
+      ]
+    ],
+    "curve_note": "EXAMPLE shape only (not scientifically validated). Linear interpolation between points; distances are scaled by default_preferred_distance_km / the user's preferred_distance_km.",
+    "city_centroid_confidence": 0.7,
+    "coordinate_confidence": 1.0,
+    "gazetteer_path": "data/gazetteer_seed.csv",
+    "treat_zero_zero_as_missing": true
+  },
+  "preferences": {
+    "hard_preferences_mutual": true,
+    "hard_filter_unknown_policy": "keep",
+    "soft_range_tolerance": {
+      "age": 10,
+      "height": 6
+    },
+    "criterion_weights": {},
+    "relationship_intention_similarity": {
+      "commitment_group": [
+        "long_term",
+        "serious",
+        "marriage"
+      ],
+      "same": 1.0,
+      "within_commitment_group": 0.75,
+      "unsure_with_any": 0.5,
+      "casual_with_commitment": 0.0,
+      "friendship_with_casual": 0.25,
+      "friendship_with_commitment": 0.25,
+      "note": "Unvalidated alignment table for STATED intentions. Not a predictor of relationship success."
+    }
+  },
+  "behavior_enabled": true,
+  "behavior_decay": null,
+  "behavior_half_life_days": 30,
+  "min_behavior_events": 10,
+  "min_preference_evidence": 5,
+  "behavior_evidence_k": 10,
+  "recent_window_days": 30,
+  "behavior_bins": {
+    "age_diff_years": [
+      -10,
+      -5,
+      -2,
+      2,
+      5,
+      10
+    ],
+    "distance_km": [
+      5,
+      10,
+      25,
+      50,
+      100
+    ],
+    "height_diff_inches": [
+      -6,
+      -3,
+      3,
+      6
+    ]
+  },
+  "mutual_interest_enabled": true,
+  "mutual_interest_min_training_rows": 1000,
+  "mutual_interest_split_fractions": {
+    "train": 0.7,
+    "validation": 0.15,
+    "test": 0.15
+  },
+  "exclude_decided_candidates": true,
+  "final_ranking": {
+    "weights": {
+      "compatibility": 0.5,
+      "location": 0.15,
+      "preferences": 0.15,
+      "relationship_intention": 0.05,
+      "behavior": 0.1,
+      "mutual_interest": 0.05,
+      "search_intent": 0.1,
+      "interests": 0.05
+    },
+    "weights_note": "PLACEHOLDER weights chosen only so that core compatibility stays the primary signal. They are NOT optimized or validated. Calibrate with A/B tests or learning-to-rank once genuine interaction data exists. Unknown signals get zero weight (no penalty); preferences/behavior/mutual-interest weights are further scaled by their confidence.",
+    "search_intent_weight_note": "Search-intent weight is a placeholder and is scaled by learned search confidence. It is not used when search intent is unavailable or ineligible candidates are filtered."
+  },
+  "min_search_evidence": 3,
+  "explanation_behavior_margin": 5
+}
