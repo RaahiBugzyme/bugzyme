@@ -34,9 +34,11 @@ from sqlalchemy.orm import Session, selectinload
 from starlette.concurrency import run_in_threadpool
 
 from . import models, schemas
+from . import dating_ml_profile_adapter as datingml_adapter
 from . import storage as attachment_storage
 from .connection_manager import ConnectionManager
 from .database import Base, SessionLocal, engine, get_db
+from .models import Interaction
 
 logger = logging.getLogger("bugzyme")
 
@@ -1557,6 +1559,35 @@ async def delete_chat(
 # ============================================================
 # GET CHATS
 # ============================================================
+@app.patch(
+    "/chats/{chat_id}/mute",
+    response_model=schemas.ChatResponse,
+)
+async def mute_chat(
+    chat_id: int,
+    current_user: models.User = Depends(
+        get_current_user
+    ),
+    db: Session = Depends(get_db),
+):
+    # Verify chat membership
+    chat = db.get(models.Chat, chat_id)
+    if not chat:
+        raise HTTPException(404, "Chat not found")
+    
+    if chat.user1_id != current_user.id and chat.user2_id != current_user.id:
+        raise HTTPException(403, "You are not a member of this chat")
+    
+    # Toggle the mute preference for the current user
+    if chat.user1_id == current_user.id:
+        chat.notification_muted_by_user1 = not chat.notification_muted_by_user1
+    else:
+        chat.notification_muted_by_user2 = not chat.notification_muted_by_user2
+    
+    db.commit()
+    db.refresh(chat)
+    
+    return chat
 
 @app.get("/chats", response_model=list[schemas.ChatSummary])
 def list_chats(
@@ -2340,3 +2371,204 @@ async def ws_chat(
         token,
         chat_id
     )
+
+# ============================================================
+# DATINGML V3 SERVICE
+# ============================================================
+
+from .models import User
+from ml.dating_ml_model.service import MatchingService, CompatibilityModel
+# Dependency: provide DatingML matching service with database session
+def get_matching_service(db: Session) -> MatchingService:
+    repo = SQLAlchemyUserRepository(db)
+    model = CompatibilityModel()
+    service = MatchingService(model, repo)
+    return service
+
+password_hash = PasswordHash.recommended()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+# ============================================================
+# DATINGML V3 COMPATIBILITY API
+# =============================================================
+
+@app.get("/compatibility")
+async def compatibility(
+    user_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Check compatibility between the authenticated user and another user.
+
+    Returns compatibility score, eligibility status, and explanation.
+    Handles missing users and incomplete profiles safely.
+    """
+    from ml.dating_ml_model.service import CompatibilityModel
+    from ml.dating_ml_model.repository import SQLAlchemyUserRepository
+
+    # Get the target user
+    target_user = db.get(models.User, user_id)
+    if target_user is None:
+        raise HTTPException(
+            404,
+            "User not found"
+        )
+
+    # Get the matching service
+    repo = SQLAlchemyUserRepository(db)
+    model = CompatibilityModel()
+    service = MatchingService(model, repo)
+
+    # Convert profiles to DatingML format
+    profile_a = datingml_adapter.user_to_datingml_profile(current_user)
+    profile_b = datingml_adapter.user_to_datingml_profile(target_user)
+
+    # Check compatibility
+    result = service.predict_pair(profile_a, profile_b)
+
+    return {
+        "user_a": current_user.username,
+        "user_b": target_user.username,
+        "eligible": result["eligible"],
+        "eligibility_reason": result["eligibility_reason"],
+        "compatibility_score": result.get("compatibility_score"),
+        "confidence_score": result.get("confidence_score"),
+        "adjusted_score": result.get("adjusted_score"),
+        "categories": result.get("categories"),
+        "components": result.get("components"),
+        "explanation": result.get("explanation"),
+        "model_version": result.get("model_version"),
+    }
+
+
+@app.get("/eligibility")
+async def eligibility(
+    user_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Check eligibility between the authenticated user and another user.
+
+    Eligibility requires: mutual attraction, both users are adults (18+),
+    and known ages.
+
+    Returns eligibility status and reason.
+    """
+    from ml.dating_ml_model.service import CompatibilityModel
+    from ml.dating_ml_model.repository import SQLAlchemyUserRepository
+
+    # Get the target user
+    target_user = db.get(models.User, user_id)
+    if target_user is None:
+        raise HTTPException(
+            404,
+            "User not found"
+        )
+
+    # Get the matching service
+    repo = SQLAlchemyUserRepository(db)
+    model = CompatibilityModel()
+    service = MatchingService(model, repo)
+
+    # Convert profiles to DatingML format
+    profile_a = datingml_adapter.user_to_datingml_profile(current_user)
+    profile_b = datingml_adapter.user_to_datingml_profile(target_user)
+
+    # Check eligibility
+    result = service.check_eligibility(profile_a, profile_b)
+
+    return {
+        "user_a": current_user.username,
+        "user_b": target_user.username,
+        "eligible": result["eligible"],
+        "reason": result["reason"],
+    }
+
+
+@app.get("/explanation")
+async def explanation(
+    user_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get explanation of compatibility between the authenticated user and another user.
+
+    Provides detailed explanation of matched preferences,
+    unavailable information, and verdict.
+    """
+    from ml.dating_ml_model.service import CompatibilityModel
+    from ml.dating_ml_model.repository import SQLAlchemyUserRepository
+    from ml.dating_ml_model.explainability import explain_recommendation
+
+    # Get the target user
+    target_user = db.get(models.User, user_id)
+    if target_user is None:
+        raise HTTPException(
+            404,
+            "User not found"
+        )
+
+    # Get the matching service
+    repo = SQLAlchemyUserRepository(db)
+    model = CompatibilityModel()
+    service = MatchingService(model, repo)
+
+    # Convert profiles to DatingML format
+    profile_a = datingml_adapter.user_to_datingml_profile(current_user)
+    profile_b = datingml_adapter.user_to_datingml_profile(target_user)
+
+    # Get prediction first
+    predict_result = service.predict_pair(profile_a, profile_b)
+
+    # Generate explanation
+    expl = explain_recommendation(predict_result)
+
+    return {
+        "user_a": current_user.username,
+        "user_b": target_user.username,
+        "decision": expl["decision"],
+        "summary": expl["summary"],
+        "matched_preferences": expl.get("matched_preferences", []),
+        "unavailable_information": expl.get("unavailable_information", []),
+        "disclaimer": expl.get("disclaimer", ""),
+    }
+
+@app.get("/me/ai-memories")
+async def get_ai_memories(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from app.models import UserMemory
+    memories = db.query(UserMemory).filter(UserMemory.user_id == current_user.id).all()
+    return {"memories": [{"id": m.id, "memory_text": m.memory_text, "memory_type": m.memory_type, "confidence": m.confidence, "source_message_id": m.source_message_id} for m in memories]}
+
+@app.patch("/me/ai-memories/{memory_id}")
+async def update_ai_memory(
+    memory_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    memory_text: str = None,
+):
+    from app.models import UserMemory
+    memory = db.query(UserMemory).filter(UserMemory.id == memory_id, UserMemory.user_id == current_user.id).first()
+    if not memory:
+        raise HTTPException(404, "Memory not found")
+    if memory_text is not None:
+        memory.memory_text = memory_text
+    db.add(memory)
+    db.commit()
+    db.refresh(memory)
+    return {"id": memory.id, "memory_text": memory.memory_text, "memory_type": memory.memory_type, "confidence": memory.confidence, "source_message_id": memory.source_message_id}
+
+@app.delete("/me/ai-memories/{memory_id}")
+async def delete_ai_memory(
+    memory_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from app.models import UserMemory
+    memory = db.query(UserMemory).filter(UserMemory.id == memory_id, UserMemory.user_id == current_user.id).first()
+    if not memory:
+        raise HTTPException(404, "Memory not found")
+    db.delete(memory)
+    db.commit()
+    return {"result": "Memory deleted"}

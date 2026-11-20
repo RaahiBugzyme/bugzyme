@@ -23,6 +23,27 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+class UserUpdate(BaseModel):
+    full_name: str | None = Field(default=None, max_length=80)
+    bio: str | None = Field(default=None, max_length=500)
+    activity_status_enabled: bool | None = Field(default=None)
+    ai_memory_enabled: bool | None = Field(default=None)
+
+    @field_validator("full_name", mode="before")
+    @classmethod
+    def _format_full_name(cls, v: object) -> object:
+        if v is None:
+            return v
+        return v.strip()[:80]
+
+    @field_validator("bio", mode="before")
+    @classmethod
+    def _format_bio(cls, v: object) -> object:
+        if v is None:
+            return v
+        return v.strip()[:500]
+
+
 class UserPublic(_FromOrm):
     id: int
     username: str
