@@ -1,0 +1,2155 @@
+{
+ "matches": {
+  "a": [
+   {
+    "adjusted_score": 84.9667,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 75.0,
+     "demographics": 54.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "compatibility_score": 84.9667,
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 0.5
+     },
+     "demographics": {
+      "age": 0.9,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": 1.0,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence_score": 100.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Same broad profession group",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Compatible diets",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "a",
+    "user_b": "b"
+   },
+   {
+    "adjusted_score": 68.0667,
+    "categories": {
+     "attraction": 100.0,
+     "career_education": 100.0,
+     "demographics": 48.0,
+     "family": null,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "compatibility_score": 86.1333,
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": null
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": null
+     },
+     "demographics": {
+      "age": 0.8,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": null,
+      "pets": null
+     },
+     "lifestyle": {
+      "diet": 1.0,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": null
+     }
+    },
+    "confidence_score": 50.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Compatible diets",
+     "Similar body type"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "a",
+    "user_b": "e"
+   },
+   {
+    "adjusted_score": 47.2,
+    "categories": {
+     "attraction": null,
+     "career_education": null,
+     "demographics": 36.0,
+     "family": null,
+     "lifestyle": null,
+     "values_culture": null
+    },
+    "compatibility_score": 36.0,
+    "components": {
+     "attraction": {
+      "body_type": null,
+      "height": null
+     },
+     "career_education": {
+      "education": null,
+      "profession": null
+     },
+     "demographics": {
+      "age": 0.6,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": null,
+      "pets": null
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": null,
+      "drugs": null,
+      "smokes": null
+     },
+     "values_culture": {
+      "ethnicity": null,
+      "religion": null
+     }
+    },
+    "confidence_score": 20.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Different generations",
+     "Limited evidence: only 20% of the scoring weight had data on both profiles"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "a",
+    "user_b": "f"
+   },
+   {
+    "adjusted_score": 23.4583,
+    "categories": {
+     "attraction": 6.6667,
+     "career_education": 41.6667,
+     "demographics": 15.0,
+     "family": 15.0,
+     "lifestyle": 52.5,
+     "values_culture": 20.0
+    },
+    "compatibility_score": 23.4583,
+    "components": {
+     "attraction": {
+      "body_type": 0.0,
+      "height": 0.0833
+     },
+     "career_education": {
+      "education": 0.8333,
+      "profession": 0.0
+     },
+     "demographics": {
+      "age": 0.25,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 0.0,
+      "pets": 0.5
+     },
+     "lifestyle": {
+      "diet": 0.5,
+      "drinks": 0.6,
+      "drugs": 1.0,
+      "smokes": 0.0
+     },
+     "values_culture": {
+      "ethnicity": 0.5,
+      "religion": 0.0
+     }
+    },
+    "confidence_score": 100.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Large age gap",
+     "Different generations",
+     "Similar education level",
+     "Different professions",
+     "Different religions or belief systems",
+     "Similar attitude toward drugs",
+     "Different smoking habits",
+     "Different views on having children",
+     "Notable height difference",
+     "Different body types"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "a",
+    "user_b": "c"
+   }
+  ],
+  "b": [
+   {
+    "adjusted_score": 84.9667,
+    "categories": {
+     "attraction": 66.6667,
+     "career_education": 75.0,
+     "demographics": 54.0,
+     "family": 100.0,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "compatibility_score": 84.9667,
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": 0.5833
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": 0.5
+     },
+     "demographics": {
+      "age": 0.9,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 1.0,
+      "pets": 1.0
+     },
+     "lifestyle": {
+      "diet": 1.0,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": 1.0
+     }
+    },
+    "confidence_score": 100.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Same broad profession group",
+     "Same religion or belief system",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Compatible diets",
+     "Aligned views on having children",
+     "Compatible attitudes toward pets",
+     "Similar body type"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "b",
+    "user_b": "a"
+   }
+  ],
+  "c": [
+   {
+    "adjusted_score": 23.4583,
+    "categories": {
+     "attraction": 6.6667,
+     "career_education": 41.6667,
+     "demographics": 15.0,
+     "family": 15.0,
+     "lifestyle": 52.5,
+     "values_culture": 20.0
+    },
+    "compatibility_score": 23.4583,
+    "components": {
+     "attraction": {
+      "body_type": 0.0,
+      "height": 0.0833
+     },
+     "career_education": {
+      "education": 0.8333,
+      "profession": 0.0
+     },
+     "demographics": {
+      "age": 0.25,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": 0.0,
+      "pets": 0.5
+     },
+     "lifestyle": {
+      "diet": 0.5,
+      "drinks": 0.6,
+      "drugs": 1.0,
+      "smokes": 0.0
+     },
+     "values_culture": {
+      "ethnicity": 0.5,
+      "religion": 0.0
+     }
+    },
+    "confidence_score": 100.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Large age gap",
+     "Different generations",
+     "Similar education level",
+     "Different professions",
+     "Different religions or belief systems",
+     "Similar attitude toward drugs",
+     "Different smoking habits",
+     "Different views on having children",
+     "Notable height difference",
+     "Different body types"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "c",
+    "user_b": "a"
+   }
+  ],
+  "d": [],
+  "e": [
+   {
+    "adjusted_score": 68.0667,
+    "categories": {
+     "attraction": 100.0,
+     "career_education": 100.0,
+     "demographics": 48.0,
+     "family": null,
+     "lifestyle": 100.0,
+     "values_culture": 100.0
+    },
+    "compatibility_score": 86.1333,
+    "components": {
+     "attraction": {
+      "body_type": 1.0,
+      "height": null
+     },
+     "career_education": {
+      "education": 1.0,
+      "profession": null
+     },
+     "demographics": {
+      "age": 0.8,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": null,
+      "pets": null
+     },
+     "lifestyle": {
+      "diet": 1.0,
+      "drinks": 1.0,
+      "drugs": 1.0,
+      "smokes": 1.0
+     },
+     "values_culture": {
+      "ethnicity": 1.0,
+      "religion": null
+     }
+    },
+    "confidence_score": 50.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Similar age",
+     "Different generations",
+     "Similar education level",
+     "Shared ethnic background",
+     "Similar drinking habits",
+     "Similar attitude toward drugs",
+     "Similar smoking habits",
+     "Compatible diets",
+     "Similar body type"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "e",
+    "user_b": "a"
+   }
+  ],
+  "f": [
+   {
+    "adjusted_score": 47.2,
+    "categories": {
+     "attraction": null,
+     "career_education": null,
+     "demographics": 36.0,
+     "family": null,
+     "lifestyle": null,
+     "values_culture": null
+    },
+    "compatibility_score": 36.0,
+    "components": {
+     "attraction": {
+      "body_type": null,
+      "height": null
+     },
+     "career_education": {
+      "education": null,
+      "profession": null
+     },
+     "demographics": {
+      "age": 0.6,
+      "generation": 0.0
+     },
+     "family": {
+      "offspring": null,
+      "pets": null
+     },
+     "lifestyle": {
+      "diet": null,
+      "drinks": null,
+      "drugs": null,
+      "smokes": null
+     },
+     "values_culture": {
+      "ethnicity": null,
+      "religion": null
+     }
+    },
+    "confidence_score": 20.0,
+    "eligibility_reason": "Mutual sex/orientation compatibility",
+    "eligible": true,
+    "explanation": [
+     "Different generations",
+     "Limited evidence: only 20% of the scoring weight had data on both profiles"
+    ],
+    "model_version": "2.1.0",
+    "user_a": "f",
+    "user_b": "a"
+   }
+  ],
+  "g": [],
+  "h": []
+ },
+ "pairs": {
+  "a|a": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "a"
+  },
+  "a|b": {
+   "adjusted_score": 84.9667,
+   "categories": {
+    "attraction": 66.6667,
+    "career_education": 75.0,
+    "demographics": 54.0,
+    "family": 100.0,
+    "lifestyle": 100.0,
+    "values_culture": 100.0
+   },
+   "compatibility_score": 84.9667,
+   "components": {
+    "attraction": {
+     "body_type": 1.0,
+     "height": 0.5833
+    },
+    "career_education": {
+     "education": 1.0,
+     "profession": 0.5
+    },
+    "demographics": {
+     "age": 0.9,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": 1.0,
+     "pets": 1.0
+    },
+    "lifestyle": {
+     "diet": 1.0,
+     "drinks": 1.0,
+     "drugs": 1.0,
+     "smokes": 1.0
+    },
+    "values_culture": {
+     "ethnicity": 1.0,
+     "religion": 1.0
+    }
+   },
+   "confidence_score": 100.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Same broad profession group",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Compatible diets",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "b"
+  },
+  "a|c": {
+   "adjusted_score": 23.4583,
+   "categories": {
+    "attraction": 6.6667,
+    "career_education": 41.6667,
+    "demographics": 15.0,
+    "family": 15.0,
+    "lifestyle": 52.5,
+    "values_culture": 20.0
+   },
+   "compatibility_score": 23.4583,
+   "components": {
+    "attraction": {
+     "body_type": 0.0,
+     "height": 0.0833
+    },
+    "career_education": {
+     "education": 0.8333,
+     "profession": 0.0
+    },
+    "demographics": {
+     "age": 0.25,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": 0.0,
+     "pets": 0.5
+    },
+    "lifestyle": {
+     "diet": 0.5,
+     "drinks": 0.6,
+     "drugs": 1.0,
+     "smokes": 0.0
+    },
+    "values_culture": {
+     "ethnicity": 0.5,
+     "religion": 0.0
+    }
+   },
+   "confidence_score": 100.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Large age gap",
+    "Different generations",
+    "Similar education level",
+    "Different professions",
+    "Different religions or belief systems",
+    "Similar attitude toward drugs",
+    "Different smoking habits",
+    "Different views on having children",
+    "Notable height difference",
+    "Different body types"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "c"
+  },
+  "a|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "d"
+  },
+  "a|e": {
+   "adjusted_score": 68.0667,
+   "categories": {
+    "attraction": 100.0,
+    "career_education": 100.0,
+    "demographics": 48.0,
+    "family": null,
+    "lifestyle": 100.0,
+    "values_culture": 100.0
+   },
+   "compatibility_score": 86.1333,
+   "components": {
+    "attraction": {
+     "body_type": 1.0,
+     "height": null
+    },
+    "career_education": {
+     "education": 1.0,
+     "profession": null
+    },
+    "demographics": {
+     "age": 0.8,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": null,
+     "pets": null
+    },
+    "lifestyle": {
+     "diet": 1.0,
+     "drinks": 1.0,
+     "drugs": 1.0,
+     "smokes": 1.0
+    },
+    "values_culture": {
+     "ethnicity": 1.0,
+     "religion": null
+    }
+   },
+   "confidence_score": 50.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Compatible diets",
+    "Similar body type"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "e"
+  },
+  "a|f": {
+   "adjusted_score": 47.2,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": 36.0,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": 36.0,
+   "components": {
+    "attraction": {
+     "body_type": null,
+     "height": null
+    },
+    "career_education": {
+     "education": null,
+     "profession": null
+    },
+    "demographics": {
+     "age": 0.6,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": null,
+     "pets": null
+    },
+    "lifestyle": {
+     "diet": null,
+     "drinks": null,
+     "drugs": null,
+     "smokes": null
+    },
+    "values_culture": {
+     "ethnicity": null,
+     "religion": null
+    }
+   },
+   "confidence_score": 20.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Different generations",
+    "Limited evidence: only 20% of the scoring weight had data on both profiles"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "f"
+  },
+  "a|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is under 18",
+   "eligible": false,
+   "explanation": [
+    "Second user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "g"
+  },
+  "a|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for second user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for second user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "a",
+   "user_b": "h"
+  },
+  "b|a": {
+   "adjusted_score": 84.9667,
+   "categories": {
+    "attraction": 66.6667,
+    "career_education": 75.0,
+    "demographics": 54.0,
+    "family": 100.0,
+    "lifestyle": 100.0,
+    "values_culture": 100.0
+   },
+   "compatibility_score": 84.9667,
+   "components": {
+    "attraction": {
+     "body_type": 1.0,
+     "height": 0.5833
+    },
+    "career_education": {
+     "education": 1.0,
+     "profession": 0.5
+    },
+    "demographics": {
+     "age": 0.9,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": 1.0,
+     "pets": 1.0
+    },
+    "lifestyle": {
+     "diet": 1.0,
+     "drinks": 1.0,
+     "drugs": 1.0,
+     "smokes": 1.0
+    },
+    "values_culture": {
+     "ethnicity": 1.0,
+     "religion": 1.0
+    }
+   },
+   "confidence_score": 100.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Same broad profession group",
+    "Same religion or belief system",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Compatible diets",
+    "Aligned views on having children",
+    "Compatible attitudes toward pets",
+    "Similar body type"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "a"
+  },
+  "b|b": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "b"
+  },
+  "b|c": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "c"
+  },
+  "b|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "d"
+  },
+  "b|e": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "e"
+  },
+  "b|f": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "f"
+  },
+  "b|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is under 18",
+   "eligible": false,
+   "explanation": [
+    "Second user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "g"
+  },
+  "b|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for second user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for second user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "b",
+   "user_b": "h"
+  },
+  "c|a": {
+   "adjusted_score": 23.4583,
+   "categories": {
+    "attraction": 6.6667,
+    "career_education": 41.6667,
+    "demographics": 15.0,
+    "family": 15.0,
+    "lifestyle": 52.5,
+    "values_culture": 20.0
+   },
+   "compatibility_score": 23.4583,
+   "components": {
+    "attraction": {
+     "body_type": 0.0,
+     "height": 0.0833
+    },
+    "career_education": {
+     "education": 0.8333,
+     "profession": 0.0
+    },
+    "demographics": {
+     "age": 0.25,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": 0.0,
+     "pets": 0.5
+    },
+    "lifestyle": {
+     "diet": 0.5,
+     "drinks": 0.6,
+     "drugs": 1.0,
+     "smokes": 0.0
+    },
+    "values_culture": {
+     "ethnicity": 0.5,
+     "religion": 0.0
+    }
+   },
+   "confidence_score": 100.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Large age gap",
+    "Different generations",
+    "Similar education level",
+    "Different professions",
+    "Different religions or belief systems",
+    "Similar attitude toward drugs",
+    "Different smoking habits",
+    "Different views on having children",
+    "Notable height difference",
+    "Different body types"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "a"
+  },
+  "c|b": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "b"
+  },
+  "c|c": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "c"
+  },
+  "c|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "d"
+  },
+  "c|e": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "e"
+  },
+  "c|f": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "f"
+  },
+  "c|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is under 18",
+   "eligible": false,
+   "explanation": [
+    "Second user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "g"
+  },
+  "c|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for second user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for second user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "c",
+   "user_b": "h"
+  },
+  "d|a": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "a"
+  },
+  "d|b": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "b"
+  },
+  "d|c": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "c"
+  },
+  "d|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "d"
+  },
+  "d|e": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "e"
+  },
+  "d|f": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "f"
+  },
+  "d|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is under 18",
+   "eligible": false,
+   "explanation": [
+    "Second user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "g"
+  },
+  "d|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for second user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for second user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "d",
+   "user_b": "h"
+  },
+  "e|a": {
+   "adjusted_score": 68.0667,
+   "categories": {
+    "attraction": 100.0,
+    "career_education": 100.0,
+    "demographics": 48.0,
+    "family": null,
+    "lifestyle": 100.0,
+    "values_culture": 100.0
+   },
+   "compatibility_score": 86.1333,
+   "components": {
+    "attraction": {
+     "body_type": 1.0,
+     "height": null
+    },
+    "career_education": {
+     "education": 1.0,
+     "profession": null
+    },
+    "demographics": {
+     "age": 0.8,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": null,
+     "pets": null
+    },
+    "lifestyle": {
+     "diet": 1.0,
+     "drinks": 1.0,
+     "drugs": 1.0,
+     "smokes": 1.0
+    },
+    "values_culture": {
+     "ethnicity": 1.0,
+     "religion": null
+    }
+   },
+   "confidence_score": 50.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Similar age",
+    "Different generations",
+    "Similar education level",
+    "Shared ethnic background",
+    "Similar drinking habits",
+    "Similar attitude toward drugs",
+    "Similar smoking habits",
+    "Compatible diets",
+    "Similar body type"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "a"
+  },
+  "e|b": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "b"
+  },
+  "e|c": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "c"
+  },
+  "e|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "d"
+  },
+  "e|e": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "e"
+  },
+  "e|f": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "f"
+  },
+  "e|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is under 18",
+   "eligible": false,
+   "explanation": [
+    "Second user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "g"
+  },
+  "e|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for second user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for second user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "e",
+   "user_b": "h"
+  },
+  "f|a": {
+   "adjusted_score": 47.2,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": 36.0,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": 36.0,
+   "components": {
+    "attraction": {
+     "body_type": null,
+     "height": null
+    },
+    "career_education": {
+     "education": null,
+     "profession": null
+    },
+    "demographics": {
+     "age": 0.6,
+     "generation": 0.0
+    },
+    "family": {
+     "offspring": null,
+     "pets": null
+    },
+    "lifestyle": {
+     "diet": null,
+     "drinks": null,
+     "drugs": null,
+     "smokes": null
+    },
+    "values_culture": {
+     "ethnicity": null,
+     "religion": null
+    }
+   },
+   "confidence_score": 20.0,
+   "eligibility_reason": "Mutual sex/orientation compatibility",
+   "eligible": true,
+   "explanation": [
+    "Different generations",
+    "Limited evidence: only 20% of the scoring weight had data on both profiles"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "a"
+  },
+  "f|b": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "b"
+  },
+  "f|c": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "c"
+  },
+  "f|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is not attracted to the first user's sex",
+   "eligible": false,
+   "explanation": [
+    "Second user is not attracted to the first user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "d"
+  },
+  "f|e": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is not attracted to the second user's sex",
+   "eligible": false,
+   "explanation": [
+    "First user is not attracted to the second user's sex"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "e"
+  },
+  "f|f": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "f"
+  },
+  "f|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Second user is under 18",
+   "eligible": false,
+   "explanation": [
+    "Second user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "g"
+  },
+  "f|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for second user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for second user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "f",
+   "user_b": "h"
+  },
+  "g|a": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is under 18",
+   "eligible": false,
+   "explanation": [
+    "First user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "a"
+  },
+  "g|b": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is under 18",
+   "eligible": false,
+   "explanation": [
+    "First user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "b"
+  },
+  "g|c": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is under 18",
+   "eligible": false,
+   "explanation": [
+    "First user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "c"
+  },
+  "g|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is under 18",
+   "eligible": false,
+   "explanation": [
+    "First user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "d"
+  },
+  "g|e": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is under 18",
+   "eligible": false,
+   "explanation": [
+    "First user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "e"
+  },
+  "g|f": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is under 18",
+   "eligible": false,
+   "explanation": [
+    "First user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "f"
+  },
+  "g|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "g"
+  },
+  "g|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "First user is under 18",
+   "eligible": false,
+   "explanation": [
+    "First user is under 18"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "g",
+   "user_b": "h"
+  },
+  "h|a": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for first user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for first user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "a"
+  },
+  "h|b": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for first user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for first user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "b"
+  },
+  "h|c": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for first user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for first user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "c"
+  },
+  "h|d": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for first user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for first user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "d"
+  },
+  "h|e": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for first user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for first user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "e"
+  },
+  "h|f": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for first user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for first user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "f"
+  },
+  "h|g": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Age unknown for first user; adulthood cannot be verified",
+   "eligible": false,
+   "explanation": [
+    "Age unknown for first user; adulthood cannot be verified"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "g"
+  },
+  "h|h": {
+   "adjusted_score": null,
+   "categories": {
+    "attraction": null,
+    "career_education": null,
+    "demographics": null,
+    "family": null,
+    "lifestyle": null,
+    "values_culture": null
+   },
+   "compatibility_score": null,
+   "components": null,
+   "confidence_score": null,
+   "eligibility_reason": "Same user",
+   "eligible": false,
+   "explanation": [
+    "Same user"
+   ],
+   "model_version": "2.1.0",
+   "user_a": "h",
+   "user_b": "h"
+  }
+ }
+}

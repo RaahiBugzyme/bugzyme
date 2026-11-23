@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UserPreferences",
+  "description": "All keys optional. Missing preference = no preference. hard=true can exclude a candidate (unknown candidate values are kept by default); hard=false only re-ranks.",
+  "type": "object",
+  "properties": {
+    "preferred_distance_km": {"type": "number", "exclusiveMinimum": 0, "description": "SOFT"},
+    "max_distance_km": {"type": "number", "exclusiveMinimum": 0, "description": "HARD (applied only when set; unknown location is never excluded)"},
+    "criteria": {
+      "type": "object",
+      "properties": {
+        "age": {"$ref": "#/$defs/range"}, "height": {"$ref": "#/$defs/range"},
+        "education": {"type": "object", "properties": {"min_rank": {"type": "number"}, "hard": {"type": "boolean"}}},
+        "profession": {"$ref": "#/$defs/values"}, "profession_group": {"$ref": "#/$defs/values"},
+        "religion": {"$ref": "#/$defs/values"}, "ethnicity": {"$ref": "#/$defs/values"},
+        "drinks": {"$ref": "#/$defs/values"}, "drugs": {"$ref": "#/$defs/values"}, "smokes": {"$ref": "#/$defs/values"},
+        "diet": {"$ref": "#/$defs/values"}, "children": {"$ref": "#/$defs/values"}, "pets": {"$ref": "#/$defs/values"},
+        "body_type": {"$ref": "#/$defs/values"}, "body_type_group": {"$ref": "#/$defs/values"},
+        "relationship_intention": {"$ref": "#/$defs/values"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "range": {"type": "object", "properties": {"min": {"type": "number"}, "max": {"type": "number"}, "hard": {"type": "boolean"}}},
+    "values": {"type": "object", "required": ["values"], "properties": {"values": {"type": "array", "items": {"type": "string"}}, "hard": {"type": "boolean"}}}
+  }
+}

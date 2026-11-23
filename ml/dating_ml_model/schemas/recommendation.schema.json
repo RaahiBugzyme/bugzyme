@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Recommendation",
+  "description": "Signals are SEPARATE. None is a relationship-success probability. Unknown values are null with an explicit status.",
+  "type": "object",
+  "required": ["user_id", "candidate_id", "eligibility", "ranking", "explanation"],
+  "properties": {
+    "user_id": {}, "candidate_id": {},
+    "eligibility": {"type": "object", "properties": {"eligible": {"type": "boolean"}, "reasons": {"type": "array", "items": {"type": "string"}}}},
+    "compatibility": {"type": ["object", "null"], "description": "score (raw alignment 0-100), confidence (evidence 0-100), adjusted_score (shrunk toward 50), categories, components"},
+    "location": {"type": ["object", "null"], "description": "distance_km, location_score, location_confidence, location_available, location_status in {known, partial_unknown, unknown, unresolved, coarse, disabled}, preferred/max distance flags"},
+    "preferences": {"type": ["object", "null"], "description": "score, confidence, status in {known, no_preferences, unknown}, per-criterion matches"},
+    "relationship_intention": {"type": ["object", "null"], "description": "alignment of STATED intentions only"},
+    "behavior": {"type": ["object", "null"], "description": "score|null, confidence, status in {cold_start, insufficient_data, sufficient_data, no_applicable_evidence, disabled}, evidence_count"},
+    "mutual_interest": {"type": ["object", "null"], "description": "probability|null, confidence, status in {available, insufficient_behavioral_data, disabled}"},
+    "ranking": {"type": "object", "description": "final_score and per-signal components with effective weights (placeholders, not validated)"},
+    "explanation": {"type": "array", "items": {"type": "string"}}
+  }
+}

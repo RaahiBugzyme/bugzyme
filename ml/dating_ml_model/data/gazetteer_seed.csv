@@ -1,0 +1,226 @@
+city,region,country,latitude,longitude,aliases
+Pune,Maharashtra,India,18.5204,73.8567,poona
+Pimpri-Chinchwad,Maharashtra,India,18.6298,73.7997,pimpri;pimpri chinchwad;pcmc
+Mumbai,Maharashtra,India,19.0760,72.8777,bombay
+Nashik,Maharashtra,India,19.9975,73.7898,nasik
+Nagpur,Maharashtra,India,21.1458,79.0882,
+Delhi,Delhi,India,28.6139,77.2090,new delhi
+Bengaluru,Karnataka,India,12.9716,77.5946,bangalore
+Hyderabad,Telangana,India,17.3850,78.4867,
+Chennai,Tamil Nadu,India,13.0827,80.2707,madras
+Kolkata,West Bengal,India,22.5726,88.3639,calcutta
+Ahmedabad,Gujarat,India,23.0225,72.5714,
+Jaipur,Rajasthan,India,26.9124,75.7873,
+Lucknow,Uttar Pradesh,India,26.8467,80.9462,
+San Francisco,California,United States,37.7749,-122.4194,sf
+Oakland,California,United States,37.8044,-122.2712,
+Berkeley,California,United States,37.8716,-122.2727,
+San Jose,California,United States,37.3382,-121.8863,
+Los Angeles,California,United States,34.0522,-118.2437,la
+New York,New York,United States,40.7128,-74.0060,nyc;new york city
+Chicago,Illinois,United States,41.8781,-87.6298,
+Seattle,Washington,United States,47.6062,-122.3321,
+Boston,Massachusetts,United States,42.3601,-71.0589,
+Austin,Texas,United States,30.2672,-97.7431,
+London,England,United Kingdom,51.5074,-0.1278,
+Paris,Ile-de-France,France,48.8566,2.3522,
+Berlin,Berlin,Germany,52.5200,13.4050,
+Toronto,Ontario,Canada,43.6532,-79.3832,
+Sydney,New South Wales,Australia,-33.8688,151.2093,
+Singapore,Singapore,Singapore,1.3521,103.8198,
+Dubai,Dubai,United Arab Emirates,25.2048,55.2708,
+Gurugram,Haryana,India,28.4595,77.0266,gurgaon
+Noida,Uttar Pradesh,India,28.5355,77.3910,gautam buddha nagar
+Greater Noida,Uttar Pradesh,India,28.4744,77.5040,greater noida city
+Ghaziabad,Uttar Pradesh,India,28.6692,77.4538,
+Faridabad,Haryana,India,28.4089,77.3178,
+Chandigarh,Chandigarh,India,30.7333,76.7794,the city beautiful
+Mohali,Punjab,India,30.7046,76.7179,sas nagar;sahibzada ajit singh nagar
+Panchkula,Haryana,India,30.6942,76.8606,
+Amritsar,Punjab,India,31.6340,74.8723,ramdaspur
+Ludhiana,Punjab,India,30.9010,75.8573,
+Jalandhar,Punjab,India,31.3260,75.5762,jullundur
+Patiala,Punjab,India,30.3398,76.3869,
+Bathinda,Punjab,India,30.2110,74.9455,bhatinda
+Dehradun,Uttarakhand,India,30.3165,78.0322,dehra doon
+Haridwar,Uttarakhand,India,29.9457,78.1642,hardwar
+Rishikesh,Uttarakhand,India,30.0869,78.2676,
+Roorkee,Uttarakhand,India,29.8543,77.8880,
+Shimla,Himachal Pradesh,India,31.1048,77.1734,simla
+Dharamshala,Himachal Pradesh,India,32.2190,76.3234,dharamsala
+Srinagar,Jammu and Kashmir,India,34.0837,74.7973,
+Jammu,Jammu and Kashmir,India,32.7266,74.8570,
+Thane,Maharashtra,India,19.2183,72.9781,thana
+Navi Mumbai,Maharashtra,India,19.0330,73.0297,new bombay;new mumbai
+Kalyan-Dombivli,Maharashtra,India,19.2403,73.1305,kalyan;dombivli;kalyan dombivli
+Vasai-Virar,Maharashtra,India,19.4259,72.8225,vasai;virar
+Chhatrapati Sambhajinagar,Maharashtra,India,19.8762,75.3433,aurangabad;sambhajinagar
+Solapur,Maharashtra,India,17.6599,75.9064,sholapur
+Kolhapur,Maharashtra,India,16.7050,74.2433,
+Amravati,Maharashtra,India,20.9320,77.7523,amraoti
+Nanded,Maharashtra,India,19.1383,77.3210,nanded-waghala
+Jalgaon,Maharashtra,India,21.0077,75.5626,
+Sangli,Maharashtra,India,16.8524,74.5815,sangli-miraj;miraj
+Akola,Maharashtra,India,20.7002,77.0082,
+Latur,Maharashtra,India,18.4088,76.5604,
+Dhule,Maharashtra,India,20.9042,74.7749,
+Ahmednagar,Maharashtra,India,19.0948,74.7480,ahilyanagar
+Chandrapur,Maharashtra,India,19.9615,79.2961,
+Parbhani,Maharashtra,India,19.2644,76.7744,
+Panaji,Goa,India,15.4909,73.8278,panjim
+Margao,Goa,India,15.2832,73.9862,madgaon
+Vasco da Gama,Goa,India,15.3982,73.8113,vasco
+Mapusa,Goa,India,15.5937,73.8142,
+Surat,Gujarat,India,21.1702,72.8311,
+Vadodara,Gujarat,India,22.3072,73.1812,baroda
+Rajkot,Gujarat,India,22.3039,70.8022,
+Bhavnagar,Gujarat,India,21.7645,72.1519,
+Jamnagar,Gujarat,India,22.4707,70.0577,
+Gandhinagar,Gujarat,India,23.2156,72.6369,
+Junagadh,Gujarat,India,21.5222,70.4579,
+Anand,Gujarat,India,22.5645,72.9289,
+Indore,Madhya Pradesh,India,22.7196,75.8577,
+Bhopal,Madhya Pradesh,India,23.2599,77.4126,
+Gwalior,Madhya Pradesh,India,26.2183,78.1828,
+Jabalpur,Madhya Pradesh,India,23.1815,79.9864,jubbulpore
+Ujjain,Madhya Pradesh,India,23.1765,75.7885,
+Sagar,Madhya Pradesh,India,23.8388,78.7378,
+Raipur,Chhattisgarh,India,21.2514,81.6296,
+Bhilai,Chhattisgarh,India,21.1938,81.3509,durg;durg-bhilai
+Bilaspur,Chhattisgarh,India,22.0797,82.1409,
+Kanpur,Uttar Pradesh,India,26.4499,80.3319,cawnpore
+Varanasi,Uttar Pradesh,India,25.3176,82.9739,benaras;banaras;kashi
+Agra,Uttar Pradesh,India,27.1767,78.0081,
+Prayagraj,Uttar Pradesh,India,25.4358,81.8463,allahabad
+Meerut,Uttar Pradesh,India,28.9845,77.7064,
+Bareilly,Uttar Pradesh,India,28.3670,79.4304,
+Aligarh,Uttar Pradesh,India,27.8974,78.0880,
+Moradabad,Uttar Pradesh,India,28.8386,78.7733,
+Gorakhpur,Uttar Pradesh,India,26.7606,83.3732,
+Saharanpur,Uttar Pradesh,India,29.9671,77.5510,
+Jhansi,Uttar Pradesh,India,25.4484,78.5685,
+Mathura,Uttar Pradesh,India,27.4924,77.6737,
+Patna,Bihar,India,25.5941,85.1376,patliputra
+Gaya,Bihar,India,24.7914,85.0002,
+Muzaffarpur,Bihar,India,26.1209,85.3647,
+Bhagalpur,Bihar,India,25.2425,86.9842,
+Darbhanga,Bihar,India,26.1542,85.8918,
+Ranchi,Jharkhand,India,23.3441,85.3096,
+Jamshedpur,Jharkhand,India,22.8046,86.2029,tatanagar
+Dhanbad,Jharkhand,India,23.7957,86.4304,
+Bhubaneswar,Odisha,India,20.2961,85.8245,bhubaneshwar
+Cuttack,Odisha,India,20.4625,85.8828,
+Rourkela,Odisha,India,22.2604,84.8536,
+Puri,Odisha,India,19.8135,85.8312,jagannath puri
+Guwahati,Assam,India,26.1445,91.7362,gauhati
+Silchar,Assam,India,24.8333,92.7789,
+Dibrugarh,Assam,India,27.4728,94.9120,
+Shillong,Meghalaya,India,25.5788,91.8933,
+Imphal,Manipur,India,24.8170,93.9368,
+Aizawl,Mizoram,India,23.7271,92.7176,
+Agartala,Tripura,India,23.8315,91.2868,
+Kohima,Nagaland,India,25.6751,94.1086,
+Gangtok,Sikkim,India,27.3389,88.6065,
+Itanagar,Arunachal Pradesh,India,27.0844,93.6053,
+Mysuru,Karnataka,India,12.2958,76.6394,mysore
+Mangaluru,Karnataka,India,12.9141,74.8560,mangalore
+Hubballi-Dharwad,Karnataka,India,15.3647,75.1240,hubli;hubballi;dharwad
+Belagavi,Karnataka,India,15.8497,74.4977,belgaum
+Kalaburagi,Karnataka,India,17.3297,76.8343,gulbarga
+Davangere,Karnataka,India,14.4644,75.9218,
+Ballari,Karnataka,India,15.1394,76.9214,bellary
+Shivamogga,Karnataka,India,13.9299,75.5681,shimoga
+Kochi,Kerala,India,9.9312,76.2673,cochin;ernakulam
+Thiruvananthapuram,Kerala,India,8.5241,76.9366,trivandrum
+Kozhikode,Kerala,India,11.2588,75.7804,calicut
+Thrissur,Kerala,India,10.5276,76.2144,trichur
+Kollam,Kerala,India,8.8932,76.6141,quilon
+Kannur,Kerala,India,11.8745,75.3704,cannanore
+Alappuzha,Kerala,India,9.4981,76.3388,alleppey
+Palakkad,Kerala,India,10.7867,76.6548,palghat
+Coimbatore,Tamil Nadu,India,11.0168,76.9558,kovai
+Madurai,Tamil Nadu,India,9.9252,78.1198,
+Tiruchirappalli,Tamil Nadu,India,10.7905,78.7047,trichy;tiruchi
+Salem,Tamil Nadu,India,11.6643,78.1460,
+Tirunelveli,Tamil Nadu,India,8.7139,77.7567,nellai
+Tiruppur,Tamil Nadu,India,11.1085,77.3411,
+Erode,Tamil Nadu,India,11.3410,77.7172,
+Vellore,Tamil Nadu,India,12.9165,79.1325,
+Thoothukudi,Tamil Nadu,India,8.7642,78.1348,tuticorin
+Dindigul,Tamil Nadu,India,10.3673,77.9803,
+Thanjavur,Tamil Nadu,India,10.7870,79.1378,tanjore
+Puducherry,Puducherry,India,11.9416,79.8083,pondicherry
+Visakhapatnam,Andhra Pradesh,India,17.6868,83.2185,vizag;waltair
+Vijayawada,Andhra Pradesh,India,16.5062,80.6480,bezawada
+Guntur,Andhra Pradesh,India,16.3067,80.4365,
+Nellore,Andhra Pradesh,India,14.4426,79.9865,
+Kurnool,Andhra Pradesh,India,15.8281,78.0373,
+Tirupati,Andhra Pradesh,India,13.6288,79.4192,
+Rajahmundry,Andhra Pradesh,India,17.0005,81.8040,rajamahendravaram
+Kakinada,Andhra Pradesh,India,16.9891,82.2475,
+Anantapur,Andhra Pradesh,India,14.6819,77.6006,
+Kadapa,Andhra Pradesh,India,14.4673,78.8242,cuddapah
+Warangal,Telangana,India,17.9689,79.5941,orugallu
+Nizamabad,Telangana,India,18.6725,78.0941,
+Karimnagar,Telangana,India,18.4386,79.1288,
+Khammam,Telangana,India,17.2473,80.1514,
+Ramagundam,Telangana,India,18.7551,79.5140,
+San Diego,California,United States,32.7157,-117.1611,
+Sunnyvale,California,United States,37.3688,-122.0363,
+Palo Alto,California,United States,37.4419,-122.1430,
+Mountain View,California,United States,37.3861,-122.0839,
+Santa Clara,California,United States,37.3541,-121.9552,
+Cupertino,California,United States,37.3230,-122.0322,
+Fremont,California,United States,37.5485,-121.9886,
+Sacramento,California,United States,38.5816,-121.4944,
+Houston,Texas,United States,29.7604,-95.3698,
+Dallas,Texas,United States,32.7767,-96.7970,
+Fort Worth,Texas,United States,32.7555,-97.3308,
+Miami,Florida,United States,25.7617,-80.1918,
+Orlando,Florida,United States,28.5383,-81.3792,
+Tampa,Florida,United States,27.9506,-82.4572,
+Atlanta,Georgia,United States,33.7490,-84.3880,
+Philadelphia,Pennsylvania,United States,39.9526,-75.1652,philly
+Pittsburgh,Pennsylvania,United States,40.4406,-79.9959,
+Washington,District of Columbia,United States,38.9072,-77.0369,dc;washington dc;washington d.c.
+Denver,Colorado,United States,39.7392,-104.9903,
+Phoenix,Arizona,United States,33.4484,-112.0740,
+Las Vegas,Nevada,United States,36.1699,-115.1398,vegas
+Portland,Oregon,United States,45.5152,-122.6784,
+Minneapolis,Minnesota,United States,44.9778,-93.2650,twin cities
+Detroit,Michigan,United States,42.3314,-83.0458,motor city
+Vancouver,British Columbia,Canada,49.2827,-123.1207,
+Montreal,Quebec,Canada,45.5017,-73.5673,
+Calgary,Alberta,Canada,51.0447,-114.0719,
+Ottawa,Ontario,Canada,45.4215,-75.6972,
+Edmonton,Alberta,Canada,53.5461,-113.4938,
+Manchester,England,United Kingdom,53.4808,-2.2426,
+Birmingham,England,United Kingdom,52.4862,-1.8904,
+Edinburgh,Scotland,United Kingdom,55.9533,-3.1883,
+Glasgow,Scotland,United Kingdom,55.8642,-4.2518,
+Dublin,Leinster,Ireland,53.3498,-6.2603,
+Amsterdam,North Holland,Netherlands,52.3676,4.9041,
+Rotterdam,South Holland,Netherlands,51.9244,4.4777,
+Brussels,Brussels,Belgium,50.8503,4.3517,
+Frankfurt,Hesse,Germany,50.1109,8.6821,frankfurt am main
+Munich,Bavaria,Germany,48.1351,11.5820,muenchen
+Zurich,Zurich,Switzerland,47.3769,8.5417,
+Geneva,Geneva,Switzerland,46.2044,6.1432,
+Vienna,Vienna,Austria,48.2082,16.3738,wien
+Madrid,Community of Madrid,Spain,40.4168,-3.7038,
+Barcelona,Catalonia,Spain,41.3879,2.1699,
+Rome,Lazio,Italy,41.9028,12.4964,roma
+Milan,Lombardy,Italy,45.4642,9.1900,milano
+Tokyo,Tokyo,Japan,35.6762,139.6503,
+Osaka,Osaka,Japan,34.6937,135.5023,
+Seoul,Seoul,South Korea,37.5665,126.9780,
+Hong Kong,Hong Kong,Hong Kong,22.3193,114.1694,hk
+Bangkok,Bangkok,Thailand,13.7563,100.5018,
+Kuala Lumpur,Federal Territory of Kuala Lumpur,Malaysia,3.1390,101.6869,kl
+Jakarta,Jakarta,Indonesia,-6.2088,106.8456,
+Melbourne,Victoria,Australia,-37.8136,144.9631,
+Brisbane,Queensland,Australia,-27.4698,153.0251,
+Perth,Western Australia,Australia,-31.9505,115.8605,
+Auckland,Auckland,New Zealand,-36.8485,174.7633,
+Abu Dhabi,Abu Dhabi,United Arab Emirates,24.4539,54.3773,
+Doha,Doha,Qatar,25.2854,51.5310,
