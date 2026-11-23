@@ -1,0 +1,629 @@
+
+.onboarding-root {
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --muted: rgba(255,255,255,.45);
+  --text: rgba(255,255,255,.88);
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bd);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.onboarding-root button, .onboarding-root input { font: inherit; }
+
+.onboarding-root :focus-visible { outline: 2px solid var(--es); outline-offset: 3px; }
+
+.onboarding-root {
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --muted: rgba(255,255,255,.45);
+  --text: rgba(255,255,255,.88);
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bd);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.onboarding-root button, .onboarding-root input { font: inherit; }
+
+/* ════════════════════════════════════════════════════════════
+   ROOT
+════════════════════════════════════════════════════════════ */
+.onboarding-root,.onboarding-root::before,.onboarding-root::after,.onboarding-root *,.onboarding-root *::before,.onboarding-root *::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ════════════════════════════════════════════════════════════
+   ███  EMOJI ANIMATION ENGINE  ███
+════════════════════════════════════════════════════════════ */
+
+/* Base emoji span */
+.onboarding-root .e{display:inline-block;transform-origin:center bottom;will-change:transform}
+
+/* 1. WIGGLE — heading emojis, always on */
+.onboarding-root .e-wiggle{animation:wiggle 2.4s ease-in-out infinite}
+@keyframes wiggle{
+  0%,100%{transform:rotate(0deg) scale(1)}
+  15%{transform:rotate(-10deg) scale(1.08)}
+  30%{transform:rotate(8deg) scale(1.05)}
+  45%{transform:rotate(-6deg) scale(1.06)}
+  60%{transform:rotate(4deg) scale(1.03)}
+  75%{transform:rotate(-2deg) scale(1.02)}
+}
+
+/* 2. SHAKE — Gen Z skull, rattles constantly */
+.onboarding-root .e-shake{animation:shake 1.8s ease-in-out infinite}
+@keyframes shake{
+  0%,100%{transform:translateX(0) rotate(0)}
+  10%{transform:translateX(-3px) rotate(-8deg)}
+  20%{transform:translateX(3px) rotate(8deg)}
+  30%{transform:translateX(-2px) rotate(-5deg)}
+  40%{transform:translateX(2px) rotate(5deg)}
+  50%{transform:translateX(0) rotate(0)}
+}
+
+/* 3. WAVE — Millennial peace sign */
+.onboarding-root .e-wave{animation:wave 2.2s ease-in-out infinite;transform-origin:70% 90%}
+@keyframes wave{
+  0%,60%,100%{transform:rotate(0deg)}
+  10%,30%{transform:rotate(-14deg)}
+  20%,40%{transform:rotate(14deg)}
+}
+
+/* 4. FLIP — Zillenial masks, rotates on Y */
+.onboarding-root .e-flip{animation:flip3d 3s ease-in-out infinite}
+@keyframes flip3d{
+  0%,40%,100%{transform:rotateY(0) scale(1)}
+  20%{transform:rotateY(180deg) scale(1.1)}
+}
+
+/* 5. HEARTBEAT — hearts */
+.onboarding-root .e-heart{animation:heartbeat 1.3s ease-in-out infinite}
+@keyframes heartbeat{
+  0%,100%{transform:scale(1)}
+  14%{transform:scale(1.22)}
+  28%{transform:scale(1)}
+  42%{transform:scale(1.18)}
+  70%{transform:scale(1)}
+}
+
+/* 6. FLOAT — idle emojis, gentle bob */
+.onboarding-root .e-float{animation:float 3s ease-in-out infinite}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-5px) rotate(3deg)}
+}
+
+/* 7. SPIN-SLOW — stars, targets */
+.onboarding-root .e-spin{animation:espin 4s linear infinite}
+@keyframes espin{to{transform:rotate(360deg)}}
+
+/* 8. BOUNCE — selection confirm, doors open */
+.onboarding-root .e-bounce{animation:ebounce 0.7s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes ebounce{
+  0%,100%{transform:translateY(0) scale(1)}
+  20%{transform:translateY(-12px) scale(1.15)}
+  40%{transform:translateY(4px) scale(.95)}
+  60%{transform:translateY(-6px) scale(1.07)}
+  80%{transform:translateY(2px) scale(.98)}
+}
+
+/* 9. RUBBER-BAND — for confirm/CTA emojis */
+.onboarding-root .e-rubber{animation:rubber 1.2s ease infinite}
+@keyframes rubber{
+  0%,100%{transform:scaleX(1) scaleY(1)}
+  30%{transform:scaleX(1.25) scaleY(.75)}
+  40%{transform:scaleX(.75) scaleY(1.25)}
+  50%{transform:scaleX(1.15) scaleY(.85)}
+  65%{transform:scaleX(.95) scaleY(1.05)}
+  75%{transform:scaleX(1.05) scaleY(.95)}
+}
+
+/* 10. JELLO — tags on hover/active */
+.onboarding-root .e-jello{animation:jello 1.6s ease-in-out infinite}
+@keyframes jello{
+  0%,100%{transform:skewX(0) skewY(0)}
+  22%{transform:skewX(-8deg) skewY(-1deg)}
+  33%{transform:skewX(6.5deg) skewY(.5deg)}
+  44%{transform:skewX(-4deg) skewY(-.5deg)}
+  55%{transform:skewX(2.5deg) skewY(.4deg)}
+  66%{transform:skewX(-1.5deg) skewY(-.1deg)}
+  77%{transform:skewX(1deg) skewY(0)}
+}
+
+/* 11. ORBIT — dizzy / spiral */
+.onboarding-root .e-orbit{animation:orbit 2s ease-in-out infinite}
+@keyframes orbit{
+  0%,100%{transform:rotate(0) scale(1)}
+  25%{transform:rotate(-20deg) scale(1.1)}
+  75%{transform:rotate(20deg) scale(1.1)}
+}
+
+/* 12. SWING — back/nav emojis */
+.onboarding-root .e-swing{animation:swing 2s ease-in-out infinite;transform-origin:top center}
+@keyframes swing{
+  0%,100%{transform:rotate(0)}
+  20%{transform:rotate(12deg)}
+  40%{transform:rotate(-8deg)}
+  60%{transform:rotate(5deg)}
+  80%{transform:rotate(-3deg)}
+}
+
+/* 13. TADA — success / verified */
+.onboarding-root .e-tada{animation:tada 1.8s ease-in-out infinite}
+@keyframes tada{
+  0%,100%{transform:scale(1) rotate(0)}
+  10%,20%{transform:scale(.95) rotate(-4deg)}
+  30%,50%,70%{transform:scale(1.12) rotate(3deg)}
+  40%,60%{transform:scale(1.12) rotate(-3deg)}
+  80%{transform:scale(1.05) rotate(2deg)}
+  90%{transform:scale(.98) rotate(-2deg)}
+}
+
+/* 14. MELT — 🫠 melting face */
+.onboarding-root .e-melt{animation:melt 2.5s ease-in-out infinite}
+@keyframes melt{
+  0%,100%{transform:scaleY(1) translateY(0) rotate(0)}
+  30%{transform:scaleY(1.12) translateY(-3px) rotate(-5deg)}
+  60%{transform:scaleY(.9) translateY(3px) rotate(4deg)}
+}
+
+/* 15. STEAM — coffee bob with steam feel */
+.onboarding-root .e-steam{animation:steam 2s ease-in-out infinite}
+@keyframes steam{
+  0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}
+  50%{transform:translateY(-6px) rotate(3deg) scale(1.08)}
+}
+
+/* 16. BROKEN — broken heart smash */
+.onboarding-root .e-broken{animation:broken 2s ease-in-out infinite}
+@keyframes broken{
+  0%,100%{transform:scale(1) rotate(0)}
+  25%{transform:scale(1.15) rotate(-10deg)}
+  50%{transform:scale(.9) rotate(10deg)}
+  75%{transform:scale(1.1) rotate(-5deg)}
+}
+
+/* 17. GLINT — ring spin with pop */
+.onboarding-root .e-glint{animation:glint 3s ease-in-out infinite}
+@keyframes glint{
+  0%,100%{transform:rotateZ(0) scale(1)}
+  30%{transform:rotateZ(-20deg) scale(1.2)}
+  60%{transform:rotateZ(20deg) scale(1.15)}
+}
+
+/* 18. NEON PULSE — scan ring */
+.onboarding-root .e-scan{animation:escan 1s linear infinite}
+@keyframes escan{to{transform:rotate(360deg)}}
+
+/* ── SELECTED STATE boost: parent.selected → child .e gets enhanced ── */
+.onboarding-root .selected .e-shake{animation:shake .8s ease-in-out infinite}
+.onboarding-root .selected .e-wave{animation:wave 1s ease-in-out infinite}
+.onboarding-root .selected .e-flip{animation:flip3d 1.4s ease-in-out infinite}
+.onboarding-root .selected .e-float{animation:float 1.2s ease-in-out infinite}
+.onboarding-root .selected .e-wiggle{animation:wiggle 1s ease-in-out infinite}
+.onboarding-root .selected .e-melt{animation:melt 1.2s ease-in-out infinite}
+.onboarding-root .selected .e-steam{animation:steam 1s ease-in-out infinite}
+.onboarding-root .selected .e-orbit{animation:orbit 1s ease-in-out infinite}
+
+/* Glow ring for selected era emoji */
+.onboarding-root .era-card.selected .era-emoji-wrap{
+  filter:drop-shadow(0 0 12px var(--ca));
+  animation:glow-pulse 1.4s ease-in-out infinite;
+}
+@keyframes glow-pulse{
+  0%,100%{filter:drop-shadow(0 0 8px var(--ca))}
+  50%{filter:drop-shadow(0 0 22px var(--ca)) drop-shadow(0 0 40px var(--ca))}
+}
+
+/* Verified icon pop */
+.onboarding-root .vstep.done-step .vstep-icon{animation:tada .6s cubic-bezier(.36,.07,.19,.97) both}
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN SYSTEM
+════════════════════════════════════════════════════════════ */
+.onboarding-root .screen{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  padding:calc(var(--safe-t) + 16px) 20px calc(var(--safe-b) + 20px);
+  overflow-y:auto;overflow-x:hidden;
+  opacity:0;pointer-events:none;transform:translateX(64px);
+  transition:opacity .36s ease,transform .36s cubic-bezier(.4,0,.2,1);
+  background:var(--bd);scrollbar-width:none;
+}
+.onboarding-root .screen::-webkit-scrollbar{display:none}
+.onboarding-root .screen::before{
+  content:'';position:fixed;top:0;left:0;right:0;height:45%;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%, var(--glow) 0%, transparent 70%);
+  pointer-events:none;z-index:0;transition:background .5s;
+}
+.onboarding-root .screen.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.onboarding-root .screen.exit{opacity:0;transform:translateX(-64px)}
+
+/* ════════════════════════════════════════════════════════════
+   STEP ROW
+════════════════════════════════════════════════════════════ */
+.onboarding-root .step-row{display:flex;justify-content:space-between;align-items:center;
+  position:relative;z-index:2;margin-bottom:20px}
+.onboarding-root .step-label{font-size:.74rem;font-weight:600;letter-spacing:.08em;color:var(--muted)}
+.onboarding-root .step-dots{display:flex;gap:5px}
+.onboarding-root .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .35s}
+.onboarding-root .dot.done{background:var(--ep)}
+.onboarding-root .dot.active{width:18px;border-radius:4px;background:var(--ep);
+  box-shadow:0 0 8px var(--ep);animation:dot-pulse 1.5s ease-in-out infinite}
+@keyframes dot-pulse{0%,100%{box-shadow:0 0 6px var(--ep)}50%{box-shadow:0 0 16px var(--ep)}}
+
+/* ════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+════════════════════════════════════════════════════════════ */
+.onboarding-root .stitle{font-family:'Syne',sans-serif;font-size:clamp(1.7rem,6.5vw,2.4rem);font-weight:800;
+  line-height:1.12;color:#fff;position:relative;z-index:2;margin-bottom:7px}
+.onboarding-root .ssub{font-size:clamp(.8rem,3vw,.92rem);color:var(--muted);position:relative;z-index:2;
+  margin-bottom:22px;font-weight:500}
+.onboarding-root .back-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif;
+  font-size:.8rem;font-weight:600;padding:7px 13px;border-radius:20px;cursor:pointer;
+  transition:all .2s;margin-bottom:18px;position:relative;z-index:2}
+.onboarding-root .back-btn:active{background:rgba(255,255,255,.12);transform:scale(.96)}
+.onboarding-root .era-chip{display:inline-flex;align-items:center;gap:7px;background:var(--cbg);
+  border:1px solid var(--cbr);padding:6px 13px;border-radius:30px;margin-bottom:14px;
+  position:relative;z-index:2;font-size:.76rem;font-weight:700;color:var(--ep);
+  letter-spacing:.04em;transition:color .4s,background .4s,border-color .4s}
+.onboarding-root .era-chip .chip-emoji{animation:wiggle 2s ease-in-out infinite;display:inline-block}
+
+/* ════════════════════════════════════════════════════════════
+   CTA BUTTON
+════════════════════════════════════════════════════════════ */
+.onboarding-root .cta-wrap{margin-top:auto;padding-top:18px;position:relative;z-index:2}
+.onboarding-root .btn-cta{width:100%;padding:17px 24px;border:none;border-radius:50px;
+  font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;
+  letter-spacing:.03em;background:linear-gradient(135deg,var(--ep) 0%,var(--es) 100%);
+  color:#fff;box-shadow:0 8px 30px var(--glow);
+  transition:transform .15s,box-shadow .3s,opacity .25s;
+  animation:bpulse 2.8s ease-in-out infinite;-webkit-appearance:none;appearance:none}
+.onboarding-root .btn-cta:disabled{opacity:.3;cursor:not-allowed;animation:none}
+.onboarding-root .btn-cta:not(:disabled):active{transform:scale(.97)}
+@keyframes bpulse{0%,100%{box-shadow:0 8px 26px var(--glow)}50%{box-shadow:0 10px 42px var(--glow),0 0 0 4px rgba(255,255,255,.05)}}
+/* arrow in button bounces */
+.onboarding-root .btn-arrow{display:inline-block;animation:arrow-bounce 1.4s ease-in-out infinite}
+@keyframes arrow-bounce{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+
+/* ════════════════════════════════════════════════════════════
+   PARTICLES
+════════════════════════════════════════════════════════════ */
+.onboarding-root #particles{position:fixed;inset:0;pointer-events:none;z-index:0}
+.onboarding-root .particle{position:absolute;border-radius:50%;opacity:.15;
+  animation:fup var(--d,8s) ease-in-out infinite var(--dl,0s)}
+@keyframes fup{0%{transform:translateY(0) scale(1);opacity:.15}50%{opacity:.06}
+  100%{transform:translateY(-100px) scale(.4);opacity:0}}
+
+/* ════════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════════ */
+.onboarding-root .toast{position:fixed;top:max(28px,calc(var(--safe-t) + 14px));left:50%;
+  transform:translateX(-50%) translateY(-90px);
+  background:linear-gradient(135deg,var(--ep),var(--es));color:#fff;
+  font-weight:700;font-size:.83rem;padding:10px 22px;border-radius:40px;
+  box-shadow:0 8px 28px var(--glow);z-index:9999;white-space:nowrap;
+  pointer-events:none;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.onboarding-root .toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN V — VERIFICATION
+════════════════════════════════════════════════════════════ */
+.onboarding-root .verify-steps{display:flex;flex-direction:column;gap:13px;position:relative;z-index:2}
+.onboarding-root .vstep{border-radius:18px;border:1.5px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);padding:16px 16px 14px;transition:all .3s}
+.onboarding-root .vstep.done-step{border-color:var(--ep);background:var(--cbg)}
+.onboarding-root .vstep.error-step{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.onboarding-root .vstep-header{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.onboarding-root .vstep-icon{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;font-size:1.15rem;
+  flex-shrink:0;transition:all .3s}
+.onboarding-root .vstep.done-step .vstep-icon{background:var(--ep);color:#fff;animation:tada .7s cubic-bezier(.36,.07,.19,.97) both}
+.onboarding-root .vstep-title{font-weight:700;font-size:.94rem;color:#fff}
+.onboarding-root .vstep-sub{font-size:.74rem;color:var(--muted);margin-left:50px;margin-top:2px;line-height:1.5}
+.onboarding-root .vstep-body{margin-top:11px;margin-left:50px}
+
+.onboarding-root .upload-zone{border:2px dashed rgba(255,255,255,.2);border-radius:14px;padding:18px;
+  text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.onboarding-root .upload-zone:hover,.onboarding-root .upload-zone.drag-over{border-color:var(--ep);background:var(--cbg)}
+.onboarding-root .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.onboarding-root .uz-icon{font-size:1.6rem;margin-bottom:5px;display:block}
+.onboarding-root .uz-text{font-size:.76rem;color:var(--muted);font-weight:500}
+.onboarding-root .uz-text strong{color:var(--ep);font-weight:700}
+.onboarding-root .preview-img{width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-top:8px;display:none}
+
+.onboarding-root .ai-scan-wrap{display:none;flex-direction:column;align-items:center;gap:10px;padding:12px 0}
+.onboarding-root .scan-ring{width:58px;height:58px;border-radius:50%;border:3px solid rgba(255,255,255,.1);
+  border-top-color:var(--ep);animation:espin 1s linear infinite}
+.onboarding-root .scan-text{font-size:.78rem;color:var(--muted);text-align:center;font-weight:500}
+
+.onboarding-root .id-type-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.onboarding-root .id-type-btn{padding:7px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);
+  background:transparent;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif;
+  font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s}
+.onboarding-root .id-type-btn.active{background:var(--ep);border-color:var(--ep);color:#fff;
+  animation:rubber .8s ease}
+
+.onboarding-root .status-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;
+  border-radius:20px;font-size:.71rem;font-weight:700;letter-spacing:.04em;margin-top:8px}
+.onboarding-root .status-badge.verified{background:rgba(34,197,94,.15);color:#4ade80;
+  border:1px solid rgba(34,197,94,.3);animation:tada .6s ease both}
+.onboarding-root .status-badge.failed{background:rgba(239,68,68,.15);color:#f87171;
+  border:1px solid rgba(239,68,68,.3);animation:shake .5s ease both}
+
+.onboarding-root .verify-progress{height:4px;background:rgba(255,255,255,.08);border-radius:4px;
+  margin-bottom:18px;position:relative;z-index:2;overflow:hidden}
+.onboarding-root .verify-progress-fill{height:100%;border-radius:4px;
+  background:linear-gradient(90deg,var(--ep),var(--es));
+  transition:width .6s cubic-bezier(.4,0,.2,1);width:0}
+
+.onboarding-root .privacy-note{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:13px 15px;position:relative;z-index:2;
+  font-size:.74rem;color:var(--muted);line-height:1.6;margin-top:2px}
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN 1 — ERA CARDS
+════════════════════════════════════════════════════════════ */
+.onboarding-root .era-cards{display:flex;flex-direction:column;gap:12px;position:relative;z-index:2}
+.onboarding-root .era-card{border-radius:18px;padding:18px 18px 15px;border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);cursor:pointer;position:relative;overflow:hidden;
+  transition:all .25s}
+.onboarding-root .era-card:focus-visible,.onboarding-root .vibe-card:focus-visible,.onboarding-root .match-card:focus-visible{outline:2px solid var(--es);outline-offset:3px}
+.onboarding-root .era-card::before{content:'';position:absolute;inset:0;background:var(--cg,rgba(168,85,247,.06));
+  opacity:0;transition:opacity .3s;border-radius:inherit}
+.onboarding-root .era-card:active{transform:scale(.98)}
+.onboarding-root .era-card.selected{border-color:var(--ca);box-shadow:0 0 0 1px var(--ca),0 8px 28px rgba(0,0,0,.4)}
+.onboarding-root .era-card.selected::before{opacity:1}
+.onboarding-root .era-card[data-era="genz"]{--ca:#a855f7;--cg:linear-gradient(135deg,rgba(124,58,237,.14),rgba(236,72,153,.08))}
+.onboarding-root .era-card[data-era="zillenial"]{--ca:#f59e0b;--cg:linear-gradient(135deg,rgba(245,158,11,.14),rgba(239,68,68,.08))}
+.onboarding-root .era-card[data-era="millennial"]{--ca:#3b82f6;--cg:linear-gradient(135deg,rgba(59,130,246,.14),rgba(6,182,212,.08))}
+.onboarding-root .era-sel-badge{position:absolute;top:12px;right:12px;background:var(--ca);color:#fff;
+  font-size:.64rem;font-weight:700;padding:4px 9px;border-radius:20px;letter-spacing:.06em;
+  opacity:0;transition:opacity .25s;pointer-events:none}
+.onboarding-root .era-card.selected .era-sel-badge{opacity:1;animation:rubber .6s ease}
+.onboarding-root .era-emoji-wrap{display:inline-block;margin-bottom:8px}
+.onboarding-root .era-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.15rem;color:#fff;margin-bottom:3px}
+.onboarding-root .era-desc{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+.onboarding-root .era-tags{display:flex;flex-wrap:wrap;gap:5px}
+.onboarding-root .era-tag{font-size:.68rem;font-weight:600;padding:3px 8px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.6);background:rgba(255,255,255,.05)}
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN 2 — VIBE
+════════════════════════════════════════════════════════════ */
+.onboarding-root .vibe-grid{display:flex;flex-direction:column;gap:10px;position:relative;z-index:2}
+.onboarding-root .vibe-card{border-radius:15px;padding:14px 16px;border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;
+  gap:13px;transition:all .22s}
+.onboarding-root .vibe-card:active{transform:scale(.98)}
+.onboarding-root .vibe-card.selected{border-color:var(--ep);background:var(--cbg);
+  box-shadow:0 0 0 1px var(--ep),0 5px 20px rgba(0,0,0,.3)}
+.onboarding-root .vibe-icon-wrap{font-size:1.35rem;flex-shrink:0;width:36px;text-align:center}
+.onboarding-root .vibe-info{flex:1}
+.onboarding-root .vibe-name{font-weight:700;font-size:.92rem;color:#fff;margin-bottom:1px}
+.onboarding-root .vibe-sub{font-size:.72rem;color:var(--muted)}
+.onboarding-root .vchk{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .22s;font-size:.65rem;color:transparent}
+.onboarding-root .vibe-card.selected .vchk{background:var(--ep);border-color:var(--ep);color:#fff;
+  animation:bounce-in .4s cubic-bezier(.36,.07,.19,.97)}
+@keyframes bounce-in{0%{transform:scale(0)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN 3 — MATCH
+════════════════════════════════════════════════════════════ */
+.onboarding-root .match-grid{display:flex;flex-direction:column;gap:12px;position:relative;z-index:2}
+.onboarding-root .match-card{border-radius:18px;padding:16px;border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;
+  gap:13px;transition:all .22s}
+.onboarding-root .match-card:active{transform:scale(.98)}
+.onboarding-root .match-card.selected{border-color:var(--ma);background:var(--mg);
+  box-shadow:0 0 0 1px var(--ma),0 7px 24px rgba(0,0,0,.4)}
+.onboarding-root .match-card[data-match="genz"]{--ma:#a855f7;--mg:rgba(124,58,237,.1)}
+.onboarding-root .match-card[data-match="millennial"]{--ma:#3b82f6;--mg:rgba(59,130,246,.1)}
+.onboarding-root .match-card[data-match="zillenial"]{--ma:#f59e0b;--mg:rgba(245,158,11,.1)}
+.onboarding-root .match-card[data-match="any"]{--ma:#ec4899;--mg:rgba(236,72,153,.1)}
+.onboarding-root .match-emoji-wrap{font-size:1.8rem;flex-shrink:0;display:inline-block}
+.onboarding-root .match-info{flex:1}
+.onboarding-root .match-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;margin-bottom:2px}
+.onboarding-root .match-desc{font-size:.74rem;color:var(--muted)}
+.onboarding-root .mradio{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.2);
+  flex-shrink:0;transition:all .22s;position:relative}
+.onboarding-root .match-card.selected .mradio{border-color:var(--ma);box-shadow:0 0 0 3px rgba(255,255,255,.05)}
+.onboarding-root .mradio::after{content:'';position:absolute;inset:4px;border-radius:50%;
+  background:var(--ma,#a855f7);opacity:0;transition:opacity .2s;transform:scale(0)}
+.onboarding-root .match-card.selected .mradio::after{opacity:1;transform:scale(1);
+  animation:bounce-in .35s cubic-bezier(.36,.07,.19,.97)}
+
+/* ════════════════════════════════════════════════════════════
+   SCREEN 4 — SWIPE CARDS
+════════════════════════════════════════════════════════════ */
+.onboarding-root #screen4{padding-bottom:calc(var(--safe-b) + 24px)}
+.onboarding-root .swipe-area{position:relative;z-index:2;flex:1;display:flex;align-items:center;
+  justify-content:center;min-height:400px;margin:0 -4px}
+.onboarding-root .swipe-stack{position:relative;width:100%;max-width:360px;height:460px;margin:0 auto}
+
+.onboarding-root .profile-card{position:absolute;inset:0;border-radius:24px;overflow:hidden;
+  background:#1a0d2e;cursor:grab;user-select:none;
+  box-shadow:0 16px 48px rgba(0,0,0,.55);transition:box-shadow .2s;touch-action:none}
+.onboarding-root .profile-card:active{cursor:grabbing}
+.onboarding-root .profile-card.is-gone{display:none}
+
+.onboarding-root .pc-img{width:100%;height:62%;position:relative;overflow:hidden}
+.onboarding-root .pc-img-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-size:4rem}
+.onboarding-root .profile-card[data-pera="genz"]       .pc-img-inner{background:linear-gradient(145deg,#2d1054,#1a0a3a)}
+.onboarding-root .profile-card[data-pera="millennial"] .pc-img-inner{background:linear-gradient(145deg,#0c2461,#0a1628)}
+.onboarding-root .profile-card[data-pera="zillenial"]  .pc-img-inner{background:linear-gradient(145deg,#3d1f00,#261200)}
+/* avatar emoji floats on the card */
+.onboarding-root .pc-avatar-emoji{display:inline-block;animation:float 2.5s ease-in-out infinite}
+
+.onboarding-root .pc-era-tag{position:absolute;top:12px;left:12px;font-size:.67rem;font-weight:700;
+  letter-spacing:.07em;padding:4px 11px;border-radius:20px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.onboarding-root .profile-card[data-pera="genz"]       .pc-era-tag{background:rgba(168,85,247,.35);color:#e9d5ff;border:1px solid rgba(168,85,247,.5)}
+.onboarding-root .profile-card[data-pera="millennial"] .pc-era-tag{background:rgba(59,130,246,.35);color:#bfdbfe;border:1px solid rgba(59,130,246,.5)}
+.onboarding-root .profile-card[data-pera="zillenial"]  .pc-era-tag{background:rgba(245,158,11,.35);color:#fde68a;border:1px solid rgba(245,158,11,.5)}
+
+.onboarding-root .verified-badge{position:absolute;top:12px;right:12px;background:rgba(34,197,94,.25);
+  color:#4ade80;border:1px solid rgba(34,197,94,.4);font-size:.63rem;font-weight:700;
+  padding:4px 9px;border-radius:20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.onboarding-root .verified-badge .e{animation:tada 2.5s ease-in-out infinite}
+
+.onboarding-root .overlay-like,.onboarding-root .overlay-nope{position:absolute;top:24px;padding:7px 16px;border-radius:10px;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;
+  letter-spacing:.06em;border:3px solid;opacity:0;pointer-events:none;z-index:10}
+.onboarding-root .overlay-like{left:18px;color:#4ade80;border-color:#4ade80;transform:rotate(-12deg)}
+.onboarding-root .overlay-nope{right:18px;color:#f87171;border-color:#f87171;transform:rotate(12deg)}
+
+.onboarding-root .pc-bottom{padding:14px 16px 16px;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.onboarding-root .pc-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:#fff;margin-bottom:2px}
+.onboarding-root .pc-meta{font-size:.73rem;color:rgba(255,255,255,.5);margin-bottom:8px}
+.onboarding-root .pc-meta .e{animation:float 2s ease-in-out infinite}
+.onboarding-root .pc-bio{font-size:.78rem;color:rgba(255,255,255,.75);line-height:1.5;margin-bottom:9px}
+.onboarding-root .pc-tags{display:flex;flex-wrap:wrap;gap:5px}
+.onboarding-root .pc-tag{font-size:.66rem;font-weight:600;padding:3px 8px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);background:rgba(255,255,255,.06)}
+
+.onboarding-root .profile-card.back1{transform:scale(.95) translateY(10px);z-index:0;pointer-events:none}
+.onboarding-root .profile-card.back2{transform:scale(.90) translateY(20px);z-index:-1;pointer-events:none;opacity:.6}
+
+/* swipe buttons */
+.onboarding-root .swipe-actions{display:flex;justify-content:center;align-items:center;gap:16px;
+  position:relative;z-index:2;margin-top:14px}
+.onboarding-root .swipe-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.45rem;
+  transition:transform .15s,box-shadow .2s}
+.onboarding-root .swipe-btn:active{transform:scale(.9) !important}
+.onboarding-root .btn-pass-sw{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);
+  box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.onboarding-root .btn-pass-sw .e{animation:wave 2s ease-in-out infinite;transform-origin:70% 90%}
+.onboarding-root .btn-like-sw{background:linear-gradient(135deg,var(--ep),var(--es));
+  box-shadow:0 6px 24px var(--glow);animation:bpulse 2s ease-in-out infinite}
+.onboarding-root .btn-like-sw .e{animation:heartbeat 1.2s ease-in-out infinite}
+.onboarding-root .btn-super-sw{background:rgba(250,204,21,.12);border:2px solid rgba(250,204,21,.35);
+  box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.onboarding-root .btn-super-sw .e{animation:espin 3s linear infinite}
+
+.onboarding-root .swipe-hint{text-align:center;font-size:.72rem;color:var(--muted);margin-top:7px;
+  position:relative;z-index:2;letter-spacing:.03em}
+.onboarding-root .swipe-hint .e{animation:swing 2s ease-in-out infinite;transform-origin:top center}
+
+/* empty state */
+.onboarding-root .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px 20px;position:relative;z-index:2;flex:1}
+.onboarding-root .empty-emoji{font-size:3rem;margin-bottom:12px;display:inline-block;
+  animation:float 2.5s ease-in-out infinite}
+.onboarding-root .empty-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:#fff;margin-bottom:7px}
+.onboarding-root .empty-sub{font-size:.82rem;color:var(--muted)}
+
+/* stats */
+.onboarding-root .stats-row{display:flex;gap:9px;margin-bottom:16px;position:relative;z-index:2}
+.onboarding-root .stat-chip{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  border-radius:13px;padding:10px 8px;text-align:center}
+.onboarding-root .stat-num{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:var(--ep)}
+.onboarding-root .stat-lbl{font-size:.64rem;color:var(--muted);margin-top:1px}
+.onboarding-root .stat-num.e{animation:none}  /* numbers don't float */
+
+/* ════════════════════════════════════════════════════════════
+   FADE IN UP
+════════════════════════════════════════════════════════════ */
+.onboarding-root .fiu{animation:fiu .42s cubic-bezier(.4,0,.2,1) both}
+.onboarding-root .fiu:nth-child(1){animation-delay:.04s}.onboarding-root .fiu:nth-child(2){animation-delay:.10s}
+.onboarding-root .fiu:nth-child(3){animation-delay:.16s}.onboarding-root .fiu:nth-child(4){animation-delay:.22s}
+.onboarding-root .fiu:nth-child(5){animation-delay:.28s}
+@keyframes fiu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE ONBOARDING LAYOUT
+   Keep the reference styling while aligning each screen to a
+   shared content column instead of stretching across wide viewports.
+════════════════════════════════════════════════════════════ */
+.onboarding-root .screen > *{
+  width:min(100%,800px);
+  align-self:center;
+  flex-shrink:0;
+}
+.onboarding-root .screen .step-row,
+.onboarding-root .screen .cta-wrap{
+  flex-shrink:0;
+}
+.onboarding-root .onboarding-profile-form{display:grid;gap:14px;padding:22px;border:1px solid rgba(255,255,255,.12);border-radius:24px;background:linear-gradient(145deg,rgba(44,22,72,.82),rgba(19,13,37,.94));box-shadow:0 12px 40px rgba(0,0,0,.24)}
+.onboarding-root .onboarding-profile-form h2{margin:0;color:#fff;font-size:1.35rem}
+.onboarding-root .onboarding-profile-form p{margin:0;color:rgba(255,255,255,.68);line-height:1.5}
+.onboarding-root .onboarding-profile-form label{display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:.92rem;font-weight:600}
+.onboarding-root .onboarding-profile-form input,.onboarding-root .onboarding-profile-form select{width:100%;min-height:48px;padding:0 13px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(9,7,20,.8);color:#fff;font:inherit;accent-color:#f177d2}
+.onboarding-root .onboarding-profile-form input:focus,.onboarding-root .onboarding-profile-form select:focus{outline:2px solid #f177d2;outline-offset:2px}
+.onboarding-root .onboarding-profile-form select option{background:#211333;color:#fff}
+.onboarding-root .onboarding-profile-form .btn-cta{width:100%;min-height:52px}
+.onboarding-root .onboarding-profile-form .btn-cta:disabled{opacity:.65;cursor:wait}
+.onboarding-root .onboarding-form-error{padding:12px;border:1px solid rgba(255,104,151,.4);border-radius:12px;background:rgba(130,30,70,.2);color:#ffc1d4}
+.onboarding-root .onboarding-verification-note,.onboarding-root .onboarding-preview-label{color:rgba(255,255,255,.56);font-size:.82rem;line-height:1.45}
+.onboarding-root .onboarding-profile-status{width:min(100% - 32px,520px);margin:20vh auto;padding:28px;border:1px solid rgba(255,255,255,.14);border-radius:20px;background:rgba(31,20,52,.9);color:#fff;text-align:center}
+.onboarding-root .onboarding-profile-status .btn-cta{margin-top:12px}
+.onboarding-root #screen4 > *{width:min(100%,460px)}
+.onboarding-root #screen4 .onboarding-profile-form{width:min(100%,460px);margin:10px auto 24px}
+.onboarding-root #screen4 .swipe-area{width:100%;margin-left:0;margin-right:0;min-height:0}
+.onboarding-root #screen4 .swipe-stack{width:min(100%,400px);max-width:400px;height:380px}
+.onboarding-root #screen4 .swipe-hint,
+.onboarding-root #screen4 .swipe-actions{width:100%}
+.onboarding-root #screen4 .empty-state{width:100%}
+
+@media(max-width:600px){
+  .onboarding-root .screen{
+    padding-left:clamp(16px,4.6vw,20px);
+    padding-right:clamp(16px,4.6vw,20px);
+  }
+  .onboarding-root #screen4{padding-bottom:calc(var(--safe-b) + 24px)}
+  .onboarding-root #screen4 .swipe-stack{
+    width:100%;
+    height:min(380px,56dvh);
+    min-height:360px;
+  }
+  .onboarding-root .vstep-sub,
+  .onboarding-root .vstep-body{margin-left:0}
+  .onboarding-root .vstep-sub{margin-top:8px}
+  .onboarding-root .vstep-body{margin-top:12px}
+  .onboarding-root .upload-zone{min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .onboarding-root .stats-row{gap:7px}
+  .onboarding-root .stat-chip{padding:9px 6px}
+  .onboarding-root .swipe-actions{gap:clamp(12px,5vw,20px)}
+  .onboarding-root .swipe-btn{width:54px;height:54px}
+  .onboarding-root #screenV{
+    padding-top:calc(var(--safe-t) + 12px);
+    padding-bottom:calc(var(--safe-b) + 12px);
+  }
+  .onboarding-root #screen4{padding-bottom:calc(var(--safe-b) + 12px)}
+  .onboarding-root #screenV .step-row{margin-bottom:14px}
+  .onboarding-root #screenV .ssub{margin-bottom:14px}
+  .onboarding-root #screenV .verify-steps{gap:10px}
+  .onboarding-root #screenV .cta-wrap{padding-top:12px}
+  .onboarding-root #screenV .vstep{padding:12px 16px 10px}
+  .onboarding-root #screenV .upload-zone{min-height:100px}
+}
+
+@media(max-height:760px){
+  .onboarding-root .screen{padding-top:calc(var(--safe-t) + 12px);padding-bottom:calc(var(--safe-b) + 14px)}
+  .onboarding-root .step-row{margin-bottom:14px}
+  .onboarding-root .ssub{margin-bottom:16px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .onboarding-root *,
+  .onboarding-root *::before,
+  .onboarding-root *::after{
+    scroll-behavior:auto !important;
+  }
+}
+

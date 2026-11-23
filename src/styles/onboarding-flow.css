@@ -1,0 +1,441 @@
+.onboarding-flow,
+.onboarding-flow * {
+  box-sizing: border-box;
+}
+
+.onboarding-flow {
+  --flow-text: rgba(255, 255, 255, .92);
+  position: relative;
+  min-height: 100dvh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  padding: calc(env(safe-area-inset-top, 0px) + clamp(16px, 3vh, 24px)) clamp(16px, 4vw, 24px) calc(env(safe-area-inset-bottom, 0px) + clamp(36px, 6vh, 64px));
+  background: var(--bd, #0d0a1a);
+  color: var(--flow-text);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.onboarding-flow-glow {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 420px;
+  background: radial-gradient(ellipse at 50% 0, color-mix(in srgb, var(--ep) 22%, transparent), transparent 72%);
+  pointer-events: none;
+}
+
+.onboarding-flow-header,
+.onboarding-flow-progress,
+.onboarding-flow-content {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+
+.onboarding-flow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.onboarding-flow-header a,
+.onboarding-flow-header span {
+  color: rgba(255, 255, 255, .76);
+  font-size: .9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.onboarding-flow-header a:hover {
+  color: white;
+}
+
+.onboarding-flow-progress {
+  display: flex;
+  gap: 7px;
+  margin: 25px auto 42px;
+}
+
+.onboarding-flow-progress span {
+  height: 5px;
+  flex: 1;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .13);
+}
+
+.onboarding-flow-progress span.active {
+  background: linear-gradient(90deg, var(--ep), var(--es));
+  box-shadow: 0 0 14px var(--glow);
+}
+
+.onboarding-flow-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: clamp(36px, 6vh, 72px);
+}
+
+.onboarding-flow-kicker,
+.integration-eyebrow {
+  color: var(--es);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+
+.onboarding-flow-content h1 {
+  max-width: 680px;
+  margin: 10px 0;
+  font-family: Syne, sans-serif;
+  font-size: clamp(2rem, 5vw, 3.35rem);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.onboarding-flow-sub {
+  margin: 0 0 26px;
+  color: rgba(255, 255, 255, .65);
+  line-height: 1.6;
+}
+
+.onboarding-choice-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.onboarding-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  min-height: 72px;
+  padding: 16px;
+  border: 1.5px solid rgba(255, 255, 255, .1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .04);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: all .22s;
+  box-sizing: border-box;
+}
+
+.onboarding-choice:active {
+  transform: scale(.98);
+}
+
+.onboarding-choice:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, .25);
+  background: rgba(255, 255, 255, .06);
+}
+
+.onboarding-choice:focus-visible {
+  outline: 2px solid var(--ep);
+  outline-offset: 3px;
+}
+
+.onboarding-choice.selected {
+  border-color: var(--ep);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--cbg) 75%, transparent), rgba(19, 13, 37, .85));
+  box-shadow: 0 0 0 1px var(--ep), 0 7px 24px rgba(0, 0, 0, .4);
+}
+
+.onboarding-choice[data-era="genz"] {
+  --era-accent: #a855f7;
+  --era-bg: rgba(124, 58, 237, .12);
+}
+
+.onboarding-choice[data-era="zillenial"] {
+  --era-accent: #f59e0b;
+  --era-bg: rgba(245, 158, 11, .12);
+}
+
+.onboarding-choice[data-era="millennial"] {
+  --era-accent: #3b82f6;
+  --era-bg: rgba(59, 130, 246, .12);
+}
+
+.onboarding-choice.selected[data-era] {
+  border-color: var(--era-accent);
+  background: linear-gradient(145deg, var(--era-bg), rgba(19, 13, 37, .85));
+  box-shadow: 0 0 0 1px var(--era-accent), 0 7px 24px rgba(0, 0, 0, .4);
+}
+
+.onboarding-choice[data-era] .match-radio-v3::after {
+  background: var(--era-accent);
+}
+
+.onboarding-choice.selected[data-era] .match-radio-v3 {
+  border-color: var(--era-accent);
+}
+
+.onboarding-choice .match-radio-v3::after {
+  background: var(--ep);
+}
+
+.onboarding-choice.selected .match-radio-v3 {
+  border-color: var(--ep);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .05);
+}
+
+.onboarding-choice.selected .match-radio-v3::after {
+  opacity: 1;
+  transform: scale(1);
+  animation: match-era-bounce .35s cubic-bezier(.36, .07, .19, .97);
+}
+
+.onboarding-choice strong {
+  font-family: Syne, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.onboarding-choice small,
+.choice-tags {
+  color: rgba(255, 255, 255, .55);
+  line-height: 1.45;
+}
+
+.choice-emoji {
+  font-size: 1.8rem;
+}
+
+.choice-tags {
+  font-size: .72rem;
+  word-break: break-word;
+  margin-top: 2px;
+}
+
+.preference-grid .onboarding-choice {
+  min-height: 100px;
+  align-items: center;
+  text-align: center;
+}
+
+.onboarding-flow-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.onboarding-flow-primary,
+.onboarding-flow-secondary {
+  min-height: 52px;
+  padding: 0 23px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.onboarding-flow-primary {
+  border: 0;
+  background: linear-gradient(115deg, var(--ep), var(--es));
+  color: #fff;
+  box-shadow: 0 8px 30px var(--glow);
+}
+
+.onboarding-flow-primary:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.onboarding-flow-secondary {
+  border: 1px solid rgba(255, 255, 255, .15);
+  background: rgba(255, 255, 255, .06);
+  color: rgba(255, 255, 255, .82);
+}
+
+.onboarding-flow-content > .onboarding-flow-primary {
+  width: 100%;
+  margin-top: 25px;
+}
+
+.onboarding-flow-privacy {
+  color: rgba(255, 255, 255, .54);
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.onboarding-profile-form {
+  display: grid;
+  gap: 14px;
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(44, 22, 72, .75), rgba(19, 13, 37, .94));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .28);
+}
+
+.onboarding-profile-form label {
+  display: grid;
+  gap: 7px;
+  color: rgba(255, 255, 255, .84);
+  font-size: .88rem;
+  font-weight: 700;
+}
+
+.onboarding-profile-form input,
+.onboarding-profile-form select,
+.onboarding-profile-form textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 12px;
+  background: rgba(9, 7, 20, .8);
+  color: #fff;
+  font: inherit;
+  font-size: 16px; /* Prevents auto-zoom on iOS Safari */
+}
+
+/* ── Date-of-birth picker visibility on dark backgrounds ──
+   Without color-scheme: dark the browser renders the native calendar
+   icon and placeholder segments (mm/dd/yyyy) in system-light colours,
+   making them invisible on the near-black form background.            */
+.onboarding-profile-form input[type="date"] {
+  box-sizing: border-box;
+  max-width: 100%;
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.onboarding-profile-form input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  filter: invert(0);                     /* keep light icon from color-scheme: dark */
+  transition: opacity 0.18s ease;
+}
+
+.onboarding-profile-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.onboarding-profile-form textarea {
+  resize: vertical;
+}
+
+.onboarding-profile-form input:focus,
+.onboarding-profile-form select:focus,
+.onboarding-profile-form textarea:focus {
+  outline: 2px solid var(--es);
+  outline-offset: 2px;
+}
+
+.onboarding-profile-form input[aria-invalid="true"] {
+  border-color: rgba(255, 104, 151, 0.6);
+  box-shadow: 0 0 0 1px rgba(255, 104, 151, 0.25);
+}
+
+.onboarding-field-error {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ff8ca3;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.onboarding-profile-form option {
+  background: #211333;
+}
+
+.onboarding-flow-error {
+  padding: 12px;
+  border: 1px solid rgba(255, 104, 151, .4);
+  border-radius: 12px;
+  background: rgba(130, 30, 70, .2);
+  color: #ffc1d4;
+}
+
+.era-choice .choice-emoji {
+  filter: drop-shadow(0 0 10px var(--glow));
+}
+
+.onboarding-flow .e-shake {
+  animation: shake 1.8s ease-in-out infinite;
+}
+
+.onboarding-flow .e-flip {
+  animation: flip3d 3s ease-in-out infinite;
+}
+
+.onboarding-flow .e-wave {
+  animation: wave 2.2s ease-in-out infinite;
+}
+
+.onboarding-flow .e-melt {
+  animation: melt 2.5s ease-in-out infinite;
+}
+
+@media (max-width: 600px) {
+  .onboarding-flow {
+    padding-inline: 16px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(40px, 8vh, 80px));
+  }
+  .onboarding-flow-progress {
+    margin: 20px auto 30px;
+  }
+  .onboarding-choice-grid {
+    gap: 12px;
+  }
+  .onboarding-choice {
+    min-height: 72px;
+    padding: 14px 16px;
+  }
+  .onboarding-flow-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    padding: 12px 0 calc(env(safe-area-inset-bottom, 0px) + 8px);
+    background: linear-gradient(180deg, transparent 0%, rgba(13, 10, 26, 0.92) 28%, var(--bd, #0d0a1a) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .onboarding-flow-actions button {
+    flex: 1;
+  }
+  .onboarding-profile-form {
+    padding: 18px;
+  }
+  .onboarding-flow-primary {
+    min-height: 50px;
+  }
+}
+
+@media (max-width: 440px) {
+  .onboarding-choice {
+    padding: 12px 14px;
+    min-height: 68px;
+  }
+  .onboarding-choice .match-name-v3,
+  .onboarding-choice strong {
+    font-size: 0.95rem;
+  }
+  .onboarding-choice .match-desc-v3,
+  .onboarding-choice small {
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+  .choice-tags {
+    font-size: 0.68rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-flow * {
+    scroll-behavior: auto !important;
+  }
+}

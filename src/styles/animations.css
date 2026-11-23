@@ -1,0 +1,580 @@
+/* ════════════════════════════════════════════════════════════
+   RAAHI GLOBAL ANIMATION SYSTEM
+   Source of Truth: reference-prototypes/raahi-v3.html & Screen1_signup.html
+════════════════════════════════════════════════════════════ */
+
+/* ─── 1. CORE EMOJI ANIMATION ENGINE ─────────────────────── */
+.e {
+  display: inline-block;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+/* 1. Wiggle — heading emojis, always active */
+.e-wiggle { animation: wiggle 2.4s ease-in-out infinite; }
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-10deg) scale(1.08); }
+  30% { transform: rotate(8deg) scale(1.05); }
+  45% { transform: rotate(-6deg) scale(1.06); }
+  60% { transform: rotate(4deg) scale(1.03); }
+  75% { transform: rotate(-2deg) scale(1.02); }
+}
+
+/* 2. Shake — Gen Z skull, rattles constantly */
+.e-shake { animation: shake 1.8s ease-in-out infinite; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  10% { transform: translateX(-3px) rotate(-8deg); }
+  20% { transform: translateX(3px) rotate(8deg); }
+  30% { transform: translateX(-2px) rotate(-5deg); }
+  40% { transform: translateX(2px) rotate(5deg); }
+  50% { transform: translateX(0) rotate(0); }
+}
+
+/* 3. Wave — Millennial peace sign */
+.e-wave { animation: wave 2.2s ease-in-out infinite; transform-origin: 70% 90%; }
+@keyframes wave {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  10%, 30% { transform: rotate(-14deg); }
+  20%, 40% { transform: rotate(14deg); }
+}
+
+/* 4. Flip — Zillenial masks, rotates on Y */
+.e-flip { animation: flip3d 3s ease-in-out infinite; }
+@keyframes flip3d {
+  0%, 40%, 100% { transform: rotateY(0) scale(1); }
+  20% { transform: rotateY(180deg) scale(1.1); }
+}
+
+/* 5. Heartbeat — hearts */
+.e-heart { animation: heartbeat 1.3s ease-in-out infinite; }
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.22); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.18); }
+  70% { transform: scale(1); }
+}
+
+/* 6. Float — idle emojis, gentle bob */
+.e-float { animation: float 3s ease-in-out infinite; }
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-6px) rotate(3deg); }
+}
+
+/* 7. Spin — stars, targets, spinners */
+.e-spin { animation: espin 4s linear infinite; }
+@keyframes espin {
+  to { transform: rotate(360deg); }
+}
+
+/* 8. Bounce — selection confirm */
+.e-bounce { animation: ebounce 0.7s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes ebounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  20% { transform: translateY(-12px) scale(1.15); }
+  40% { transform: translateY(4px) scale(.95); }
+  60% { transform: translateY(-6px) scale(1.07); }
+  80% { transform: translateY(2px) scale(.98); }
+}
+
+/* 9. Rubber-band — confirm / CTA pop */
+.e-rubber { animation: rubber 1.2s ease infinite; }
+@keyframes rubber {
+  0%, 100% { transform: scaleX(1) scaleY(1); }
+  30% { transform: scaleX(1.25) scaleY(.75); }
+  40% { transform: scaleX(.75) scaleY(1.25); }
+  50% { transform: scaleX(1.15) scaleY(.85); }
+  65% { transform: scaleX(.95) scaleY(1.05); }
+  75% { transform: scaleX(1.05) scaleY(.95); }
+}
+
+/* 10. Jello — tags on hover / active */
+.e-jello { animation: jello 1.6s ease-in-out infinite; }
+@keyframes jello {
+  0%, 100% { transform: skewX(0) skewY(0); }
+  22% { transform: skewX(-8deg) skewY(-1deg); }
+  33% { transform: skewX(6.5deg) skewY(.5deg); }
+  44% { transform: skewX(-4deg) skewY(-.5deg); }
+  55% { transform: skewX(2.5deg) skewY(.4deg); }
+  66% { transform: skewX(-1.5deg) skewY(-.1deg); }
+  77% { transform: skewX(1deg) skewY(0); }
+}
+
+/* 11. Orbit — dizzy / spiral / alternate turn */
+.e-orbit { animation: orbit 2s ease-in-out infinite; }
+@keyframes orbit {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-20deg) scale(1.1); }
+  75% { transform: rotate(20deg) scale(1.1); }
+}
+
+/* 12. Swing — back & nav emojis */
+.e-swing { animation: swing 2s ease-in-out infinite; transform-origin: top center; }
+@keyframes swing {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(12deg); }
+  40% { transform: rotate(-8deg); }
+  60% { transform: rotate(5deg); }
+  80% { transform: rotate(-3deg); }
+}
+
+/* 13. Tada — success celebration */
+.e-tada { animation: tada 1.8s ease-in-out infinite; }
+@keyframes tada {
+  0%, 100% { transform: scale(1) rotate(0); }
+  10%, 20% { transform: scale(.95) rotate(-4deg); }
+  30%, 50%, 70% { transform: scale(1.12) rotate(3deg); }
+  40%, 60% { transform: scale(1.12) rotate(-3deg); }
+  80% { transform: scale(1.05) rotate(2deg); }
+  90% { transform: scale(.98) rotate(-2deg); }
+}
+
+/* 14. Melt — 🫠 situationship face */
+.e-melt { animation: melt 2.5s ease-in-out infinite; }
+@keyframes melt {
+  0%, 100% { transform: scaleY(1) translateY(0) rotate(0); }
+  30% { transform: scaleY(1.12) translateY(-3px) rotate(-5deg); }
+  60% { transform: scaleY(.9) translateY(3px) rotate(4deg); }
+}
+
+/* 15. Steam — coffee steam / adulting */
+.e-steam { animation: steam 2s ease-in-out infinite; }
+@keyframes steam {
+  0%, 100% { transform: translateY(0) rotate(-3deg) scale(1); }
+  50% { transform: translateY(-6px) rotate(3deg) scale(1.08); }
+}
+
+/* 16. Broken — heartbreak shake */
+.e-broken { animation: broken 2s ease-in-out infinite; }
+@keyframes broken {
+  0%, 100% { transform: scale(1) rotate(0); }
+  25% { transform: scale(1.15) rotate(-10deg); }
+  50% { transform: scale(.9) rotate(10deg); }
+  75% { transform: scale(1.1) rotate(-5deg); }
+}
+
+/* 17. Glint — ring spin with pop */
+.e-glint { animation: glint 3s ease-in-out infinite; }
+@keyframes glint {
+  0%, 100% { transform: rotateZ(0) scale(1); }
+  30% { transform: rotateZ(-20deg) scale(1.2); }
+  60% { transform: rotateZ(20deg) scale(1.15); }
+}
+
+/* 18. Neon scan ring */
+.e-scan { animation: escan 1s linear infinite; }
+@keyframes escan { to { transform: rotate(360deg); } }
+
+/* 19. Rotate — handshake match moment */
+.e-rotate { animation: handshake-rotate 2.2s ease-in-out infinite; transform-origin: center center; }
+@keyframes handshake-rotate {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.08); }
+  75% { transform: rotate(15deg) scale(1.08); }
+}
+
+/* ─── 2. SELECTED-STATE BOOSTS ───────────────────────────── */
+/* When parent card is selected, child emojis animate with heightened energy */
+.selected .e-shake, [aria-selected="true"] .e-shake, [aria-checked="true"] .e-shake { animation: shake .8s ease-in-out infinite; }
+.selected .e-wave, [aria-selected="true"] .e-wave, [aria-checked="true"] .e-wave { animation: wave 1s ease-in-out infinite; }
+.selected .e-flip, [aria-selected="true"] .e-flip, [aria-checked="true"] .e-flip { animation: flip3d 1.4s ease-in-out infinite; }
+.selected .e-float, [aria-selected="true"] .e-float, [aria-checked="true"] .e-float { animation: float 1.2s ease-in-out infinite; }
+.selected .e-wiggle, [aria-selected="true"] .e-wiggle, [aria-checked="true"] .e-wiggle { animation: wiggle 1s ease-in-out infinite; }
+.selected .e-melt, [aria-selected="true"] .e-melt, [aria-checked="true"] .e-melt { animation: melt 1.2s ease-in-out infinite; }
+.selected .e-steam, [aria-selected="true"] .e-steam, [aria-checked="true"] .e-steam { animation: steam 1s ease-in-out infinite; }
+.selected .e-orbit, [aria-selected="true"] .e-orbit, [aria-checked="true"] .e-orbit { animation: orbit 1s ease-in-out infinite; }
+
+/* Selected card glow pulse */
+.glow-pulse, .era-card.selected .era-emoji-wrap, .onboarding-choice.selected .choice-emoji {
+  filter: drop-shadow(0 0 12px var(--ca, var(--glow)));
+  animation: glow-pulse 1.4s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px var(--ca, var(--glow))); }
+  50% { filter: drop-shadow(0 0 22px var(--ca, var(--glow))) drop-shadow(0 0 40px var(--ca, var(--glow))); }
+}
+
+/* Checkmark bounce-in */
+.bounce-in, .vibe-card.selected .vchk, .match-card.selected .mradio::after, .match-card-v3.selected .match-radio-v3::after {
+  animation: bounce-in .4s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ─── 3. PAGE & CARD ENTRANCE ANIMATIONS (FIU) ───────────── */
+.fiu, .page-enter {
+  animation: fiu .42s cubic-bezier(.4, 0, .2, 1) both;
+}
+.fiu:nth-child(1) { animation-delay: .04s; }
+.fiu:nth-child(2) { animation-delay: .10s; }
+.fiu:nth-child(3) { animation-delay: .16s; }
+.fiu:nth-child(4) { animation-delay: .22s; }
+.fiu:nth-child(5) { animation-delay: .28s; }
+.fiu:nth-child(6) { animation-delay: .34s; }
+.fiu:nth-child(7) { animation-delay: .40s; }
+.fiu:nth-child(8) { animation-delay: .46s; }
+
+@keyframes fiu {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Staggered card entrance */
+.card-enter {
+  animation: card-enter .45s cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(22px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Smooth modal popup */
+.modal-enter {
+  animation: modal-enter .32s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+@keyframes modal-enter {
+  from { opacity: 0; transform: translateY(24px) scale(.88); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── 4. BUTTON GLOW & INTERACTION FEEDBACK ───────────────── */
+/* Primary action button pulse */
+.btn-cta, .bpulse {
+  animation: bpulse 2.8s ease-in-out infinite;
+}
+@keyframes bpulse {
+  0%, 100% { box-shadow: 0 8px 26px var(--glow); }
+  50% { box-shadow: 0 10px 42px var(--glow), 0 0 0 4px rgba(255,255,255,.05); }
+}
+
+.btn-arrow {
+  display: inline-block;
+  animation: arrow-bounce 1.4s ease-in-out infinite;
+}
+@keyframes arrow-bounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+/* Step dot pulse */
+.dot.active, .step-dot.active {
+  box-shadow: 0 0 8px var(--ep);
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 6px var(--ep); }
+  50% { box-shadow: 0 0 16px var(--ep); }
+}
+
+/* Interactive tap/press feedback */
+.interactive-tap {
+  transition: transform .15s cubic-bezier(.4, 0, .2, 1), box-shadow .2s;
+}
+.interactive-tap:active {
+  transform: scale(.97);
+}
+
+/* ─── 5. SWIPE CONTROLS & DECK ANIMATIONS ─────────────────── */
+.swipe-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+  margin-top: 14px;
+}
+
+.swipe-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .16);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  line-height: 1;
+  background: rgba(255, 255, 255, .08);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .28);
+  transition: transform .16s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s, border-color .2s;
+  user-select: none;
+}
+.swipe-btn:hover {
+  transform: translateY(-3px) scale(1.06);
+}
+.swipe-btn:active {
+  transform: scale(.92) !important;
+}
+
+/* Pass (Wave) */
+.btn-pass-sw {
+  border-color: rgba(255, 137, 159, .35);
+  background: rgba(255, 137, 159, .08);
+  color: #ff899f;
+}
+.btn-pass-sw:hover {
+  border-color: #ff899f;
+  box-shadow: 0 0 24px rgba(255, 137, 159, .45);
+}
+.btn-pass-sw .e {
+  animation: wave 2s ease-in-out infinite;
+  transform-origin: 70% 90%;
+}
+
+/* Super Like (Star / Spin) */
+.btn-super-sw {
+  width: 50px;
+  height: 50px;
+  font-size: 1.35rem;
+  border-color: rgba(250, 204, 21, .45);
+  background: rgba(250, 204, 21, .12);
+  color: #ffe280;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .25);
+}
+.btn-super-sw:hover {
+  border-color: #facc15;
+  box-shadow: 0 0 26px rgba(250, 204, 21, .55);
+}
+.btn-super-sw .e {
+  animation: espin 3.5s linear infinite;
+}
+
+/* Like (Heart / Heartbeat & Pulse) */
+.btn-like-sw {
+  border-color: color-mix(in srgb, var(--es) 60%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ep) 70%, transparent), color-mix(in srgb, var(--es) 70%, transparent));
+  box-shadow: 0 6px 24px var(--glow);
+  animation: bpulse 2.4s ease-in-out infinite;
+  color: #ff82bd;
+}
+.btn-like-sw:hover {
+  box-shadow: 0 0 32px var(--glow);
+}
+.btn-like-sw .e {
+  animation: heartbeat 1.2s ease-in-out infinite;
+}
+
+/* Swipe card overlays */
+.overlay-like, .discover-drag-label.like {
+  position: absolute;
+  top: 22px;
+  left: 20px;
+  padding: 8px 16px;
+  border: 3px solid #4ade80;
+  border-radius: 12px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: .08em;
+  color: #4ade80;
+  background: rgba(10, 35, 20, .6);
+  backdrop-filter: blur(8px);
+  transform: rotate(-12deg);
+  box-shadow: 0 0 24px rgba(74, 222, 128, .4);
+  pointer-events: none;
+  z-index: 10;
+  animation: rubber .5s ease both;
+}
+
+.overlay-nope, .discover-drag-label.pass {
+  position: absolute;
+  top: 22px;
+  right: 20px;
+  padding: 8px 16px;
+  border: 3px solid #f87171;
+  border-radius: 12px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: .08em;
+  color: #f87171;
+  background: rgba(35, 10, 20, .6);
+  backdrop-filter: blur(8px);
+  transform: rotate(12deg);
+  box-shadow: 0 0 24px rgba(248, 113, 113, .4);
+  pointer-events: none;
+  z-index: 10;
+  animation: rubber .5s ease both;
+}
+
+/* ─── 6. CHAT & MESSAGE ANIMATIONS ────────────────────────── */
+.message-bubble-enter {
+  animation: message-pop .28s cubic-bezier(.2, 1.4, .5, 1) both;
+}
+@keyframes message-pop {
+  from { opacity: 0; transform: translateY(8px) scale(.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Online status pulse */
+.online-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 10px #4ade80;
+  animation: online-pulse 2s infinite;
+}
+@keyframes online-pulse {
+  0%, 100% { box-shadow: 0 0 6px #4ade80; opacity: 1; }
+  50% { box-shadow: 0 0 16px #4ade80; opacity: .75; }
+}
+
+/* Typing indicator wave */
+.typing-dot {
+  animation: typing-wave 1.3s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes typing-wave {
+  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ─── 7. FLOATING HEARTS & PARTICLES ──────────────────────── */
+.floating-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+.floating-row .e-float:nth-child(1) { animation-delay: 0s; }
+.floating-row .e-float:nth-child(2) { animation-delay: .8s; }
+.floating-row .e-float:nth-child(3) { animation-delay: 1.6s; }
+
+/* ─── 8. UNIVERSAL HOVER & INTERACTION FEEDBACK ────────────── */
+/* Cards Hover System */
+@media (hover: hover) {
+  .integration-card, .matches-card, .profile-view-card, .settings-card, .discover-live-card {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.28s ease,
+                border-color 0.24s ease;
+  }
+  .integration-card:hover, .matches-card:hover, .settings-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--ep) 55%, var(--cbr));
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 35px color-mix(in srgb, var(--glow) 35%, transparent);
+  }
+}
+
+/* Button & Interactive Press Feedback */
+button, .btn, .matches-primary-button, .matches-outline-button, .profile-button,
+.settings-link-button, .settings-edit-pill, .celebration-chat-btn, .celebration-keep-btn,
+.chat-circle-btn, .chat-composer-btn, .discover-action {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s ease,
+              border-color 0.2s ease,
+              background 0.2s ease,
+              filter 0.2s ease;
+}
+
+@media (hover: hover) {
+  .matches-primary-button:hover, .profile-button.primary:hover, .btn-primary:hover,
+  .settings-link-button:hover, .celebration-chat-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 32px var(--glow), 0 0 22px color-mix(in srgb, var(--ep) 45%, transparent);
+  }
+  .matches-outline-button:hover, .profile-button.secondary:hover, .btn-secondary:hover,
+  .profile-button.quiet:hover {
+    transform: translateY(-2px);
+    border-color: var(--ep);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--glow) 35%, transparent);
+  }
+  .discover-action:hover {
+    transform: translateY(-3px) scale(1.08);
+  }
+}
+
+/* Instant tactile click/touch press feedback across mobile & desktop */
+button:active:not(:disabled), .btn:active:not(:disabled),
+.matches-primary-button:active:not(:disabled), .matches-outline-button:active:not(:disabled),
+.profile-button:active:not(:disabled), .settings-link-button:active:not(:disabled),
+.settings-edit-pill:active:not(:disabled), .celebration-chat-btn:active:not(:disabled),
+.celebration-keep-btn:active:not(:disabled), .chat-circle-btn:active:not(:disabled),
+.chat-composer-btn:active:not(:disabled), .discover-action:active:not(:disabled) {
+  transform: scale(0.95) !important;
+  transition-duration: 0.08s;
+}
+
+/* Clear Disabled States */
+button:disabled, .btn:disabled, .matches-primary-button:disabled, .matches-outline-button:disabled,
+.profile-button:disabled, .discover-action:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ─── 9. ACCESSIBLE FOCUS-VISIBLE SYSTEM ─────────────────────── */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--ep) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--glow) 50%, transparent) !important;
+}
+
+/* Form input focus depth */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--ep) !important;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--glow) 35%, transparent) !important;
+}
+
+/* ─── 10. AVATARS & RINGS TRANSITIONS ───────────────────────── */
+.new-match-ring, .conv-row-avatar-ring, .intro-avatar-circle, .celebration-avatar-ring, .settings-avatar-circle {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease;
+}
+@media (hover: hover) {
+  .new-match-avatar-card:hover .new-match-ring,
+  .conversation-card-row:hover .conv-row-avatar-ring {
+    transform: scale(1.06);
+    box-shadow: 0 0 20px var(--ring-color, var(--glow)) !important;
+  }
+}
+
+/* ─── 11. TOAST & NOTIFICATION ANIMATIONS ──────────────────── */
+.discover-feedback-toast, .chat-toast {
+  animation: toast-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, -14px) scale(0.94); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* Fade in utility */
+.fade-in {
+  animation: fadeIn 0.25s ease both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ─── 12. ACCESSIBILITY: PREFERS-REDUCED-MOTION ───────────── */
+/* Respects user preferences cleanly without breaking layouts or zeroing UI */
+@media (prefers-reduced-motion: reduce) {
+  .e-wiggle, .e-shake, .e-wave, .e-flip, .e-spin, .e-orbit, .e-swing, .e-glint, .e-scan, .e-rotate, .flower-stem {
+    animation: none !important;
+  }
+  .e-float, .e-heart, .e-melt, .e-steam, .e-broken, .e-jello, .e-rubber {
+    animation-duration: 6s !important;
+  }
+  .fiu, .page-enter, .card-enter, .modal-enter, .message-bubble-enter {
+    animation-duration: .15s !important;
+    transform: none !important;
+  }
+  .bpulse, .btn-glow, .sparkle-pulse, .dot-pulse, .glow-pulse {
+    animation: none !important;
+  }
+}

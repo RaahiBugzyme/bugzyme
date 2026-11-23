@@ -1,0 +1,26 @@
+{
+  "name": "raahi-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "node --experimental-strip-types --test tests/apiClient.test.ts tests/chatState.test.ts tests/authRedirect.test.ts tests/datingProfile.test.ts tests/discoverApi.test.ts tests/demoProfilesIntegration.test.ts tests/authFeatures.test.ts tests/profileResponsiveness.test.ts tests/responsiveBatch1.test.ts tests/onboardingListLayout.test.ts tests/dobValidation.test.ts tests/themeAndNavigation.test.ts tests/matchesAvatar.test.ts"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.9.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.16",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "tailwindcss": "^4.1.16",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.12"
+  }
+}
