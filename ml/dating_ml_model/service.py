@@ -15,6 +15,9 @@ class MatchingService:
     def predict_pair(self, profile_a: Dict[str, Any], profile_b: Dict[str, Any]) -> Dict[str, Any]:
         return self.model.predict_pair(profile_a, profile_b)
 
+    def check_eligibility(self, profile_a: Dict[str, Any], profile_b: Dict[str, Any]) -> Dict[str, Any]:
+        return self.model.check_eligibility(profile_a, profile_b)
+
     def get_matches(self, user_id: Any, top_k: int = 10) -> List[Dict[str, Any]]:
         user = self.repository.get(user_id)
         if user is None:

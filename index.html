@@ -12,11 +12,12 @@ try {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>raahi · Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════ ROOT & RESET ═══════════ */
+/* =========== ROOT & RESET =========== */
 :root{
   --ep:#a855f7;--es:#ec4899;--ea:#7c3aed;
   --glow:rgba(168,85,247,.35);
@@ -33,7 +34,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   color:var(--text);overflow:hidden;-webkit-tap-highlight-color:transparent;
   -webkit-font-smoothing:antialiased}
 
-/* ═══════════ EMOJI ANIMATIONS ═══════════ */
+/* =========== EMOJI ANIMATIONS =========== */
 .e{display:inline-block;transform-origin:center bottom;will-change:transform}
 .e-wiggle{animation:wiggle 2.4s ease-in-out infinite}
 @keyframes wiggle{0%,100%{transform:rotate(0) scale(1)}15%{transform:rotate(-10deg) scale(1.08)}30%{transform:rotate(8deg) scale(1.05)}45%{transform:rotate(-6deg) scale(1.06)}60%{transform:rotate(4deg) scale(1.03)}75%{transform:rotate(-2deg) scale(1.02)}}
@@ -69,11 +70,11 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 /* dot */
 @keyframes dotpulse{0%,100%{box-shadow:0 0 4px var(--ep)}50%{box-shadow:0 0 14px var(--ep)}}
 
-/* ═══════════ APP SHELL ═══════════ */
+/* =========== APP SHELL =========== */
 #app{position:fixed;inset:0;display:flex;overflow:hidden;max-width:430px;margin:0 auto;
   background:var(--bd)}
 
-/* ═══════════ SCREENS ═══════════ */
+/* =========== SCREENS =========== */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;
   background:var(--bd);
   opacity:0;pointer-events:none;
@@ -86,14 +87,14 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .screen.slide-left{transform:translateX(-40px)}
 .screen.no-glow::before{display:none}
 
-/* ═══════════ PARTICLES ═══════════ */
+/* =========== PARTICLES =========== */
 #particles{position:fixed;inset:0;pointer-events:none;z-index:0;max-width:430px}
 .particle{position:absolute;border-radius:50%;opacity:.14;
   animation:pfloat var(--d,8s) ease-in-out infinite var(--dl,0s)}
 @keyframes pfloat{0%{transform:translateY(0) scale(1);opacity:.14}50%{opacity:.06}
   100%{transform:translateY(-90px) scale(.4);opacity:0}}
 
-/* ═══════════ TOAST ═══════════ */
+/* =========== TOAST =========== */
 .toast-bar{position:fixed;top:max(24px,calc(var(--safe-t)+10px));left:50%;
   max-width:360px;width:90%;
   transform:translateX(-50%) translateY(-80px);
@@ -104,7 +105,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
 .toast-bar.show{transform:translateX(-50%) translateY(0)}
 
-/* ═══════════ BOTTOM NAV ═══════════ */
+/* =========== BOTTOM NAV =========== */
 #bottomNav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;
   height:calc(58px + var(--safe-b));padding-bottom:var(--safe-b);
   background:rgba(0,0,0,.75);backdrop-filter:blur(24px);
@@ -133,7 +134,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
     transform:translateY(-1px) scale(1.04)}
 }
 
-/* ═══════════ SHARED UI ═══════════ */
+/* =========== SHARED UI =========== */
 .syne{font-family:'Syne',sans-serif}
 .btn-pill{display:inline-flex;align-items:center;justify-content:center;
   gap:7px;padding:14px 24px;border:none;border-radius:50px;
@@ -153,12 +154,12 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .section-title{font-size:.74rem;font-weight:700;color:var(--muted);
   letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
 
-/* ═══════════ CARD BASE ═══════════ */
+/* =========== CARD BASE =========== */
 .card{background:var(--card);border:1.5px solid rgba(255,255,255,.09);
   border-radius:18px;transition:all .22s}
 .card:active{transform:scale(.98)}
 
-/* ═══════════ AVATAR ═══════════ */
+/* =========== AVATAR =========== */
 .av{border-radius:50%;display:flex;align-items:center;justify-content:center;
   border:2px solid var(--ep);background:var(--cbg);flex-shrink:0;position:relative;
   font-size:1.2rem}
@@ -170,7 +171,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
 .av-lg{width:66px;height:66px;font-size:1.9rem;border-width:3px}
 .av-xl{width:84px;height:84px;font-size:2.4rem;border-width:3px}
 
-/* ═══════════ SCREEN: MATCHES LIST ═══════════ */
+/* =========== SCREEN: MATCHES LIST =========== */
 #sMatches{padding:calc(var(--safe-t)+14px) 0 calc(var(--safe-b)+66px)}
 .matches-top{display:flex;align-items:center;gap:10px;padding:0 18px 14px;position:relative;z-index:2}
 .matches-top-info{flex:1}
@@ -258,7 +259,7 @@ html,body{width:100%;height:100%;background:var(--bd);font-family:'DM Sans',sans
   color:#fff;margin-bottom:7px}
 .empty-sub{font-size:.82rem;color:var(--muted);line-height:1.6}
 
-/* ═══════════ SCREEN: CHAT ═══════════ */
+/* =========== SCREEN: CHAT =========== */
 #sChat{padding:0}
 .chat-hdr{display:flex;align-items:center;gap:9px;
   padding:calc(var(--safe-t)+10px) 14px 10px;
@@ -673,7 +674,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 .mic-btn.hide{opacity:0;pointer-events:none;transform:scale(.4)}
 .mic-btn:active{background:rgba(239,68,68,.2);border-color:#ef4444}
 
-/* ═══════════ MODALS (slide-up sheets) ═══════════ */
+/* =========== MODALS (slide-up sheets) =========== */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);
   backdrop-filter:blur(4px);z-index:200;
   opacity:0;pointer-events:none;transition:opacity .3s;max-width:430px;margin:0 auto}
@@ -847,7 +848,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
   transition:transform .3s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
 .toggle-sw.on::after{transform:translateX(18px)}
 
-/* ═══════════ SCREEN: SETTINGS ═══════════ */
+/* =========== SCREEN: SETTINGS =========== */
 #sSettings{padding:calc(var(--safe-t)+14px) 18px calc(var(--safe-b)+70px);overflow-y:auto;scrollbar-width:none}
 #sSettings::-webkit-scrollbar{display:none}
 .settings-av-card{display:flex;align-items:center;gap:13px;padding:16px;
@@ -893,7 +894,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 .settings-footer{text-align:center;font-size:.7rem;color:var(--muted);
   margin-top:10px;line-height:1.7;position:relative;z-index:2}
 
-/* ═══════════ MATCH NOTIFICATION ═══════════ */
+/* =========== MATCH NOTIFICATION =========== */
 #sNotif{display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;padding:24px}
 .notif-bg{position:absolute;inset:0;
@@ -922,7 +923,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
   animation:cfall var(--cd,3s) ease-in var(--cdl,0s) both}
 @keyframes cfall{0%{opacity:1;transform:translateY(105vh) rotate(0)}100%{opacity:0;transform:translateY(-40px) rotate(720deg) scale(.4)}}
 
-/* ═══════════ FADE-IN-UP ═══════════ */
+/* =========== FADE-IN-UP =========== */
 .fiu{animation:fiu .4s cubic-bezier(.4,0,.2,1) both}
 .fiu:nth-child(1){animation-delay:.04s}.fiu:nth-child(2){animation-delay:.1s}
 .fiu:nth-child(3){animation-delay:.16s}.fiu:nth-child(4){animation-delay:.22s}
@@ -932,7 +933,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 @keyframes arrowb{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
 @keyframes ebroken{0%,100%{transform:scale(1) rotate(0)}25%{transform:scale(1.15) rotate(-10deg)}50%{transform:scale(.9) rotate(10deg)}75%{transform:scale(1.1) rotate(-5deg)}}
 
-/* ═══════════ AUTH SCREEN ═══════════ */
+/* =========== AUTH SCREEN =========== */
 #sAuth{display:flex;align-items:center;justify-content:center;padding:24px}
 .auth-wrap{width:100%;max-width:330px;position:relative;z-index:2}
 .auth-logo{text-align:center;margin-bottom:10px}
@@ -975,9 +976,9 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 
 <div id="app">
 
-<!-- ══════════════════════════════════════
+<!-- ======================================
      SCREEN: MATCH NOTIFICATION
-══════════════════════════════════════ -->
+====================================== -->
 <div class="screen no-glow" id="sNotif">
   <div class="notif-bg"></div>
   <div class="notif-avs">
@@ -1000,12 +1001,12 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
     <button class="btn-pill btn-grad" onclick="openChatFromNotif()">Send a Message <span style="display:inline-block;animation:arrowb 1.4s ease-in-out infinite">→</span></button>
     <button class="btn-pill btn-ghost" onclick="showScreen('sMatches')">Browse All Matches</button>
   </div>
-  <div class="notif-countdown" id="notifCount">Auto-redirecting in 5s…</div>
+  <div class="notif-countdown" id="notifCount">Auto-redirecting in 5s...</div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ======================================
      SCREEN: MATCHES LIST
-══════════════════════════════════════ -->
+====================================== -->
 <div class="screen" id="sMatches">
   <div class="matches-top">
     <div class="av av-sm" id="myAv" onclick="openModal('mAvatar')" style="cursor:pointer;box-shadow:0 0 14px var(--glow)">😎</div>
@@ -1021,7 +1022,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
   <div class="search-wrap">
     <div class="search-box">
       <span class="e e-float" style="display:inline-block;font-size:1rem">🔍</span>
-      <input type="text" placeholder="Search matches…" id="searchInp" oninput="filterConvs(this.value)">
+      <input type="text" placeholder="Search matches..." id="searchInp" oninput="filterConvs(this.value)">
     </div>
   </div>
   <div style="padding:0 18px;position:relative;z-index:2">
@@ -1039,9 +1040,9 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ======================================
      SCREEN: CHAT
-══════════════════════════════════════ -->
+====================================== -->
 <div class="screen no-glow" id="sChat">
   <!-- header -->
   <div class="chat-hdr">
@@ -1095,7 +1096,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
     <div class="input-row">
       <div class="ib-btn" onclick="openModal('mEmoji')"><span class="e e-wiggle">😊</span></div>
       <div class="input-wrap">
-        <textarea id="chatTA" rows="1" placeholder="Message…"
+        <textarea id="chatTA" rows="1" placeholder="Message..."
           oninput="onChatInput(this)" onkeydown="onChatKey(event)"></textarea>
         <button class="ai-btn" id="aiSuggestionsBtn" type="button" onclick="openAISuggestions()" aria-label="AI conversation suggestions" title="AI Suggestions">
           <span id="aiSuggestionsIcon">✦</span>
@@ -1112,9 +1113,9 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 <input id="attachmentImageInput" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden onchange="handleAttachmentSelection(this)">
 <input id="attachmentFileInput" type="file" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.zip,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip" hidden onchange="handleAttachmentSelection(this)">
 
-<!-- ══════════════════════════════════════
+<!-- ======================================
      SCREEN: SETTINGS
-══════════════════════════════════════ -->
+====================================== -->
 <div class="screen" id="sSettings">
   <div style="position:relative;z-index:2">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:#fff;margin-bottom:16px">
@@ -1138,7 +1139,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
       </div>
       <div class="profile-field">
         <label for="profileBioEditor">Bio</label>
-        <textarea id="profileBioEditor" maxlength="500" placeholder="A short bio…"></textarea>
+        <textarea id="profileBioEditor" maxlength="500" placeholder="A short bio..."></textarea>
       </div>
       <button class="btn-pill btn-grad" id="saveProfileBtn" type="button" style="width:100%;animation:none" onclick="saveMyProfile()">Save profile</button>
       <div class="profile-save-status" id="profileSaveStatus"></div>
@@ -1176,9 +1177,9 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 </div>
 
 
-<!-- ══════════════════════════════════════
+<!-- ======================================
      SCREEN: DISCOVER
-═════════════════════════════════════ --><div class="screen" id="sDiscover">
+===================================== --><div class="screen" id="sDiscover">
   <div style="position:relative;z-index:2">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:#fff;margin-bottom:16px">
       Discover <span class="e e-more-horizontal" style="display:inline-block;margin-left:4px">⋯</span></div>
@@ -1194,9 +1195,9 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
       <button class="btn-pill btn-grad" onclick="loadDiscoverUsers()" style="width:100%;animation:none">Load Users <span class="e e-float" style="display:inline-block">🔍</span></button>
     </div>
   </div>
-</div><!-- ═════════════════════════════════════
+</div><!-- =====================================
      SCREEN: AUTH (Login / Register)
-══════════════════════════════════════ -->
+====================================== -->
 <div class="screen no-glow" id="sAuth">
   <div class="auth-wrap">
     <div class="auth-logo"><span class="e e-heart" style="font-size:3.2rem;display:inline-block">💖</span></div>
@@ -1219,9 +1220,9 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 
 </div><!-- /app -->
 
-<!-- ══════════════════════════════════════
+<!-- ======================================
      BOTTOM NAV
-══════════════════════════════════════ -->
+====================================== -->
 <div id="bottomNav">
   <div class="nav-btn active" id="navMatches" onclick="showTab('sMatches','navMatches')">
     <div class="ni nav-badge"><span class="e e-heart">💬</span><div class="nav-badge-dot" id="navMatchDot" style="display:none"></div></div>
@@ -1237,9 +1238,9 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ======================================
      MODALS
-══════════════════════════════════════ -->
+====================================== -->
 
 <!-- Chat Settings -->
 <div class="modal-overlay" id="mChatSettings" onclick="closeOverlay(event,this)">
@@ -1289,7 +1290,7 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
   <div class="modal-sheet" style="max-height:60vh"><div class="modal-drag"></div>
     <div class="modal-hdr"><div class="modal-title"><span class="e e-wiggle" style="display:inline-block">😊</span> Emojis</div><button class="modal-close" onclick="closeModal('mEmoji')">✕</button></div>
     <div class="modal-body">
-      <input class="ep-search" placeholder="Search emoji…" oninput="filterEmojis(this.value)">
+      <input class="ep-search" placeholder="Search emoji..." oninput="filterEmojis(this.value)">
       <div class="ep-cats" id="epCats"></div>
       <div class="ep-grid" id="epGrid"></div>
     </div>
@@ -1369,11 +1370,11 @@ html[data-theme="light"] .tick.seen{color:#0095F6}
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════
-   raahi — Bugzyme backend connected build
+/* ===================================================
+   raahi - Bugzyme backend connected build
    REST:  register/login/chats/messages
    WS:    /ws?token=  (message, typing, presence, read, delivered)
-═══════════════════════════════════════════════════ */
+=================================================== */
 
 /* ---------- CONFIG & AUTH ---------- */
 const PRODUCTION_API_BASE = 'https://bugzyme-backend-51xq.onrender.com';
@@ -1400,7 +1401,7 @@ async function api(path, opts = {}){
   const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
   if (res.status === 401 && AUTH.token){
     logout(true);
-    const err = new Error('Session expired — login again');
+    const err = new Error('Session expired - login again');
     err.apiStatus = 401;
     throw err;
   }
@@ -1492,7 +1493,7 @@ let chatLoadSessionGeneration = 0;
 const DELETED_CHAT_IDS = new Set();
 let   WS=null, wsPing=null, wsRetry=0, typingTO=null, lastTypingSent=0;
 
-/* ---------- DISPLAY HELPERS (backend has no era/avatar — derive cosmetically) ---------- */
+/* ---------- DISPLAY HELPERS (backend has no era/avatar - derive cosmetically) ---------- */
 const ERA_KEYS = Object.keys(ERA);
 function eraFor(id){ return ERA_KEYS[Math.abs(id||0) % ERA_KEYS.length]; }
 function avatarFor(name){
@@ -1723,7 +1724,7 @@ function renderNotificationUI(){
       const empty = document.createElement('div');
       empty.className = 'empty-sub';
       empty.style.cssText = 'padding:22px 8px;text-align:center';
-      empty.textContent = 'You’re all caught up.';
+      empty.textContent = "You're all caught up.";
       list.appendChild(empty);
     }else{
       unreadChats.forEach(chat=>{
@@ -1843,9 +1844,9 @@ function openModal(id){
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function closeOverlay(e, el){ if (e.target === el) closeModal(el.id); }
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    AUTH
-═══════════════════════════════════════════════════ */
+=================================================== */
 function switchAuthTab(mode){
   authMode = mode;
   document.getElementById('tabLogin').classList.toggle('act', mode==='login');
@@ -1862,11 +1863,11 @@ async function submitAuth(){
   const btn   = document.getElementById('authBtn');
   if (!email || !pass){ toast('⚠️ Enter your email and password'); return; }
   if (authMode==='register' && !user){ toast('⚠️ Enter your username'); return; }
-  btn.disabled = true; btn.textContent = '⏳ Please wait…';
+  btn.disabled = true; btn.textContent = '⏳ Please wait...';
   try{
     if (authMode === 'register'){
       await api('/register', { method:'POST', body: JSON.stringify({ username:user, email, password:pass }) });
-      toast('✅ Account created! Logging in…');
+      toast('✅ Account created! Logging in...');
     }
     const fd = new URLSearchParams({ username: email, password: pass });
     const res = await fetch(API_BASE + '/login', {
@@ -1916,9 +1917,9 @@ function logout(silent){
   showScreen('sAuth');
 }
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    WEBSOCKET
-═══════════════════════════════════════════════════ */
+=================================================== */
 function wsBase(){ return API_BASE.replace(/^http/,'ws'); }
 function connectWS(){
   if (WS && WS.readyState <= 1) return;
@@ -1973,9 +1974,9 @@ function markOnline(ids){
   renderMatchesScreen();
 }
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    CHAT LIST (GET /chats, GET /users)
-═══════════════════════════════════════════════════ */
+=================================================== */
 async function loadChats(){
   const requestId = ++chatsLoadRequestId;
   const sessionGenerationAtStart = chatLoadSessionGeneration;
@@ -2022,7 +2023,7 @@ async function loadDiscoverUsers(){
   emptyState.style.display = 'none';
   container.innerHTML = users.map(u => {
     const er = ERA[u.id] || ERA['genz'];
-    return \`<div class="discover-card" onclick="startChatWithById('${u.id}')">
+    return `<div class="discover-card" onclick="startChatWithById('${u.id}')">;
       <div class="discover-avatar" style="border-color:${er.primary};box-shadow:0 0 14px ${er.primary}55">
         ${initialsHTML(u.username,1.2)}
       </div>
@@ -2032,7 +2033,7 @@ async function loadDiscoverUsers(){
           ${u.is_online ? 'Online' : 'Offline'}
         </div>
       </div>
-    </div>\`;
+    </div>`;
   }).join('');
 }
 function renderMatchesScreen(){
@@ -2054,7 +2055,7 @@ function renderNewMatchRow(){
   const row = document.getElementById('nmRow'); if (!row) return;
   row.innerHTML = '';
   if (!USERS.length){
-    row.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:8px 0">No other users yet — register a second account!</div>';
+    row.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:8px 0">No other users yet - register a second account!</div>';
     return;
   }
   USERS.forEach(u=>{
@@ -2137,9 +2138,9 @@ function escapeHTML(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':
 
 
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    THEME · PROFILE · ACTIVITY · AI MEMORY
-═══════════════════════════════════════════════════ */
+=================================================== */
 let profileSaveInProgress = false;
 let activityStatusToggleInFlight = false;
 
@@ -2197,7 +2198,7 @@ async function saveMyProfile(){
   const button = document.getElementById('saveProfileBtn');
   profileSaveInProgress = true;
   if (button){ button.disabled = true; }
-  setProfileSaveStatus('Saving…', 'saving');
+  setProfileSaveStatus('Saving...', 'saving');
   try {
     const saved = await api('/me', { method:'PATCH', body: JSON.stringify({ full_name, bio }) });
     AUTH.me = saved;
@@ -2268,7 +2269,7 @@ async function toggleAIMemory(){
 async function loadAIMemories(){
   const list = document.getElementById('aiMemoryList');
   if (!list) return;
-  list.innerHTML = '<div class="srow-sub">Loading memories…</div>';
+  list.innerHTML = '<div class="srow-sub">Loading memories...</div>';
   try {
     const memories = await api('/me/ai-memories');
     if (!Array.isArray(memories) || !memories.length){
@@ -2305,9 +2306,9 @@ async function deleteAIMemory(id){
   } catch (err) { toast('❌ ' + err.message); }
 }
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    AI SUGGESTIONS / COACH / INSIGHTS / NOTIFICATIONS
-═══════════════════════════════════════════════════ */
+=================================================== */
 function activeAINotifications(chatId) {
   const entries = DEATH_ZONE_SUGGESTION_STATE.get(String(chatId)) || [];
   const now = Date.now();
@@ -2426,7 +2427,7 @@ async function openConversationCoach() {
   if (!chatId || !content) return toast('Open a conversation first.');
   if (panel) panel.hidden = false;
   content.className = 'ai-suggestions-message';
-  content.textContent = 'Loading your private coach…';
+  content.textContent = 'Loading your private coach...';
   try {
     const result = await api(`/chats/${encodeURIComponent(chatId)}/coach`);
     if (String(APP.currentChatId) !== String(chatId)) return;
@@ -2453,7 +2454,7 @@ async function openConversationInsights() {
   if (!chatId || !content) return toast('Open a conversation first.');
   if (panel) panel.hidden = false;
   content.className = 'ai-suggestions-message';
-  content.textContent = 'Loading conversation insights…';
+  content.textContent = 'Loading conversation insights...';
   try {
     const result = await api(`/chats/${encodeURIComponent(chatId)}/insights`);
     if (String(APP.currentChatId) !== String(chatId)) return;
@@ -2497,9 +2498,9 @@ async function openAISuggestions() {
   AI_REQUESTS_IN_FLIGHT.add(requestKey);
   panel.hidden = false;
   button.disabled = true;
-  if (icon) icon.textContent = '…';
+  if (icon) icon.textContent = '...';
   content.className = 'ai-suggestions-message';
-  content.textContent = '✦ Loading suggestions…';
+  content.textContent = '✦ Loading suggestions...';
   try {
     let notification = activeAINotifications(chatId)[0];
     if (!notification) {
@@ -2547,7 +2548,7 @@ async function regenerateAISuggestions() {
   const previousReplies = previous.map(item => typeof item === 'string' ? item : item?.message || item?.text || '').filter(Boolean);
   if (!previous.length) {
     content.className = 'ai-suggestions-message';
-    content.textContent = 'Generating contextual suggestions…';
+    content.textContent = 'Generating contextual suggestions...';
   }
   try {
     const result = await api(`/chats/${encodeURIComponent(chatId)}/suggestions`, {
@@ -2584,9 +2585,9 @@ function closeAISuggestions() {
   if (panel) panel.hidden = true;
 }
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    OPEN CHAT + MESSAGES
-═══════════════════════════════════════════════════ */
+=================================================== */
 function getChat(chatId){ return CHATS.find(c=>c.chat_id===chatId); }
 
 async function openChat(chatId){
@@ -2666,7 +2667,7 @@ function renderMatchIntro(chat){
     <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;margin-bottom:2px">${chat.user.username}</div>
     <div class="match-intro-presence" style="font-size:.74rem;color:var(--muted);margin-bottom:10px">${er.name} ${er.emoji} · ${chat.user.is_online ? '🟢 Online now' : '🕐 last seen ' + fmtLastSeen(chat.user.last_seen)}</div>
     <div class="match-intro-floats"><span class="e e-heart">💗</span><span class="e e-float" style="animation-delay:.4s">💫</span><span class="e e-heart" style="animation-delay:.8s">💕</span></div>
-    <div class="match-pill"><span class="e e-tada" style="display:inline-block">🎉</span> You two are connected — say hi!</div>`;
+    <div class="match-pill"><span class="e e-tada" style="display:inline-block">🎉</span> You two are connected - say hi!</div>`;
   ms.appendChild(intro);
 }
 
@@ -2714,7 +2715,7 @@ const tickState = msg.is_read
 
 
 const tick = isMine
-  ? `<span class="message-state">${tickState === 'read' ? 'Seen' : tickState === 'delivered' ? 'Delivered' : tickState === 'pending' ? 'Sending…' : 'Sent'}</span>`
+  ? `<span class="message-state">${tickState === 'read' ? 'Seen' : tickState === 'delivered' ? 'Delivered' : tickState === 'pending' ? 'Sending...' : 'Sent'}</span>`
   : '';
 
 
@@ -3407,7 +3408,7 @@ function setTick(idOrClient, state){
 
   const normalized = state === 'read' ? 'read' : (state === 'delivered' ? 'delivered' : (state === 'sent' ? 'sent' : state));
   e.tick.className = 'message-state';
-  e.tick.textContent = normalized === 'read' ? 'Seen' : normalized === 'delivered' ? 'Delivered' : normalized === 'pending' ? 'Sending…' : 'Sent';
+  e.tick.textContent = normalized === 'read' ? 'Seen' : normalized === 'delivered' ? 'Delivered' : normalized === 'pending' ? 'Sending...' : 'Sent';
   e.tick.title = e.tick.textContent;
 }
 function startReply(messageId){
@@ -3667,7 +3668,7 @@ function focusChatSearch(){
     if (!hdr) return;
     bar = document.createElement('div');
     bar.id = 'chatSearchBar';
-    bar.innerHTML = `<div class="chat-search-row"><div class="chat-search-input-wrap"><span>🔍</span><input id="chatSearchInput" type="search" placeholder="Search in this chat…" autocomplete="off"><div class="chat-search-nav" style="display:flex;gap:4px"><button type="button" id="chatSearchPrev">↑</button><button type="button" id="chatSearchNext">↓</button></div></div><button type="button" class="chat-search-close" id="chatSearchClose">✕</button></div><div class="chat-search-meta" id="chatSearchMeta"></div>`;
+    bar.innerHTML = `<div class="chat-search-row"><div class="chat-search-input-wrap"><span>🔍</span><input id="chatSearchInput" type="search" placeholder="Search in this chat..." autocomplete="off"><div class="chat-search-nav" style="display:flex;gap:4px"><button type="button" id="chatSearchPrev">↑</button><button type="button" id="chatSearchNext">↓</button></div></div><button type="button" class="chat-search-close" id="chatSearchClose">✕</button></div><div class="chat-search-meta" id="chatSearchMeta"></div>`;
     hdr.insertAdjacentElement('afterend', bar);
     const input = bar.querySelector('#chatSearchInput');
     input.addEventListener('input', () => filterChatMessages(input.value));
@@ -4040,7 +4041,7 @@ function showPartnerTyping(d){
     initialsHTML(chat.user.username, .55);
 
   document.getElementById('typingLabel').textContent =
-    chat.user.username + ' is typing…';
+    chat.user.username + ' is typing...';
 
   tw.style.display = 'flex';
 
@@ -4117,9 +4118,9 @@ function updatePresence(d){
   }
 }
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    MATCH NOTIFICATION SCREEN
-═══════════════════════════════════════════════════ */
+=================================================== */
 
 let notifTimer;
 
@@ -4152,7 +4153,7 @@ function showMatchNotif(chat){
   const cd = document.getElementById('notifCount');
 
   cd.textContent =
-    `Auto-redirecting in ${s}s…`;
+    `Auto-redirecting in ${s}s...`;
 
   clearInterval(notifTimer);
 
@@ -4160,7 +4161,7 @@ function showMatchNotif(chat){
     s--;
 
     cd.textContent =
-      `Auto-redirecting in ${s}s…`;
+      `Auto-redirecting in ${s}s...`;
 
     if (s <= 0){
       clearInterval(notifTimer);
@@ -4255,9 +4256,9 @@ function openMatchSettings(chatId){
 }
 
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    EMOJI PICKER
-═══════════════════════════════════════════════════ */
+=================================================== */
 
 function splitEmojis(value){
   if (typeof Intl.Segmenter === 'function'){
@@ -4411,9 +4412,9 @@ function filterEmojis(q){
 }
 
 
-/* ═══════════════════════════════════════════════════
+/* ===================================================
    ATTACH & VOICE
-═══════════════════════════════════════════════════ */
+=================================================== */
 
 const MAX_ATTACHMENT_SIZE = 25 * 1024 * 1024;
 
@@ -4469,7 +4470,7 @@ async function fetchAttachmentBlob(messageId){
     });
     if (response.status === 401 && AUTH.token){
       logout(true);
-      throw new Error('Session expired — login again');
+      throw new Error('Session expired - login again');
     }
     let detail = responseText || `Attachment request failed (${response.status})`;
     try{
@@ -4587,7 +4588,7 @@ async function handleAttachmentSelection(input){
   attachmentUploadInProgress = true;
   imageInput.disabled = true;
   fileInput.disabled = true;
-  status.textContent = `⏳ Uploading ${file.name}…`;
+  status.textContent = `⏳ Uploading ${file.name}...`;
   status.style.display = 'block';
   let uploadHTTPStatus = null;
 
@@ -4635,7 +4636,7 @@ async function handleAttachmentSelection(input){
       }catch(_){}
       if (response.status === 401 && AUTH.token){
         logout(true);
-        throw new Error(`Session expired — login again. ${detail}`);
+        throw new Error(`Session expired - login again. ${detail}`);
       }
       throw new Error(detail);
     }

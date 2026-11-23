@@ -15,46 +15,93 @@ def user_to_datingml_profile(user):
     - interests (optional)
     - personality traits (optional)
     """
+    from app.models import DatingProfile  # lazy import
+
     profile = {}
 
-    # Age (from full_name or other indicators - but we do not fabricate age)
-    # The DatingML model expects age, but we do not have it in the User model
-    # So we simply omit it rather than inventing a value
-
-    # Location - user has no location field in the model
-    # Omit rather than invent
-
-    # Preferences - user has bio and activity_status_enabled
+    # Start with User-level fields
     if user.bio:
         profile["bio"] = user.bio
 
-    # Relationship intention - not explicitly in User model
-    # Omit rather than invent
-
-    # Interests - not explicitly in User model
-    # Omit rather than invent
-
-    # Personality traits - not explicitly in User model
-    # Omit rather than invent
-
-    # activity_status_enabled is available
     if user.activity_status_enabled:
         profile["activity_status_enabled"] = user.activity_status_enabled
 
-    # ai_memory_enabled is available
     if user.ai_memory_enabled:
         profile["ai_memory_enabled"] = user.ai_memory_enabled
 
-    # full_name is available
     if user.full_name:
         profile["full_name"] = user.full_name
 
-    # username is always available (nullable=False)
     profile["username"] = user.username
 
-    # last_seen is optional
     if user.last_seen:
         profile["last_seen"] = user.last_seen
 
+    # Now override/update with DatingProfile fields if they exist
+    dp = getattr(user, "dating_profile", None)
+    if dp:
+        # Physical attributes
+        if dp.height is not None:
+            profile["height"] = dp.height
+        if dp.body_type:
+            profile["body_type"] = dp.body_type
+
+        # Location
+        if dp.city:
+            profile["city"] = dp.city
+        if dp.state:
+            profile["state"] = dp.state
+        if dp.country:
+            profile["country"] = dp.country
+
+        # Preferences
+        if dp.orientation:
+            profile["orientation"] = dp.orientation
+        if dp.target_gender_preference:
+            profile["target_gender_preference"] = dp.target_gender_preference
+        if dp.match_era_preference:
+            profile["match_era_preference"] = dp.match_era_preference
+        if dp.sex:
+            profile["sex"] = dp.sex
+
+        # Lifestyle
+        if dp.drinks:
+            profile["drinks"] = dp.drinks
+        if dp.drugs:
+            profile["drugs"] = dp.drugs
+        if dp.smokes:
+            profile["smokes"] = dp.smokes
+        if dp.diet:
+            profile["diet"] = dp.diet
+
+        # Family
+        if dp.offspring:
+            profile["offspring"] = dp.offspring
+        if dp.pets:
+            profile["pets"] = dp.pets
+
+        # Values & culture
+        if dp.religion:
+            profile["religion"] = dp.religion
+        if dp.ethnicity:
+            profile["ethnicity"] = dp.ethnicity
+
+        # Education & career
+        if dp.education:
+            profile["education"] = dp.education
+        if dp.job:
+            profile["job"] = dp.job
+
+        # Verification
+        if dp.is_face_verified:
+            profile["is_face_verified"] = dp.is_face_verified
+        if dp.is_id_verified:
+            profile["is_id_verified"] = dp.is_id_verified
+        if dp.verification_status:
+            profile["verification_status"] = dp.verification_status
+        if dp.profile_completion_pct is not None:
+            profile["profile_completion_pct"] = dp.profile_completion_pct
+        if dp.is_profile_public is not None:
+            profile["is_profile_public"] = dp.is_profile_public
+
     return profile
-PYEND

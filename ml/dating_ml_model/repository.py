@@ -302,6 +302,224 @@ class InMemoryRecommendationRepository(RecommendationRepository):
         return {"user_id": str(user_id), "blocked_user_id": str(blocked_user_id), "blocked": False}
 
 
+class SQLAlchemyUserRepository(ProfileRepository):
+    """SQLAlchemy-backed ProfileRepository that reads from the existing User table.
+
+    Accepts an existing SQLAlchemy Session (does not create one).
+    Implements only ProfileRepository.get() and ProfileRepository.all().
+    No fake profiles, no hardcoded user IDs, no new database models.
+    """
+
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get(self, user_id: Any) -> Optional[Dict[str, Any]]:
+        from app.models import User  # lazy import to avoid circular import
+        user = self.db.get(User, user_id)
+        if user is None:
+            return None
+        return _user_row_to_dict(user)
+
+    def all(self) -> List[Dict[str, Any]]:
+        from app.models import User  # lazy import to avoid circular import
+        users = self.db.query(User).all()
+        return [_user_row_to_dict(u) for u in users]
+
+
+def _user_row_to_dict(user) -> Dict[str, Any]:
+    """Convert a SQLAlchemy User row to a DatingML profile dict.
+
+    Includes ``id`` because MatchingService.get_matches() and
+    predict_matches() rely on profile.get("id") to identify candidates.
+    Other fields mirror the existing user_to_datingml_profile adapter.
+    """
+    from app.models import DatingProfile  # lazy import to avoid circular import
+
+    profile: Dict[str, Any] = {}
+    profile["id"] = user.id
+    profile["username"] = user.username
+    # Prefer DatingProfile fields over User fields
+    dp = user.dating_profile
+    if dp:
+        if dp.full_name:
+            profile["full_name"] = dp.full_name
+        if dp.bio:
+            profile["bio"] = dp.bio
+        if dp.activity_status_enabled is not None:
+            profile["activity_status_enabled"] = dp.activity_status_enabled
+        if dp.ai_memory_enabled is not None:
+            profile["ai_memory_enabled"] = dp.ai_memory_enabled
+        if dp.is_face_verified is not None:
+            profile["is_face_verified"] = dp.is_face_verified
+        if dp.is_id_verified is not None:
+            profile["is_id_verified"] = dp.is_id_verified
+        if dp.verification_status:
+            profile["verification_status"] = dp.verification_status
+        if dp.profile_completion_pct is not None:
+            profile["profile_completion_pct"] = dp.profile_completion_pct
+        if dp.is_profile_public is not None:
+            profile["is_profile_public"] = dp.is_profile_public
+        if dp.height is not None:
+            profile["height"] = dp.height
+        if dp.body_type:
+            profile["body_type"] = dp.body_type
+        if dp.orientation:
+            profile["orientation"] = dp.orientation
+        if dp.target_gender_preference:
+            profile["target_gender_preference"] = dp.target_gender_preference
+        if dp.match_era_preference:
+            profile["match_era_preference"] = dp.match_era_preference
+        if dp.sex:
+            profile["sex"] = dp.sex
+        if dp.drinks:
+            profile["drinks"] = dp.drinks
+        if dp.drugs:
+            profile["drugs"] = dp.drugs
+        if dp.smokes:
+            profile["smokes"] = dp.smokes
+        if dp.diet:
+            profile["diet"] = dp.diet
+        if dp.offspring:
+            profile["offspring"] = dp.offspring
+        if dp.pets:
+            profile["pets"] = dp.pets
+        if dp.religion:
+            profile["religion"] = dp.religion
+        if dp.ethnicity:
+            profile["ethnicity"] = dp.ethnicity
+        if dp.education:
+            profile["education"] = dp.education
+        if dp.job:
+            profile["job"] = dp.job
+        if dp.city:
+            profile["city"] = dp.city
+        if dp.state:
+            profile["state"] = dp.state
+        if dp.country:
+            profile["country"] = dp.country
+    else:
+        # Fall back to User fields
+        if user.full_name:
+            profile["full_name"] = user.full_name
+        if user.bio:
+            profile["bio"] = user.bio
+        profile["activity_status_enabled"] = user.activity_status_enabled
+        profile["ai_memory_enabled"] = user.ai_memory_enabled
+        if user.last_seen:
+            profile["last_seen"] = (
+                user.last_seen.isoformat()
+                if hasattr(user.last_seen, "isoformat")
+                else str(user.last_seen)
+            )
+    return profile
+
+
+# -----------------------------------------------------------------
+#  DatingProfile Repository
+# -----------------------------------------------------------------
+class DatingProfileRepository:
+    """SQLAlchemy-backed DatingProfile repository.
+
+    Accepts an existing SQLAlchemy Session (does not create one).
+    """
+
+    def __init__(self, db: Session):
+        from app.models import DatingProfile  # lazy import to avoid circular import
+        self.db = db
+
+    def get(self, user_id: Any) -> Optional[Dict[str, Any]]:
+        from app.models import User  # lazy import to avoid circular import
+        dp = self.db.get(DatingProfile, user_id)
+        if dp is None:
+            return None
+        return _dp_to_dict(dp)
+
+    def get_by_user(self, user_id: int) -> Optional[Dict[str, Any]]:
+        from app.models import User
+        dp = self.db.query(DatingProfile).filter(DatingProfile.user_id == user_id).first()
+        if dp is None:
+            return None
+        return _dp_to_dict(dp)
+
+    def create(self, user_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
+        from app.models import User
+        # Check if profile already exists
+        existing = self.db.get(DatingProfile, user_id)
+        if existing:
+            raise ValueError("Dating profile already exists for this user")
+        
+        dp = DatingProfile(user_id=user_id, **data)
+        self.db.add(dp)
+        self.db.commit()
+        self.db.refresh(dp)
+        return _dp_to_dict(dp)
+
+    def update(self, user_id: int, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        from app.models import User
+        dp = self.db.get(DatingProfile, user_id)
+        if dp is None:
+            return None
+        for key, value in data.items():
+            if hasattr(dp, key) and value is not None:
+                setattr(dp, key, value)
+        self.db.commit()
+        self.db.refresh(dp)
+        return _dp_to_dict(dp)
+
+    def delete(self, user_id: int) -> bool:
+        from app.models import User
+        dp = self.db.get(DatingProfile, user_id)
+        if dp is None:
+            return False
+        self.db.delete(dp)
+        self.db.commit()
+        return True
+
+
+def _dp_to_dict(dp: DatingProfile) -> Dict[str, Any]:
+    """Convert DatingProfile to dict for DatingML compatibility."""
+    profile: Dict[str, Any] = {}
+    profile["id"] = dp.id
+    profile["user_id"] = dp.user_id
+    profile["date_of_birth"] = dp.date_of_birth
+    profile["sex"] = dp.sex
+    profile["orientation"] = dp.orientation
+    profile["full_name"] = dp.full_name
+    profile["bio"] = dp.bio
+    profile["education"] = dp.education
+    profile["job"] = dp.job
+    profile["religion"] = dp.religion
+    profile["ethnicity"] = dp.ethnicity
+    profile["drinks"] = dp.drinks
+    profile["drugs"] = dp.drugs
+    profile["smokes"] = dp.smokes
+    profile["diet"] = dp.diet
+    profile["offspring"] = dp.offspring
+    profile["pets"] = dp.pets
+    profile["height"] = dp.height
+    profile["body_type"] = dp.body_type
+    profile["city"] = dp.city
+    profile["state"] = dp.state
+    profile["country"] = dp.country
+    profile["match_era_preference"] = dp.match_era_preference
+    profile["target_gender_preference"] = dp.target_gender_preference
+    profile["behavioral_personalization_enabled"] = dp.behavioral_personalization_enabled
+    profile["is_face_verified"] = dp.is_face_verified
+    profile["is_id_verified"] = dp.is_id_verified
+    profile["verification_status"] = dp.verification_status
+    profile["profile_completion_pct"] = dp.profile_completion_pct
+    profile["is_profile_public"] = dp.is_profile_public
+    profile["created_at"] = dp.created_at.isoformat() if dp.created_at else None
+    profile["updated_at"] = dp.updated_at.isoformat() if dp.updated_at else None
+    return profile
+
+
+class CsvRecommendationRepository(InMemoryRecommendationRepository):
+    """Profiles from a CSV (like CsvProfileRepository) + optional interactions CSV
+    (columns: user_id, candidate_id, action, timestamp[, session_id, source]).
+    """
+
+
 class CsvRecommendationRepository(InMemoryRecommendationRepository):
     """Profiles from a CSV (like CsvProfileRepository) + optional interactions CSV
     (columns: user_id, candidate_id, action, timestamp[, session_id, source])."""

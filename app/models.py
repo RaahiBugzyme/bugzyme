@@ -44,6 +44,13 @@ class User(Base):
         nullable=False
     )
 
+    phone_number = Column(
+        String(20),
+        unique=True,
+        index=True,
+        nullable=True
+    )
+
     hashed_password = Column(
         String,
         nullable=False
@@ -81,6 +88,16 @@ class User(Base):
     ai_memory_enabled = Column(Boolean, nullable=False, default=False, server_default=text("false"))
     ai_memory_processed_through_message_id = Column(Integer, nullable=True)
 
+    # Email verification
+    email_verified = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+
+    # Push notification token
+    push_token = Column(String(500), nullable=True)
+
+    # Account deactivation
+    is_deactivated = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    deactivated_at = Column(DateTime, nullable=True)
+
     chats_as_user1 = relationship(
         "Chat",
         foreign_keys="Chat.user1_id",
@@ -97,6 +114,13 @@ class User(Base):
         "Message",
         foreign_keys="Message.sender_id",
         back_populates="sender",
+    )
+
+    # -----------------------------------------------------------------
+    #  One‑to‑one dating profile – added inside the User class body
+    # -----------------------------------------------------------------
+    dating_profile = relationship(
+        "DatingProfile", back_populates="user", uselist=False
     )
 
 
@@ -550,4 +574,163 @@ class Interaction(Base):
     receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     interaction_type = Column(String(20), nullable=False)
     # Valid types: LIKE, PASS, SUPER_LIKE
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+# -----------------------------------------------------------------
+#  DatingProfile – one‑to‑one with User, stores all dating‑specific data
+# -----------------------------------------------------------------
+class DatingProfile(Base):
+    __tablename__ = "dating_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+
+    date_of_birth = Column(String, nullable=True)          # ISO date string
+    sex = Column(String(20), nullable=False)               # m | f | nonbinary | other | prefer_not_to_say
+    orientation = Column(String(20), nullable=False)       # straight | gay | bisexual
+    full_name = Column(String(80), nullable=True)
+    bio = Column(Text, nullable=True)
+
+    # Career & education
+    education = Column(String(120), nullable=True)
+    job = Column(String(120), nullable=True)
+
+    # Values & culture
+    religion = Column(String(80), nullable=True)
+    ethnicity = Column(String(80), nullable=True)
+
+    # Lifestyle
+    drinks = Column(String(50), nullable=True)
+    drugs = Column(String(50), nullable=True)
+    smokes = Column(String(50), nullable=True)
+    diet = Column(String(50), nullable=True)
+
+    # Family
+    offspring = Column(String(80), nullable=True)
+    pets = Column(String(80), nullable=True)
+
+    # Physical attributes
+    height = Column(Float, nullable=True)                 # inches
+    body_type = Column(String(50), nullable=True)
+
+    # Location
+    city = Column(String(100), nullable=True)
+    state = Column(String(100), nullable=True)
+    country = Column(String(100), nullable=True)
+
+    # Preference fields
+    match_era_preference = Column(String(20), nullable=True)     # genz | zillenial | millennial
+    target_gender_preference = Column(String(20), nullable=True) # male | female | …
+
+    behavioral_personalization_enabled = Column(Boolean, default=False)
+
+    # Verification flags
+    is_face_verified = Column(Boolean, default=False)
+    is_id_verified = Column(Boolean, default=False)
+    verification_status = Column(String(20), nullable=False)   # unverified|pending|verified|rejected
+
+    profile_completion_pct = Column(Integer, default=0)
+    is_profile_public = Column(Boolean, default=False)
+
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=True, onupdate=datetime.utcnow)
+
+    # bi‑directional relationship to User
+    user = relationship("User", back_populates="dating_profile", uselist=False)
+
+    # one‑to‑many photos
+    photos = relationship("ProfilePhoto", order_by="ProfilePhoto.display_order", back_populates="profile")
+
+
+# -----------------------------------------------------------------
+#  ProfilePhoto – stores photo metadata (ownership + ordering)
+# -----------------------------------------------------------------
+class ProfilePhoto(Base):
+    __tablename__ = "profile_photos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    photo_url = Column(String, nullable=False)      # UUID‑based key or CDN URL
+    is_primary = Column(Boolean, default=False)
+    display_order = Column(Integer, default=0)
+
+    dating_profile_id = Column(Integer, ForeignKey("dating_profiles.id", ondelete="CASCADE"), nullable=True)
+    profile = relationship("DatingProfile", back_populates="photos")
+
+
+# -----------------------------------------------------------------
+#  Match – created on mutual like / superlike
+# -----------------------------------------------------------------
+class Match(Base):
+    __tablename__ = "matches"
+
+    id = Column(Integer, primary_key=True, index=True)
+    chat_id = Column(Integer, ForeignKey("chats.id", ondelete="SET NULL"), nullable=True)
+    user_a_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_b_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    matched_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    status = Column(String(20), nullable=False, default="active")   # active | unmatched | blocked
+    compatibility_score = Column(Integer, nullable=True)
+    compatibility_score_status = Column(String(30), nullable=True)   # e.g. "legacy_placeholder"
+
+
+# -----------------------------------------------------------------
+#  VerificationRecord – face / id verification tracking
+# -----------------------------------------------------------------
+class VerificationRecord(Base):
+    __tablename__ = "verification_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    verification_type = Column(String(10), nullable=False)   # "face" | "id"
+    status = Column(String(20), nullable=False)              # pending | passed | failed | cancelled
+    reviewed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    attempt_count = Column(Integer, nullable=False, default=0)
+
+
+# -----------------------------------------------------------------
+#  Block – user blocks another user
+# -----------------------------------------------------------------
+class Block(Base):
+    __tablename__ = "blocks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    blocker_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    blocked_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    __table_args__ = (
+        Index("ix_blocks_blocker_blocked", "blocker_id", "blocked_id", unique=True),
+    )
+
+
+# -----------------------------------------------------------------
+#  Report – user reports another user or content
+# -----------------------------------------------------------------
+class Report(Base):
+    __tablename__ = "reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    reporter_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    reported_user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    reported_message_id = Column(Integer, ForeignKey("messages.id", ondelete="SET NULL"), nullable=True)
+    reason = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    status = Column(String(20), nullable=False, default="open")   # open | reviewed | dismissed | actioned
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    reviewed_at = Column(DateTime, nullable=True)
+    reviewed_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+
+
+# -----------------------------------------------------------------
+#  EmailVerificationToken – email verification flow
+# -----------------------------------------------------------------
+class EmailVerificationToken(Base):
+    __tablename__ = "email_verification_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    token = Column(String(128), unique=True, index=True, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, nullable=False, default=False, server_default=text("false"))
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
