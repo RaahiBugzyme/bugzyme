@@ -3203,7 +3203,11 @@ async def create_profile(
     """Create a new dating profile."""
     from app.models import DatingProfile
 
-    existing = db.get(DatingProfile, current_user.id)
+    existing = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
 
     # Get valid column names for DatingProfile model
     valid_columns = {
@@ -3269,7 +3273,11 @@ async def update_profile(
     """Update the authenticated user's dating profile."""
     from app.models import DatingProfile
 
-    profile = db.get(DatingProfile, current_user.id)
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
 
     if not profile:
         raise HTTPException(
@@ -3319,7 +3327,11 @@ async def update_my_profile(
     """Partially update the authenticated user's dating profile."""
     from app.models import DatingProfile
 
-    profile = db.get(DatingProfile, current_user.id)
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
 
     if not profile:
         raise HTTPException(
