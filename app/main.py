@@ -3264,6 +3264,16 @@ async def create_profile(
     return profile
 
 
+@app.post("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
+async def create_profile_me(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create or update profile via POST /api/v1/profile/me."""
+    return await create_profile(profile_data, current_user, db)
+
+
 @app.put("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
 async def update_profile(
     profile_data: dict,
