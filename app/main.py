@@ -3183,7 +3183,11 @@ async def get_my_profile(
     """Get the authenticated user's dating profile."""
     from app.models import DatingProfile
 
-    profile = db.get(DatingProfile, current_user.id)
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
 
     if not profile:
         raise HTTPException(

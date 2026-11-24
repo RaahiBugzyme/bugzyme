@@ -183,8 +183,8 @@ class DatingProfileSchema(BaseModel):
     id: int
     user_id: int
     date_of_birth: str | None = None
-    sex: str
-    orientation: str
+    sex: str | None = None
+    orientation: str | None = None
     full_name: str | None = None
     bio: str | None = None
     education: str | None = None
@@ -196,7 +196,7 @@ class DatingProfileSchema(BaseModel):
     smokes: str | None = None
     diet: str | None = None
     offspring: str | None = None
-    pets: str | None = None  # will be set separately
+    pets: str | None = None
     height: float | None = None
     body_type: str | None = None
     city: str | None = None
@@ -205,9 +205,9 @@ class DatingProfileSchema(BaseModel):
     match_era_preference: str | None = None
     target_gender_preference: str | None = None
     behavioral_personalization_enabled: bool = False
-    is_face_verified: bool
-    is_id_verified: bool
-    verification_status: str  # unverified|pending|verified|rejected
+    is_face_verified: bool = False
+    is_id_verified: bool = False
+    verification_status: str = "unverified"
 
     profile_completion_pct: int
     is_profile_public: bool
