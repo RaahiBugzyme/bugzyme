@@ -3196,7 +3196,7 @@ async def get_my_profile(
 
 @app.post("/api/v1/profile", response_model=schemas.DatingProfileSchema)
 async def create_profile(
-    profile_data: schemas.DatingProfileInput,
+    profile_data: dict,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -3211,9 +3211,35 @@ async def create_profile(
             detail="Dating profile already exists",
         )
 
+    # Get valid column names for DatingProfile model
+    valid_columns = {
+        c.name for c in DatingProfile.__table__.columns
+    }
+
+    # Map frontend field names to DB column names
+    data = {}
+    for key, value in (profile_data or {}).items():
+        if key == "gender":
+            key = "sex"
+        elif key == "sexual_orientation":
+            key = "orientation"
+        elif key == "era":
+            key = "match_era_preference"
+        elif key == "profession":
+            key = "job"
+        elif key == "relationship_intentions":
+            key = "target_gender_preference"
+        if key in valid_columns:
+            data[key] = value
+
+    # Set defaults for NOT NULL columns that frontend may not send
+    data.setdefault("sex", "prefer_not_to_say")
+    data.setdefault("orientation", "straight")
+    data.setdefault("verification_status", "unverified")
+
     profile = DatingProfile(
         user_id=current_user.id,
-        **profile_data.model_dump(exclude_unset=True),
+        **data,
     )
 
     try:
@@ -3229,7 +3255,7 @@ async def create_profile(
 
 @app.put("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
 async def update_profile(
-    profile_data: schemas.DatingProfileInput,
+    profile_data: dict,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -3244,7 +3270,24 @@ async def update_profile(
             detail="Dating profile not found",
         )
 
-    update_data = profile_data.model_dump(exclude_unset=True)
+    valid_columns = {
+        c.name for c in DatingProfile.__table__.columns
+    }
+
+    update_data = {}
+    for key, value in (profile_data or {}).items():
+        if key == "gender":
+            key = "sex"
+        elif key == "sexual_orientation":
+            key = "orientation"
+        elif key == "era":
+            key = "match_era_preference"
+        elif key == "profession":
+            key = "job"
+        elif key == "relationship_intentions":
+            key = "target_gender_preference"
+        if key in valid_columns:
+            update_data[key] = value
 
     for key, value in update_data.items():
         if hasattr(profile, key):
@@ -3253,16 +3296,16 @@ async def update_profile(
     try:
         db.commit()
         db.refresh(profile)
-    except Exception:
+    except Exception as e:
         db.rollback()
-        raise
+        raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
 
     return profile
 
 
 @app.patch("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
 async def update_my_profile(
-    profile_data: schemas.DatingProfileInput,
+    profile_data: dict,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -3277,7 +3320,24 @@ async def update_my_profile(
             detail="Dating profile not found",
         )
 
-    update_data = profile_data.model_dump(exclude_unset=True)
+    valid_columns = {
+        c.name for c in DatingProfile.__table__.columns
+    }
+
+    update_data = {}
+    for key, value in (profile_data or {}).items():
+        if key == "gender":
+            key = "sex"
+        elif key == "sexual_orientation":
+            key = "orientation"
+        elif key == "era":
+            key = "match_era_preference"
+        elif key == "profession":
+            key = "job"
+        elif key == "relationship_intentions":
+            key = "target_gender_preference"
+        if key in valid_columns:
+            update_data[key] = value
 
     for key, value in update_data.items():
         if hasattr(profile, key):
@@ -3286,9 +3346,9 @@ async def update_my_profile(
     try:
         db.commit()
         db.refresh(profile)
-    except Exception:
+    except Exception as e:
         db.rollback()
-        raise
+        raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
 
     return profile
 
