@@ -3205,12 +3205,6 @@ async def create_profile(
 
     existing = db.get(DatingProfile, current_user.id)
 
-    if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Dating profile already exists",
-        )
-
     # Get valid column names for DatingProfile model
     valid_columns = {
         c.name for c in DatingProfile.__table__.columns
@@ -3236,6 +3230,19 @@ async def create_profile(
     data.setdefault("sex", "prefer_not_to_say")
     data.setdefault("orientation", "straight")
     data.setdefault("verification_status", "unverified")
+
+    if existing:
+        # Upsert: update existing profile instead of failing
+        for key, value in data.items():
+            if hasattr(existing, key):
+                setattr(existing, key, value)
+        try:
+            db.commit()
+            db.refresh(existing)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
+        return existing
 
     profile = DatingProfile(
         user_id=current_user.id,
