@@ -3220,9 +3220,9 @@ async def create_profile(
         db.add(profile)
         db.commit()
         db.refresh(profile)
-    except Exception:
+    except Exception as e:
         db.rollback()
-        raise
+        raise HTTPException(status_code=500, detail=f"Profile creation failed: {str(e)}")
 
     return profile
 
