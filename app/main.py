@@ -3175,7 +3175,47 @@ async def explanation(
 # DATING PROFILE APIs
 # ============================================================
 
-@app.get("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
+def _profile_to_dict(profile):
+    """Convert DatingProfile model to plain dict (no Pydantic validation)."""
+    if profile is None:
+        return None
+    return {
+        "id": profile.id,
+        "user_id": profile.user_id,
+        "date_of_birth": profile.date_of_birth,
+        "sex": profile.sex,
+        "orientation": profile.orientation,
+        "full_name": profile.full_name,
+        "bio": profile.bio,
+        "education": profile.education,
+        "job": profile.job,
+        "religion": profile.religion,
+        "ethnicity": profile.ethnicity,
+        "drinks": profile.drinks,
+        "drugs": profile.drugs,
+        "smokes": profile.smokes,
+        "diet": profile.diet,
+        "offspring": profile.offspring,
+        "pets": profile.pets,
+        "height": profile.height,
+        "body_type": profile.body_type,
+        "city": profile.city,
+        "state": profile.state,
+        "country": profile.country,
+        "match_era_preference": profile.match_era_preference,
+        "target_gender_preference": profile.target_gender_preference,
+        "behavioral_personalization_enabled": profile.behavioral_personalization_enabled,
+        "is_face_verified": profile.is_face_verified,
+        "is_id_verified": profile.is_id_verified,
+        "verification_status": profile.verification_status,
+        "profile_completion_pct": profile.profile_completion_pct,
+        "is_profile_public": profile.is_profile_public,
+        "created_at": profile.created_at.isoformat() if profile.created_at else None,
+        "updated_at": profile.updated_at.isoformat() if profile.updated_at else None,
+    }
+
+
+@app.get("/api/v1/profile/me")
 async def get_my_profile(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -3195,16 +3235,16 @@ async def get_my_profile(
             detail="Dating profile not found",
         )
 
-    return profile
+    return _profile_to_dict(profile)
 
 
-@app.post("/api/v1/profile", response_model=schemas.DatingProfileSchema)
+@app.post("/api/v1/profile")
 async def create_profile(
     profile_data: dict,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Create a new dating profile."""
+    """Create or update dating profile (upsert)."""
     from app.models import DatingProfile
 
     existing = (
@@ -3250,7 +3290,7 @@ async def create_profile(
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
-        return existing
+        return _profile_to_dict(existing)
 
     profile = DatingProfile(
         user_id=current_user.id,
@@ -3265,10 +3305,10 @@ async def create_profile(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Profile creation failed: {str(e)}")
 
-    return profile
+    return _profile_to_dict(profile)
 
 
-@app.post("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
+@app.post("/api/v1/profile/me")
 async def create_profile_me(
     profile_data: dict,
     current_user: models.User = Depends(get_current_user),
@@ -3278,7 +3318,7 @@ async def create_profile_me(
     return await create_profile(profile_data, current_user, db)
 
 
-@app.put("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
+@app.put("/api/v1/profile/me")
 async def update_profile(
     profile_data: dict,
     current_user: models.User = Depends(get_current_user),
@@ -3329,10 +3369,10 @@ async def update_profile(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
 
-    return profile
+    return _profile_to_dict(profile)
 
 
-@app.patch("/api/v1/profile/me", response_model=schemas.DatingProfileSchema)
+@app.patch("/api/v1/profile/me")
 async def update_my_profile(
     profile_data: dict,
     current_user: models.User = Depends(get_current_user),
@@ -3383,7 +3423,7 @@ async def update_my_profile(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
 
-    return profile
+    return _profile_to_dict(profile)
 
 
 # ============================================================
@@ -3424,7 +3464,11 @@ async def upload_profile_photo(
     import os
     import uuid
 
-    profile = db.get(DatingProfile, current_user.id)
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
 
     if not profile:
         raise HTTPException(
