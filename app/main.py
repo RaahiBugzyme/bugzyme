@@ -3456,11 +3456,20 @@ async def list_my_profile_photos(
     db: Session = Depends(get_db),
 ):
     """List the authenticated user's profile photos."""
-    from app.models import ProfilePhoto
+    from app.models import ProfilePhoto, DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        return {"photos": []}
 
     photos = (
         db.query(ProfilePhoto)
-        .filter(ProfilePhoto.profile_id == current_user.id)
+        .filter(ProfilePhoto.dating_profile_id == profile.id)
         .order_by(ProfilePhoto.display_order.asc())
         .all()
     )
@@ -3523,7 +3532,7 @@ async def upload_profile_photo(
         )
 
     extension = allowed_types[file.content_type]
-    filename = f"profile_{current_user.id}_{uuid.uuid4()}{extension}"
+    filename = f"profile_{profile.id}_{uuid.uuid4()}{extension}"
 
     upload_dir = "uploads"
     os.makedirs(upload_dir, exist_ok=True)
@@ -3535,7 +3544,7 @@ async def upload_profile_photo(
             image_file.write(content)
 
         photo = ProfilePhoto(
-            profile_id=current_user.id,
+            dating_profile_id=profile.id,
             photo_url=f"/static/uploads/{filename}",
             is_primary=False,
             display_order=0,
@@ -3563,13 +3572,25 @@ async def delete_profile_photo(
     db: Session = Depends(get_db),
 ):
     """Delete an authenticated user's profile photo."""
-    from app.models import ProfilePhoto
+    from app.models import ProfilePhoto, DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
 
     photo = (
         db.query(ProfilePhoto)
         .filter(
             ProfilePhoto.id == photo_id,
-            ProfilePhoto.profile_id == current_user.id,
+            ProfilePhoto.dating_profile_id == profile.id,
         )
         .first()
     )
