@@ -57,6 +57,13 @@ class UserResponse(UserPublic):
     email: str
 
 
+class UserProfileUpdate(BaseModel):
+    full_name: str | None = Field(default=None, max_length=80)
+    bio: str | None = Field(default=None, max_length=500)
+    ai_memory_enabled: bool | None = None
+    ai_provider_processing_enabled: bool | None = None
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"

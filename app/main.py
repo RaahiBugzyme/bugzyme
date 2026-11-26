@@ -3602,6 +3602,28 @@ class UpdateAIMemoryInput(BaseModel):
     memory_text: str = Field(..., min_length=1)
 
 
+@app.patch("/me", response_model=schemas.UserResponse)
+def update_me_profile(
+    changes: schemas.UserProfileUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    values = changes.model_dump(exclude_unset=True)
+    for field in ("full_name", "bio", "ai_memory_enabled", "ai_provider_processing_enabled"):
+        if field not in values:
+            continue
+        value = values[field]
+        if field in {"ai_memory_enabled", "ai_provider_processing_enabled"}:
+            setattr(current_user, field, bool(value))
+        else:
+            value = value.strip() if isinstance(value, str) else None
+            setattr(current_user, field, value or None)
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
 @app.get("/me/ai-memories")
 async def get_ai_memories(
     current_user: models.User = Depends(get_current_user),
