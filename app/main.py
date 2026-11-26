@@ -942,6 +942,404 @@ async def feed(
     }
 
 
+# ============================================================
+# PROFILE APIs (current user) - MUST BE BEFORE /{user_id} ROUTE
+# ============================================================
+
+
+@app.get("/api/v1/profile/me")
+async def get_my_profile(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get the authenticated user's dating profile."""
+    from app.models import DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
+
+    return _profile_to_dict(profile)
+
+
+@app.post("/api/v1/profile")
+async def create_profile(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create or update dating profile (upsert)."""
+    from app.models import DatingProfile
+
+    existing = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    # Get valid column names for DatingProfile model
+    valid_columns = {
+        c.name for c in DatingProfile.__table__.columns
+    }
+
+    # Map frontend field names to DB column names
+    data = {}
+    for key, value in (profile_data or {}).items():
+        if key == "gender":
+            key = "sex"
+        elif key == "sexual_orientation":
+            key = "orientation"
+        elif key == "era":
+            key = "match_era_preference"
+        elif key == "profession":
+            key = "job"
+        elif key == "relationship_intentions":
+            key = "target_gender_preference"
+        if key in valid_columns:
+            data[key] = value
+
+    # Set defaults for NOT NULL columns that frontend may not send
+    data.setdefault("sex", "prefer_not_to_say")
+    data.setdefault("orientation", "straight")
+    data.setdefault("verification_status", "unverified")
+
+    if existing:
+        # Upsert: update existing profile instead of failing
+        for key, value in data.items():
+            if hasattr(existing, key):
+                setattr(existing, key, value)
+        try:
+            db.commit()
+            db.refresh(existing)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
+        return _profile_to_dict(existing)
+
+    profile = DatingProfile(
+        user_id=current_user.id,
+        **data,
+    )
+
+    try:
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Profile creation failed: {str(e)}")
+
+    return _profile_to_dict(profile)
+
+
+@app.put("/api/v1/profile")
+async def update_profile_root(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update the authenticated user's dating profile via PUT /api/v1/profile."""
+    return await update_profile(profile_data, current_user, db)
+
+
+@app.patch("/api/v1/profile")
+async def update_profile_root_partial(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Partially update the authenticated user's dating profile via PATCH /api/v1/profile."""
+    return await update_my_profile(profile_data, current_user, db)
+
+
+@app.post("/api/v1/profile/me")
+async def create_profile_me(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create or update profile via POST /api/v1/profile/me."""
+    return await create_profile(profile_data, current_user, db)
+
+
+@app.put("/api/v1/profile/me")
+async def update_profile(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update the authenticated user's dating profile."""
+    from app.models import DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
+
+    valid_columns = {
+        c.name for c in DatingProfile.__table__.columns
+    }
+
+    update_data = {}
+    for key, value in (profile_data or {}).items():
+        if key == "gender":
+            key = "sex"
+        elif key == "sexual_orientation":
+            key = "orientation"
+        elif key == "era":
+            key = "match_era_preference"
+        elif key == "profession":
+            key = "job"
+        elif key == "relationship_intentions":
+            key = "target_gender_preference"
+        if key in valid_columns:
+            update_data[key] = value
+
+    for key, value in update_data.items():
+        if hasattr(profile, key):
+            setattr(profile, key, value)
+
+    try:
+        db.commit()
+        db.refresh(profile)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
+
+    return _profile_to_dict(profile)
+
+
+@app.patch("/api/v1/profile/me")
+async def update_my_profile(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Partially update the authenticated user's dating profile."""
+    from app.models import DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
+
+    valid_columns = {
+        c.name for c in DatingProfile.__table__.columns
+    }
+
+    update_data = {}
+    for key, value in (profile_data or {}).items():
+        if key == "gender":
+            key = "sex"
+        elif key == "sexual_orientation":
+            key = "orientation"
+        elif key == "era":
+            key = "match_era_preference"
+        elif key == "profession":
+            key = "job"
+        elif key == "relationship_intentions":
+            key = "target_gender_preference"
+        if key in valid_columns:
+            update_data[key] = value
+
+    for key, value in update_data.items():
+        if hasattr(profile, key):
+            setattr(profile, key, value)
+
+    try:
+        db.commit()
+        db.refresh(profile)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
+
+    return _profile_to_dict(profile)
+
+
+# ============================================================
+# PROFILE PHOTO APIs
+# ============================================================
+
+
+@app.get("/api/v1/profile/me/photos")
+async def list_my_profile_photos(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List the authenticated user's profile photos."""
+    from app.models import ProfilePhoto, DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        return {"photos": []}
+
+    photos = (
+        db.query(ProfilePhoto)
+        .filter(ProfilePhoto.dating_profile_id == profile.id)
+        .order_by(ProfilePhoto.display_order.asc())
+        .all()
+    )
+
+    return {
+        "photos": [
+            schemas.ProfilePhotoSchema.model_validate(photo)
+            for photo in photos
+        ]
+    }
+
+
+@app.post("/api/v1/profile/photos", response_model=schemas.ProfilePhotoSchema)
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload a profile photo."""
+    from app.models import ProfilePhoto, DatingProfile
+    import os
+    import uuid
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
+
+    content = await file.read()
+
+    if not content:
+        raise HTTPException(
+            status_code=400,
+            detail="Empty file",
+        )
+
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(
+            status_code=413,
+            detail="Maximum file size is 10 MB",
+        )
+
+    allowed_types = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+    }
+
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="Only JPEG, PNG and WebP images are allowed",
+        )
+
+    extension = allowed_types[file.content_type]
+    filename = f"profile_{profile.id}_{uuid.uuid4()}{extension}"
+
+    upload_dir = "uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_path = os.path.join(upload_dir, filename)
+
+    try:
+        with open(file_path, "wb") as image_file:
+            image_file.write(content)
+
+        photo = ProfilePhoto(
+            dating_profile_id=profile.id,
+            photo_url=f"/static/uploads/{filename}",
+            is_primary=False,
+            display_order=0,
+        )
+
+        db.add(photo)
+        db.commit()
+        db.refresh(photo)
+
+    except Exception:
+        db.rollback()
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        raise
+
+    return photo
+
+
+@app.delete("/api/v1/profile/photos/{photo_id}")
+async def delete_profile_photo(
+    photo_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Delete an authenticated user's profile photo."""
+    from app.models import ProfilePhoto, DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
+
+    photo = (
+        db.query(ProfilePhoto)
+        .filter(
+            ProfilePhoto.id == photo_id,
+            ProfilePhoto.dating_profile_id == profile.id,
+        )
+        .first()
+    )
+
+    if not photo:
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found",
+        )
+
+    db.delete(photo)
+    db.commit()
+
+    return {"result": "Photo deleted"}
+
+
 @app.get("/api/v1/profile/{user_id}")
 async def public_profile(
     user_id: int,
@@ -3213,399 +3611,6 @@ def _profile_to_dict(profile):
         "created_at": profile.created_at.isoformat() if profile.created_at else None,
         "updated_at": profile.updated_at.isoformat() if profile.updated_at else None,
     }
-
-
-@app.get("/api/v1/profile/me")
-async def get_my_profile(
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Get the authenticated user's dating profile."""
-    from app.models import DatingProfile
-
-    profile = (
-        db.query(DatingProfile)
-        .filter(DatingProfile.user_id == current_user.id)
-        .first()
-    )
-
-    if not profile:
-        raise HTTPException(
-            status_code=404,
-            detail="Dating profile not found",
-        )
-
-    return _profile_to_dict(profile)
-
-
-@app.post("/api/v1/profile")
-async def create_profile(
-    profile_data: dict,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Create or update dating profile (upsert)."""
-    from app.models import DatingProfile
-
-    existing = (
-        db.query(DatingProfile)
-        .filter(DatingProfile.user_id == current_user.id)
-        .first()
-    )
-
-    # Get valid column names for DatingProfile model
-    valid_columns = {
-        c.name for c in DatingProfile.__table__.columns
-    }
-
-    # Map frontend field names to DB column names
-    data = {}
-    for key, value in (profile_data or {}).items():
-        if key == "gender":
-            key = "sex"
-        elif key == "sexual_orientation":
-            key = "orientation"
-        elif key == "era":
-            key = "match_era_preference"
-        elif key == "profession":
-            key = "job"
-        elif key == "relationship_intentions":
-            key = "target_gender_preference"
-        if key in valid_columns:
-            data[key] = value
-
-    # Set defaults for NOT NULL columns that frontend may not send
-    data.setdefault("sex", "prefer_not_to_say")
-    data.setdefault("orientation", "straight")
-    data.setdefault("verification_status", "unverified")
-
-    if existing:
-        # Upsert: update existing profile instead of failing
-        for key, value in data.items():
-            if hasattr(existing, key):
-                setattr(existing, key, value)
-        try:
-            db.commit()
-            db.refresh(existing)
-        except Exception as e:
-            db.rollback()
-            raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
-        return _profile_to_dict(existing)
-
-    profile = DatingProfile(
-        user_id=current_user.id,
-        **data,
-    )
-
-    try:
-        db.add(profile)
-        db.commit()
-        db.refresh(profile)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Profile creation failed: {str(e)}")
-
-    return _profile_to_dict(profile)
-
-
-@app.put("/api/v1/profile")
-async def update_profile_root(
-    profile_data: dict,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Update the authenticated user's dating profile via PUT /api/v1/profile."""
-    return await update_profile(profile_data, current_user, db)
-
-
-@app.patch("/api/v1/profile")
-async def update_profile_root_partial(
-    profile_data: dict,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Partially update the authenticated user's dating profile via PATCH /api/v1/profile."""
-    return await update_my_profile(profile_data, current_user, db)
-
-
-@app.post("/api/v1/profile/me")
-async def create_profile_me(
-    profile_data: dict,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Create or update profile via POST /api/v1/profile/me."""
-    return await create_profile(profile_data, current_user, db)
-
-
-@app.put("/api/v1/profile/me")
-async def update_profile(
-    profile_data: dict,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Update the authenticated user's dating profile."""
-    from app.models import DatingProfile
-
-    profile = (
-        db.query(DatingProfile)
-        .filter(DatingProfile.user_id == current_user.id)
-        .first()
-    )
-
-    if not profile:
-        raise HTTPException(
-            status_code=404,
-            detail="Dating profile not found",
-        )
-
-    valid_columns = {
-        c.name for c in DatingProfile.__table__.columns
-    }
-
-    update_data = {}
-    for key, value in (profile_data or {}).items():
-        if key == "gender":
-            key = "sex"
-        elif key == "sexual_orientation":
-            key = "orientation"
-        elif key == "era":
-            key = "match_era_preference"
-        elif key == "profession":
-            key = "job"
-        elif key == "relationship_intentions":
-            key = "target_gender_preference"
-        if key in valid_columns:
-            update_data[key] = value
-
-    for key, value in update_data.items():
-        if hasattr(profile, key):
-            setattr(profile, key, value)
-
-    try:
-        db.commit()
-        db.refresh(profile)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
-
-    return _profile_to_dict(profile)
-
-
-@app.patch("/api/v1/profile/me")
-async def update_my_profile(
-    profile_data: dict,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Partially update the authenticated user's dating profile."""
-    from app.models import DatingProfile
-
-    profile = (
-        db.query(DatingProfile)
-        .filter(DatingProfile.user_id == current_user.id)
-        .first()
-    )
-
-    if not profile:
-        raise HTTPException(
-            status_code=404,
-            detail="Dating profile not found",
-        )
-
-    valid_columns = {
-        c.name for c in DatingProfile.__table__.columns
-    }
-
-    update_data = {}
-    for key, value in (profile_data or {}).items():
-        if key == "gender":
-            key = "sex"
-        elif key == "sexual_orientation":
-            key = "orientation"
-        elif key == "era":
-            key = "match_era_preference"
-        elif key == "profession":
-            key = "job"
-        elif key == "relationship_intentions":
-            key = "target_gender_preference"
-        if key in valid_columns:
-            update_data[key] = value
-
-    for key, value in update_data.items():
-        if hasattr(profile, key):
-            setattr(profile, key, value)
-
-    try:
-        db.commit()
-        db.refresh(profile)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
-
-    return _profile_to_dict(profile)
-
-
-# ============================================================
-# PROFILE PHOTO APIs
-# ============================================================
-
-@app.get("/api/v1/profile/me/photos")
-async def list_my_profile_photos(
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """List the authenticated user's profile photos."""
-    from app.models import ProfilePhoto, DatingProfile
-
-    profile = (
-        db.query(DatingProfile)
-        .filter(DatingProfile.user_id == current_user.id)
-        .first()
-    )
-
-    if not profile:
-        return {"photos": []}
-
-    photos = (
-        db.query(ProfilePhoto)
-        .filter(ProfilePhoto.dating_profile_id == profile.id)
-        .order_by(ProfilePhoto.display_order.asc())
-        .all()
-    )
-
-    return {
-        "photos": [
-            schemas.ProfilePhotoSchema.model_validate(photo)
-            for photo in photos
-        ]
-    }
-
-
-@app.post("/api/v1/profile/photos", response_model=schemas.ProfilePhotoSchema)
-async def upload_profile_photo(
-    file: UploadFile = File(...),
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Upload a profile photo."""
-    from app.models import ProfilePhoto, DatingProfile
-    import os
-    import uuid
-
-    profile = (
-        db.query(DatingProfile)
-        .filter(DatingProfile.user_id == current_user.id)
-        .first()
-    )
-
-    if not profile:
-        raise HTTPException(
-            status_code=404,
-            detail="Dating profile not found",
-        )
-
-    content = await file.read()
-
-    if not content:
-        raise HTTPException(
-            status_code=400,
-            detail="Empty file",
-        )
-
-    if len(content) > 10 * 1024 * 1024:
-        raise HTTPException(
-            status_code=413,
-            detail="Maximum file size is 10 MB",
-        )
-
-    allowed_types = {
-        "image/jpeg": ".jpg",
-        "image/png": ".png",
-        "image/webp": ".webp",
-    }
-
-    if file.content_type not in allowed_types:
-        raise HTTPException(
-            status_code=400,
-            detail="Only JPEG, PNG and WebP images are allowed",
-        )
-
-    extension = allowed_types[file.content_type]
-    filename = f"profile_{profile.id}_{uuid.uuid4()}{extension}"
-
-    upload_dir = "uploads"
-    os.makedirs(upload_dir, exist_ok=True)
-
-    file_path = os.path.join(upload_dir, filename)
-
-    try:
-        with open(file_path, "wb") as image_file:
-            image_file.write(content)
-
-        photo = ProfilePhoto(
-            dating_profile_id=profile.id,
-            photo_url=f"/static/uploads/{filename}",
-            is_primary=False,
-            display_order=0,
-        )
-
-        db.add(photo)
-        db.commit()
-        db.refresh(photo)
-
-    except Exception:
-        db.rollback()
-
-        if os.path.exists(file_path):
-            os.remove(file_path)
-
-        raise
-
-    return photo
-
-
-@app.delete("/api/v1/profile/photos/{photo_id}")
-async def delete_profile_photo(
-    photo_id: int,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Delete an authenticated user's profile photo."""
-    from app.models import ProfilePhoto, DatingProfile
-
-    profile = (
-        db.query(DatingProfile)
-        .filter(DatingProfile.user_id == current_user.id)
-        .first()
-    )
-
-    if not profile:
-        raise HTTPException(
-            status_code=404,
-            detail="Dating profile not found",
-        )
-
-    photo = (
-        db.query(ProfilePhoto)
-        .filter(
-            ProfilePhoto.id == photo_id,
-            ProfilePhoto.dating_profile_id == profile.id,
-        )
-        .first()
-    )
-
-    if not photo:
-        raise HTTPException(
-            status_code=404,
-            detail="Photo not found",
-        )
-
-    db.delete(photo)
-    db.commit()
-
-    return {"result": "Photo deleted"}
-
 
 # ============================================================
 # DATINGML EXPLANATION RESPONSE
