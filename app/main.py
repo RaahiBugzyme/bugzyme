@@ -3308,6 +3308,26 @@ async def create_profile(
     return _profile_to_dict(profile)
 
 
+@app.put("/api/v1/profile")
+async def update_profile_root(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update the authenticated user's dating profile via PUT /api/v1/profile."""
+    return await update_profile(profile_data, current_user, db)
+
+
+@app.patch("/api/v1/profile")
+async def update_profile_root_partial(
+    profile_data: dict,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Partially update the authenticated user's dating profile via PATCH /api/v1/profile."""
+    return await update_my_profile(profile_data, current_user, db)
+
+
 @app.post("/api/v1/profile/me")
 async def create_profile_me(
     profile_data: dict,
