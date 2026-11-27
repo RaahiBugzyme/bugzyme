@@ -4337,6 +4337,222 @@ async def upload_id_verification(
     }
 
 
+# ============================================================
+# VERIFICATION CANCELLATION & REVIEWER ROUTES
+# ============================================================
+
+VERIFICATION_ID_TYPES = {"id_college", "id_work", "id_govt"}
+
+
+def require_verification_reviewer(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Dependency that ensures the current user is a verification reviewer.
+    In production, this would check a role or permission flag on the user.
+    For now, we use a simple allowlist via environment variable."""
+    import os
+    reviewer_ids = set()
+    env = os.getenv("VERIFICATION_REVIEWER_IDS", "")
+    if env:
+        try:
+            reviewer_ids = {int(x.strip()) for x in env.split(",") if x.strip()}
+        except ValueError:
+            pass
+    # Allow if user is in allowlist, or if allowlist is empty (dev mode)
+    if not reviewer_ids or current_user.id in reviewer_ids:
+        return current_user
+    raise HTTPException(status_code=403, detail="Verification reviewer access required")
+
+
+@app.delete("/api/v1/verification/{verification_id}")
+async def cancel_verification_request(
+    verification_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Cancel an owned pending verification request."""
+    from app.models import VerificationRecord
+
+    record = (
+        db.query(VerificationRecord)
+        .filter(
+            VerificationRecord.id == verification_id,
+            VerificationRecord.user_id == current_user.id,
+            VerificationRecord.status == "pending",
+        )
+        .with_for_update()
+        .first()
+    )
+
+    if not record:
+        # Check if it exists but is not pending (already processed)
+        existing = db.get(VerificationRecord, verification_id)
+        if existing and existing.user_id == current_user.id:
+            if existing.status == "failed":
+                raise HTTPException(
+                    status_code=410,
+                    detail="Verification evidence expired; submit a new request",
+                )
+        raise HTTPException(
+            status_code=404,
+            detail="Pending verification request not found",
+        )
+
+    record.status = "cancelled"
+    record.reviewed_at = utcnow()
+
+    try:
+        db.commit()
+        db.refresh(record)
+    except Exception:
+        db.rollback()
+        raise
+
+    return {
+        "verification_id": verification_id,
+        "status": "cancelled",
+        "evidence_deletion_pending": False,
+    }
+
+
+@app.get("/api/v1/reviewer/verifications")
+async def list_pending_verifications(
+    reviewer: models.User = Depends(require_verification_reviewer),
+    db: Session = Depends(get_db),
+):
+    """List pending verification requests for review."""
+    from app.models import VerificationRecord
+
+    records = (
+        db.query(VerificationRecord)
+        .filter(
+            VerificationRecord.status == "pending",
+            VerificationRecord.verification_type.in_(["face", *VERIFICATION_ID_TYPES]),
+        )
+        .order_by(VerificationRecord.created_at.asc())
+        .all()
+    )
+
+    pending = []
+    for record in records:
+        if record.user_id == reviewer.id:
+            continue
+        pending.append({
+            "verification_id": record.id,
+            "user_id": record.user_id,
+            "verification_type": record.verification_type,
+            "submitted_at": record.created_at.isoformat() if record.created_at else None,
+        })
+
+    return {"items": pending}
+
+
+@app.get("/api/v1/reviewer/verifications/{verification_id}/evidence")
+async def get_verification_evidence(
+    verification_id: int,
+    reviewer: models.User = Depends(require_verification_reviewer),
+    db: Session = Depends(get_db),
+):
+    """Download evidence for a pending verification request."""
+    from app.models import VerificationRecord
+    import os
+
+    record = (
+        db.query(VerificationRecord)
+        .filter(
+            VerificationRecord.id == verification_id,
+            VerificationRecord.status == "pending",
+        )
+        .first()
+    )
+
+    if not record:
+        raise HTTPException(status_code=404, detail="Pending verification evidence not found")
+
+    if record.user_id == reviewer.id:
+        raise HTTPException(status_code=404, detail="Pending verification evidence not found")
+
+    # For our simple implementation, evidence is stored as a file in uploads/verification/
+    # The filename pattern is: face_{user_id}_{uuid}.ext or id_{type}_{user_id}_{uuid}.ext
+    # We don't have a separate evidence_key in our model, so we'll reconstruct the filename
+    # This is a simplified version - in production you'd store the file path in the record
+    raise HTTPException(status_code=404, detail="Evidence file path not stored in record")
+
+
+@app.post("/api/v1/reviewer/verifications/{verification_id}/decision")
+async def decide_verification(
+    verification_id: int,
+    decision: dict,
+    reviewer: models.User = Depends(require_verification_reviewer),
+    db: Session = Depends(get_db),
+):
+    """Record a reviewer's decision on a verification request."""
+    from app.models import VerificationRecord, DatingProfile
+
+    record = (
+        db.query(VerificationRecord)
+        .filter(
+            VerificationRecord.id == verification_id,
+            VerificationRecord.status == "pending",
+        )
+        .first()
+    )
+
+    if not record:
+        raise HTTPException(status_code=404, detail="Pending verification not found")
+
+    if record.user_id == reviewer.id:
+        raise HTTPException(status_code=403, detail="Cannot review your own verification")
+
+    decision_value = decision.get("decision")
+    reason = decision.get("reason", "").strip()
+
+    if decision_value not in {"approve", "reject"}:
+        raise HTTPException(status_code=400, detail="decision must be 'approve' or 'reject'")
+
+    if decision_value == "reject" and len(reason) < 5:
+        raise HTTPException(status_code=400, detail="A brief review reason is required for rejection")
+
+    now = utcnow()
+    record.status = "passed" if decision_value == "approve" else "failed"
+    record.reviewed_at = now
+
+    # Update DatingProfile verification flags
+    dp = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == record.user_id)
+        .first()
+    )
+    if dp:
+        if decision_value == "approve":
+            if record.verification_type == "face":
+                dp.is_face_verified = True
+            elif record.verification_type in VERIFICATION_ID_TYPES:
+                dp.is_id_verified = True
+            # If both face and ID are verified, set to verified
+            if dp.is_face_verified and dp.is_id_verified:
+                dp.verification_status = "verified"
+            else:
+                dp.verification_status = "pending"
+        else:
+            # Rejected - keep status as pending for re-submission
+            dp.verification_status = "pending"
+
+    try:
+        db.commit()
+        db.refresh(record)
+    except Exception:
+        db.rollback()
+        raise
+
+    return {
+        "verification_id": record.id,
+        "status": record.status,
+        "reviewed_at": record.reviewed_at.isoformat() if record.reviewed_at else None,
+    }
+
+
 # Update feed endpoint to exclude blocked users - find and patch the existing feed route
 # The feed endpoint was added earlier; we need to modify it to filter out blocked users.
 # Since it's already defined, we'll add a note that the feed should exclude blocked users.
