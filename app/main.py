@@ -3971,7 +3971,7 @@ async def set_push_token(
     return {"push_token": token, "saved": True}
 
 
-@app.delete("/api/v1/me/deactivate")
+@ app.delete("/api/v1/me/deactivate")
 async def deactivate_account(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -3984,6 +3984,221 @@ async def deactivate_account(
     return {
         "deactivated": True,
         "deactivated_at": current_user.deactivated_at.isoformat() if current_user.deactivated_at else None,
+    }
+
+
+# ============================================================
+# VERIFICATION APIs
+# ============================================================
+
+@app.get("/api/v1/verification/status")
+async def verification_status(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get verification status for the authenticated user."""
+    from app.models import VerificationRecord, DatingProfile
+
+    records = (
+        db.query(VerificationRecord)
+        .filter(VerificationRecord.user_id == current_user.id)
+        .all()
+    )
+
+    is_face = any(r.verification_type == "face" for r in records)
+    is_id = any(r.verification_type == "id" for r in records)
+
+    current_status: str | None = None
+    if records:
+        # Use the most recent record's status
+        current_status = records[0].status
+
+    # Also check DatingProfile for verification flags
+    dp = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+    if dp:
+        is_face = is_face or bool(dp.is_face_verified)
+        is_id = is_id or bool(dp.is_id_verified)
+        if dp.verification_status:
+            current_status = dp.verification_status
+
+    return {
+        "verifications": [
+            {
+                "id": r.id,
+                "user_id": r.user_id,
+                "verification_type": r.verification_type,
+                "status": r.status,
+                "reviewed_at": r.reviewed_at.isoformat() if r.reviewed_at else None,
+                "attempt_count": r.attempt_count,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            }
+            for r in records
+        ],
+        "current_status": current_status,
+        "is_face_verified": is_face,
+        "is_id_verified": is_id,
+        "verification_available": True,
+    }
+
+
+@app.post("/api/v1/verification/face", status_code=202)
+async def upload_face_verification(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload a face verification photo."""
+    from app.models import VerificationRecord, DatingProfile
+    import os
+    import uuid
+
+    # Validate file
+    if not file.content_type or file.content_type not in {"image/jpeg", "image/png", "image/webp"}:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG and WebP images are allowed")
+
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Empty file")
+
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Maximum file size is 10 MB")
+
+    # Save file
+    upload_dir = "uploads/verification"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    extension = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}[file.content_type]
+    filename = f"face_{current_user.id}_{uuid.uuid4()}{extension}"
+    file_path = os.path.join(upload_dir, filename)
+
+    try:
+        with open(file_path, "wb") as f:
+            f.write(content)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to save file")
+
+    # Create verification record
+    rec = VerificationRecord(
+        user_id=current_user.id,
+        verification_type="face",
+        status="pending",
+        reviewed_at=None,
+        attempt_count=1,
+        created_at=utcnow(),
+    )
+    db.add(rec)
+
+    # Update DatingProfile verification_status to pending
+    dp = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+    if dp:
+        dp.verification_status = "pending"
+
+    try:
+        db.commit()
+        db.refresh(rec)
+    except Exception:
+        db.rollback()
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise
+
+    return {
+        "verification_id": rec.id,
+        "verification_type": "face",
+        "status": "pending",
+        "submitted_at": rec.created_at.isoformat() + "Z",
+    }
+
+
+@app.post("/api/v1/verification/id", status_code=202)
+async def upload_id_verification(
+    file: UploadFile = File(...),
+    id_type: str = Form(...),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload an ID verification document."""
+    from app.models import VerificationRecord, DatingProfile
+    import os
+    import uuid
+
+    # Validate id_type
+    if id_type not in {"id_college", "id_work", "id_govt"}:
+        raise HTTPException(status_code=400, detail="Invalid id_type. Must be one of: id_college, id_work, id_govt")
+
+    # Validate file - allow images and PDFs
+    allowed_types = {"image/jpeg", "image/png", "image/webp", "application/pdf"}
+    if not file.content_type or file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP images and PDF documents are allowed")
+
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Empty file")
+
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Maximum file size is 10 MB")
+
+    # Save file
+    upload_dir = "uploads/verification"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    extension = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+        "application/pdf": ".pdf",
+    }[file.content_type]
+    filename = f"id_{id_type}_{current_user.id}_{uuid.uuid4()}{extension}"
+    file_path = os.path.join(upload_dir, filename)
+
+    try:
+        with open(file_path, "wb") as f:
+            f.write(content)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to save file")
+
+    # Create verification record
+    rec = VerificationRecord(
+        user_id=current_user.id,
+        verification_type=id_type,
+        status="pending",
+        reviewed_at=None,
+        attempt_count=1,
+        created_at=utcnow(),
+    )
+    db.add(rec)
+
+    # Update DatingProfile verification_status to pending
+    dp = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+    if dp:
+        dp.verification_status = "pending"
+
+    try:
+        db.commit()
+        db.refresh(rec)
+    except Exception:
+        db.rollback()
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise
+
+    return {
+        "verification_id": rec.id,
+        "verification_type": id_type,
+        "status": "pending",
+        "submitted_at": rec.created_at.isoformat() + "Z",
     }
 
 
