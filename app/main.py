@@ -1340,6 +1340,141 @@ async def delete_profile_photo(
     return {"result": "Photo deleted"}
 
 
+@app.put("/api/v1/profile/photos/{photo_id}/primary")
+async def set_primary_profile_photo(
+    photo_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Set a photo as the primary profile picture."""
+    from app.models import ProfilePhoto, DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
+
+    target_photo = (
+        db.query(ProfilePhoto)
+        .filter(
+            ProfilePhoto.id == photo_id,
+            ProfilePhoto.dating_profile_id == profile.id,
+        )
+        .first()
+    )
+
+    if not target_photo:
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found or access denied",
+        )
+
+    all_photos = (
+        db.query(ProfilePhoto)
+        .filter(ProfilePhoto.dating_profile_id == profile.id)
+        .order_by(ProfilePhoto.display_order)
+        .all()
+    )
+
+    target_photo.is_primary = True
+    target_photo.display_order = 1
+
+    current_order = 2
+    for p in all_photos:
+        if p.id != target_photo.id:
+            p.is_primary = False
+            p.display_order = current_order
+            current_order += 1
+
+    db.commit()
+    db.refresh(target_photo)
+
+    return {
+        "id": target_photo.id,
+        "photo_url": target_photo.photo_url,
+        "is_primary": target_photo.is_primary,
+        "display_order": target_photo.display_order,
+    }
+
+
+@app.put("/api/v1/profile/photos/reorder")
+async def reorder_profile_photos(
+    payload: schemas.ProfilePhotosReorderRequest,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reorder profile photos."""
+    from app.models import ProfilePhoto, DatingProfile
+
+    profile = (
+        db.query(DatingProfile)
+        .filter(DatingProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Dating profile not found",
+        )
+
+    photo_ids = payload.photo_ids
+    if not photo_ids:
+        raise HTTPException(
+            status_code=400,
+            detail="photo_ids list cannot be empty",
+        )
+
+    # Verify all photos belong to this profile
+    photos = (
+        db.query(ProfilePhoto)
+        .filter(
+            ProfilePhoto.id.in_(photo_ids),
+            ProfilePhoto.dating_profile_id == profile.id,
+        )
+        .all()
+    )
+
+    if len(photos) != len(photo_ids):
+        raise HTTPException(
+            status_code=404,
+            detail="One or more photos not found or access denied",
+        )
+
+    # Update display_order and is_primary
+    for idx, photo_id in enumerate(photo_ids):
+        photo = next(p for p in photos if p.id == photo_id)
+        photo.display_order = idx + 1
+        photo.is_primary = (idx == 0)
+
+    db.commit()
+
+    # Return updated photos in new order
+    updated_photos = (
+        db.query(ProfilePhoto)
+        .filter(ProfilePhoto.dating_profile_id == profile.id)
+        .order_by(ProfilePhoto.display_order)
+        .all()
+    )
+
+    return [
+        {
+            "id": p.id,
+            "photo_url": p.photo_url,
+            "is_primary": p.is_primary,
+            "display_order": p.display_order,
+        }
+        for p in updated_photos
+    ]
+
+
 @app.get("/api/v1/profile/{user_id}")
 async def public_profile(
     user_id: int,

@@ -252,6 +252,9 @@ class ProfilePhotoSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ProfilePhotosReorderRequest(BaseModel):
+    photo_ids: list[int]
+
 class MatchItemSchema(BaseModel):
     id: int
     chat_id: int | None = None
@@ -432,6 +435,9 @@ class ProfilePhotoSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class ProfilePhotosReorderRequest(BaseModel):
+    photo_ids: list[int]
 
 class MatchItemSchema(BaseModel):
     id: int
